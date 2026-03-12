@@ -1,28 +1,36 @@
 import {
-    Calendar,
-    Droplets,
-    MoreVertical,
-    Sun,
-    ThermometerSun,
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
+} from "@/src/theme/designSystem";
+import { isWateringDue } from "@/src/utils/plantUtils";
+import {
+  Calendar,
+  Droplets,
+  MoreVertical,
+  Sun,
+  ThermometerSun,
 } from "lucide-react-native";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+export interface Plant {
+  id: string;
+  name: string;
+  scientificName: string;
+  image: string;
+  lastWatered: string;
+  nextWatering: string; // formato ISO: "2025-08-20"
+  sunlight: "low" | "medium" | "high";
+  temperature: string;
+  waterFrequency: string;
+  location: "interior" | "exterior";
+  category: string;
+}
+
 interface PlantCardProps {
-  plant: {
-    id: string;
-    name: string;
-    scientificName: string;
-    image: string;
-    lastWatered: string;
-    nextWatering: string;
-    sunlight: "low" | "medium" | "high";
-    temperature: string;
-    waterFrequency: string;
-    location: "interior" | "exterior";
-    category: string;
-  };
-  colors: any;
+  plant: Plant;
+  colors: AppTheme["colors"];
   onPress?: () => void;
   onOptionsPress?: () => void;
 }
@@ -33,7 +41,12 @@ export default function PlantCard({
   onPress,
   onOptionsPress,
 }: PlantCardProps) {
-  // Determinar el nivel de luz solar
+  // CAMBIO 2: integrado al Design System con useProfileTheme
+  const { styles } = useProfileTheme(stylesByMode);
+
+  // CAMBIO 3: detectar urgencia de riego
+  const isUrgent = isWateringDue(plant.nextWatering);
+
   const getSunlightInfo = () => {
     switch (plant.sunlight) {
       case "low":
@@ -55,8 +68,10 @@ export default function PlantCard({
         styles.card,
         {
           backgroundColor: colors.bgSecondary,
-          borderLeftColor:
-            plant.location === "interior"
+          // CAMBIO 3: borde izquierdo naranja cuando el riego está vencido
+          borderLeftColor: isUrgent
+            ? colors.accentOrange
+            : plant.location === "interior"
               ? colors.categories.green.border
               : colors.categories.brown.border,
         },
@@ -141,21 +156,28 @@ export default function PlantCard({
           </View>
         </View>
 
-        {/* Próximo riego */}
         <View
           style={[
             styles.nextWatering,
             {
-              backgroundColor: colors.bgFooter,
-              borderColor: colors.borderFooter,
+              backgroundColor: isUrgent
+                ? colors.accentOrange + "22"
+                : colors.bgFooter,
+              borderColor: isUrgent ? colors.accentOrange : colors.borderFooter,
             },
           ]}
         >
-          <Calendar size={12} color={colors.textTertiary} />
+          <Calendar
+            size={12}
+            color={isUrgent ? colors.accentOrange : colors.textTertiary}
+          />
           <Text
-            style={[styles.nextWateringText, { color: colors.textTertiary }]}
+            style={[
+              styles.nextWateringText,
+              { color: isUrgent ? colors.accentOrange : colors.textTertiary },
+            ]}
           >
-            Próximo riego: {plant.nextWatering}
+            {isUrgent ? "⚠️ " : ""}Próximo riego: {plant.nextWatering}
           </Text>
         </View>
       </View>
@@ -163,94 +185,103 @@ export default function PlantCard({
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flexDirection: "row",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    borderLeftWidth: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  plantImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 8,
-  },
-  plantInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 6,
-  },
-  titleContainer: {
-    flex: 1,
-  },
-  plantName: {
-    fontSize: 15,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  scientificName: {
-    fontSize: 11,
-    fontStyle: "italic",
-  },
-  optionsButton: {
-    padding: 2,
-  },
-  categoryBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-    marginBottom: 10,
-  },
-  categoryText: {
-    fontSize: 9,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-  },
-  statsContainer: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 10,
-  },
-  statItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  statTextContainer: {
-    flexDirection: "column",
-  },
-  statLabel: {
-    fontSize: 9,
-    lineHeight: 10,
-  },
-  statValue: {
-    fontSize: 11,
-    fontWeight: "600",
-    lineHeight: 13,
-  },
-  nextWatering: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    borderWidth: 1,
-  },
-  nextWateringText: {
-    fontSize: 10,
-  },
-});
+///Ahora en vez de crear una hoja de styles como lo hicimos anteriormente,
+//vamos a hacer lo siguiente
+const createStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    card: {
+      flexDirection: "row",
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+      borderLeftWidth: theme.spacing.xs,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    plantImage: {
+      width: theme.imageSize.plants,
+      height: theme.imageSize.plants,
+      borderRadius: theme.radius.xxs * 4,
+    },
+    plantInfo: {
+      flex: 1,
+      marginLeft: theme.spacing.md,
+    },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      marginBottom: theme.spacing.sm,
+    },
+    titleContainer: {
+      flex: 1,
+    },
+    plantName: {
+      fontSize: theme.fontSize.md - 1,
+      fontWeight: "600",
+      marginBottom: theme.spacing.xxs,
+    },
+    scientificName: {
+      fontSize: theme.fontSize.sm - 1,
+      fontStyle: "italic",
+    },
+    optionsButton: {
+      padding: theme.spacing.xxs,
+    },
+    categoryBadge: {
+      alignSelf: "flex-start",
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xxs + 1,
+      borderRadius: theme.spacing.xs,
+      marginBottom: theme.spacing.sm + 2,
+    },
+    categoryText: {
+      fontSize: 9,
+      fontWeight: "600",
+      letterSpacing: 0.5,
+      textTransform: "uppercase",
+    },
+    statsContainer: {
+      flexDirection: "row",
+      gap: theme.spacing.md,
+      marginBottom: theme.spacing.sm + 2,
+    },
+    statItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+    },
+    statTextContainer: {
+      flexDirection: "column",
+    },
+    statLabel: {
+      fontSize: 9,
+      lineHeight: 10,
+    },
+    statValue: {
+      fontSize: 11,
+      fontWeight: "600",
+      lineHeight: 13,
+    },
+    nextWatering: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xs,
+      borderRadius: theme.spacing.xs,
+      borderWidth: 1,
+    },
+    nextWateringText: {
+      fontSize: 10,
+    },
+  });
+
+// Pre-compilar ambos modos para useProfileTheme
+const stylesByMode = {
+  light: createStyles(getAppTheme("light")),
+  dark: createStyles(getAppTheme("dark")),
+};

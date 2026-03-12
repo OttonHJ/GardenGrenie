@@ -39,6 +39,18 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "GardenGrenie necesita la cámara para fotografiar tus plantas"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "GardenGrenie accede a tus fotos para agregar plantas"
+        }
       ]
     ],
     "experiments": {

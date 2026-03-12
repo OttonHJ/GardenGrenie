@@ -51,8 +51,6 @@ export const createUserStyles = (theme: AppTheme) =>
     },
   });
 
-//Vamos a crear un hook, podemos crear una carpeta para estas en la sección de styles
-//O junto a los styles.
 //Creamos un record con ambos styles, modo claro y oscuro
 const stylesByMode = {
   light: createUserStyles(getAppTheme("light")),

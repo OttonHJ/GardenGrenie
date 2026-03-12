@@ -57,6 +57,7 @@ interface ThemeSpacing {
 //Como manejar los border radius
 interface ThemeRadius {
   xxs: number;
+  xs: number;
   sm: number;
   md: number;
   lg: number;
@@ -116,6 +117,7 @@ const sharedSpacing: ThemeSpacing = {
 
 const shareRadius: ThemeRadius = {
   xxs: 2,
+  xs: 4,
   sm: 12,
   md: 18,
   lg: 24,

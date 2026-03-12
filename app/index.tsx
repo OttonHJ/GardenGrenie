@@ -1,124 +1,24 @@
-import { PrivacyToggle } from "@/src/components/PrivacyToggle";
-import { ProfileSummary } from "@/src/components/ProfileSummary";
+import { Home } from "@/src/screens/Home";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import React, { useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function Index() {
-  const [isPublic, setIsPublic] = useState(true);
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
-    <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View>
-          <View style={styles.testCard}>
-            <ProfileSummary />
-            <PrivacyToggle />
-          </View>
-
-          {/* Stats horizontales con líneas divisorias */}
-          <View style={(styles.section, styles.statsContainer)}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>127</Text>
-              <Text style={styles.statLabel}>Plantas</Text>
-              <Text style={styles.statSublabel}>identificadas</Text>
-            </View>
-
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>42</Text>
-              <Text style={styles.statLabel}>Amigos</Text>
-              <Text style={styles.statSublabel}>conectados</Text>
-            </View>
-
-            <View style={styles.statItem}>
-              <Text style={styles.statNumberOrange}>28</Text>
-              <Text style={styles.statLabel}>Días</Text>
-              <Text style={styles.statLabel}>de racha</Text>
-            </View>
-          </View>
-          {/* Stats horizontales con líneas divisorias */}
-
-          {/* Descripción con borde superior */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>SOBRE MÍ</Text>
-            <Text style={styles.description}>
-              Apasionada de la botánica y el cuidado de plantas. Me encanta
-              compartir mis conocimientos y ayudar a otros a mantener sus
-              plantas felices y saludables.
-            </Text>
-          </View>
-          {/* Descripción con borde superior */}
-
-          {/* Planta favorita - layout horizontal */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>PLANTA FAVORITA</Text>
-            <View style={styles.favoritePlant}>
-              <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1648528203163-8604bf696e7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb25zdGVyYSUyMGRlbGljaW9zYSUyMHBsYW50fGVufDF8fHx8MTc3Mjk0Nzk5NXww&ixlib=rb-4.1.0&q=80&w=400",
-                }}
-                style={styles.plantImage}
-              />
-              <View style={styles.plantInfo}>
-                <Text style={styles.plantName}>Monstera Deliciosa</Text>
-                <Text style={styles.plantStats}>86 consultas realizadas</Text>
-                <View style={styles.plantBadge}>
-                  <Text style={styles.plantBadgeText}>
-                    📈 Más consultada del mes
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          {/* Planta favorita - layout horizontal */}
-
-          {/* Categorías en grid */}
-          <View style={styles.sectionLast}>
-            <View style={styles.categoriesHeader}>
-              <Text style={styles.sectionTitle}>🍃 CATEGORÍAS</Text>
-            </View>
-            <View style={styles.categoriesGrid}>
-              <View style={[styles.categoryCard, styles.categoryGreen]}>
-                <Text style={styles.categoryNumber}>34</Text>
-                <Text style={styles.categoryLabel}>Suculentas</Text>
-              </View>
-              <View style={[styles.categoryCard, styles.categoryBrown]}>
-                <Text style={styles.categoryNumber}>28</Text>
-                <Text style={styles.categoryLabel}>Tropicales</Text>
-              </View>
-              <View style={[styles.categoryCard, styles.categoryPink]}>
-                <Text style={styles.categoryNumber}>22</Text>
-                <Text style={styles.categoryLabel}>Aromáticas</Text>
-              </View>
-              <View style={[styles.categoryCard, styles.categoryYellow]}>
-                <Text style={styles.categoryNumber}>18</Text>
-                <Text style={styles.categoryLabel}>Cactáceas</Text>
-              </View>
-            </View>
-          </View>
-          {/* Categorías en grid */}
-
-          {/* Footer con racha */}
-          <View style={styles.footer}>
-            <View style={styles.footerContent}>
-              <Text style={styles.footerText}>
-                🔥 ¡28 días seguidos cuidando tus plantas!
-              </Text>
-            </View>
-          </View>
-          {/* Footer con racha */}
-        </View>
-      </ScrollView>
-    </View>
+    <SafeAreaProvider>
+      <View style={styles.container}>
+        <StatusBar style="light" />
+        <Home />
+      </View>
+    </SafeAreaProvider>
   );
 }
 
@@ -132,189 +32,7 @@ export const createUserStyles = (theme: AppTheme) =>
       justifyContent: "center",
       alignItems: "center",
     },
-    scrollView: {
-      flex: 1,
-    },
-    scrollContent: {
-      paddingHorizontal: theme.spacing.lg,
-      paddingBottom: theme.spacing.xl,
-    },
-    testCard: {
-      alignItems: "center",
-      backgroundColor: theme.colors.bgSecondary,
-      borderWidth: 1,
-      borderColor: theme.colors.borderPrimary,
-      color: "black",
-      borderRadius: theme.radius.xl,
-      marginTop: theme.spacing.xl,
-      marginBottom: theme.spacing.xl,
-    },
-
-    // Stats
-    statsContainer: {
-      flexDirection: "row",
-      justifyContent: "space-around",
-      marginBottom: theme.spacing.xxl,
-      paddingBottom: theme.spacing.xxl,
-      borderBottomWidth: theme.spacing.xs,
-      borderBottomColor: theme.colors.separator,
-    },
-    statItem: {
-      alignItems: "center",
-      flex: 1,
-    },
-    statNumber: {
-      fontSize: theme.fontSize.xl,
-      fontWeight: "700",
-      color: theme.colors.textSecondary,
-    },
-    statNumberOrange: {
-      fontSize: 24,
-      fontWeight: "700",
-      color: theme.colors.accentOrange,
-    },
-    statLabel: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textTertiary,
-      marginTop: theme.spacing.xs,
-    },
-    statSublabel: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textInactive,
-    },
-    statSublabelOrange: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.accentOrange,
-    },
-    divider: {
-      borderBottomWidth: theme.spacing.xxl,
-      borderBottomColor: theme.colors.separator,
-    },
-
-    // Sections
-    section: {
-      marginBottom: theme.spacing.xxl,
-      paddingBottom: theme.spacing.xxl,
-      borderBottomWidth: theme.spacing.xs,
-      borderBottomColor: theme.colors.separator,
-    },
-    sectionLast: {
-      marginBottom: theme.spacing.xxl,
-    },
-    sectionTitle: {
-      fontSize: theme.fontSize.md,
-      color: theme.colors.textPrimary,
-      marginBottom: theme.spacing.md,
-      letterSpacing: 1,
-      fontWeight: "600",
-    },
-    description: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textPrimary,
-      lineHeight: 22,
-    },
-
-    // Favorite Plant
-    favoritePlant: {
-      flexDirection: "row",
-      gap: theme.spacing.lg,
-    },
-    plantImage: {
-      width: theme.imageSize.plants,
-      height: theme.imageSize.plants,
-      borderRadius: theme.radius.sm,
-    },
-    plantInfo: {
-      flex: 1,
-      justifyContent: "center",
-    },
-    plantName: {
-      fontSize: theme.fontSize.md,
-      fontWeight: "600",
-      color: theme.colors.textPrimary,
-    },
-    plantStats: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textTertiary,
-      marginTop: theme.spacing.xs,
-    },
-    plantBadge: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      marginTop: theme.spacing.sm,
-    },
-    plantBadgeText: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textInactive,
-    },
-
-    // Categories
-    categoriesHeader: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.sm,
-      marginBottom: theme.spacing.lg,
-    },
-    categoriesGrid: {
-      flexDirection: "row",
-      flexWrap: "wrap",
-      gap: theme.spacing.sm,
-    },
-    categoryCard: {
-      width: "48%",
-      padding: theme.spacing.md,
-      borderLeftWidth: theme.spacing.xs,
-    },
-    categoryGreen: {
-      backgroundColor: theme.colors.categories.green.bg,
-      borderLeftColor: theme.colors.categories.green.border,
-    },
-    categoryBrown: {
-      backgroundColor: theme.colors.categories.brown.bg,
-      borderLeftColor: theme.colors.categories.brown.border,
-    },
-    categoryPink: {
-      backgroundColor: theme.colors.categories.pink.bg,
-      borderLeftColor: theme.colors.categories.pink.border,
-    },
-    categoryYellow: {
-      backgroundColor: theme.colors.categories.yellow.bg,
-      borderLeftColor: theme.colors.categories.yellow.border,
-    },
-    categoryNumber: {
-      fontSize: theme.fontSize.lg,
-      fontWeight: "700",
-      color: theme.colors.textPrimary,
-    },
-    categoryLabel: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textSecondary,
-      marginTop: 2,
-    },
-
-    // Footer
-    footer: {
-      backgroundColor: theme.colors.bgFooter,
-      padding: theme.spacing.lg,
-      borderTopWidth: theme.spacing.xs,
-      borderTopColor: theme.colors.borderFooter,
-      marginHorizontal: -16,
-    },
-    footerContent: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: theme.spacing.sm,
-    },
-    footerText: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textPrimary,
-    },
   });
-
-//Vamos a crear un hook, podemos crear una carpeta para estas en la sección de styles
-//O junto a los styles.
 
 //Creamos un record con ambos styles, modo claro y oscuro
 const stylesByMode = {

@@ -1,19 +1,21 @@
 import { PrivacyToggle } from "@/src/components/PrivacyToggle";
 import { ProfileSummary } from "@/src/components/ProfileSummary";
+import { SmallBio } from "@/src/components/SmallBio";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import React, { useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function Index() {
-  const [isPublic, setIsPublic] = useState(true);
+export function Home() {
+  const insets = useSafeAreaInsets();
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
-    <View style={styles.container}>
+    <View style={{ paddingBottom: insets.bottom, paddingTop: insets.top }}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -24,7 +26,6 @@ export default function Index() {
             <ProfileSummary />
             <PrivacyToggle />
           </View>
-
           {/* Stats horizontales con líneas divisorias */}
           <View style={(styles.section, styles.statsContainer)}>
             <View style={styles.statItem}>
@@ -32,13 +33,11 @@ export default function Index() {
               <Text style={styles.statLabel}>Plantas</Text>
               <Text style={styles.statSublabel}>identificadas</Text>
             </View>
-
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>42</Text>
               <Text style={styles.statLabel}>Amigos</Text>
               <Text style={styles.statSublabel}>conectados</Text>
             </View>
-
             <View style={styles.statItem}>
               <Text style={styles.statNumberOrange}>28</Text>
               <Text style={styles.statLabel}>Días</Text>
@@ -46,41 +45,6 @@ export default function Index() {
             </View>
           </View>
           {/* Stats horizontales con líneas divisorias */}
-
-          {/* Descripción con borde superior */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>SOBRE MÍ</Text>
-            <Text style={styles.description}>
-              Apasionada de la botánica y el cuidado de plantas. Me encanta
-              compartir mis conocimientos y ayudar a otros a mantener sus
-              plantas felices y saludables.
-            </Text>
-          </View>
-          {/* Descripción con borde superior */}
-
-          {/* Planta favorita - layout horizontal */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>PLANTA FAVORITA</Text>
-            <View style={styles.favoritePlant}>
-              <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1648528203163-8604bf696e7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb25zdGVyYSUyMGRlbGljaW9zYSUyMHBsYW50fGVufDF8fHx8MTc3Mjk0Nzk5NXww&ixlib=rb-4.1.0&q=80&w=400",
-                }}
-                style={styles.plantImage}
-              />
-              <View style={styles.plantInfo}>
-                <Text style={styles.plantName}>Monstera Deliciosa</Text>
-                <Text style={styles.plantStats}>86 consultas realizadas</Text>
-                <View style={styles.plantBadge}>
-                  <Text style={styles.plantBadgeText}>
-                    📈 Más consultada del mes
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          {/* Planta favorita - layout horizontal */}
-
           {/* Categorías en grid */}
           <View style={styles.sectionLast}>
             <View style={styles.categoriesHeader}>
@@ -107,15 +71,7 @@ export default function Index() {
           </View>
           {/* Categorías en grid */}
 
-          {/* Footer con racha */}
-          <View style={styles.footer}>
-            <View style={styles.footerContent}>
-              <Text style={styles.footerText}>
-                🔥 ¡28 días seguidos cuidando tus plantas!
-              </Text>
-            </View>
-          </View>
-          {/* Footer con racha */}
+          <SmallBio />
         </View>
       </ScrollView>
     </View>
@@ -126,12 +82,6 @@ export default function Index() {
 //vamos a hacer lo siguiente
 export const createUserStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.bgPrimary,
-      justifyContent: "center",
-      alignItems: "center",
-    },
     scrollView: {
       flex: 1,
     },
@@ -208,46 +158,6 @@ export const createUserStyles = (theme: AppTheme) =>
       letterSpacing: 1,
       fontWeight: "600",
     },
-    description: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textPrimary,
-      lineHeight: 22,
-    },
-
-    // Favorite Plant
-    favoritePlant: {
-      flexDirection: "row",
-      gap: theme.spacing.lg,
-    },
-    plantImage: {
-      width: theme.imageSize.plants,
-      height: theme.imageSize.plants,
-      borderRadius: theme.radius.sm,
-    },
-    plantInfo: {
-      flex: 1,
-      justifyContent: "center",
-    },
-    plantName: {
-      fontSize: theme.fontSize.md,
-      fontWeight: "600",
-      color: theme.colors.textPrimary,
-    },
-    plantStats: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textTertiary,
-      marginTop: theme.spacing.xs,
-    },
-    plantBadge: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
-      marginTop: theme.spacing.sm,
-    },
-    plantBadgeText: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textInactive,
-    },
 
     // Categories
     categoriesHeader: {
@@ -292,29 +202,7 @@ export const createUserStyles = (theme: AppTheme) =>
       color: theme.colors.textSecondary,
       marginTop: 2,
     },
-
-    // Footer
-    footer: {
-      backgroundColor: theme.colors.bgFooter,
-      padding: theme.spacing.lg,
-      borderTopWidth: theme.spacing.xs,
-      borderTopColor: theme.colors.borderFooter,
-      marginHorizontal: -16,
-    },
-    footerContent: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: theme.spacing.sm,
-    },
-    footerText: {
-      fontSize: theme.fontSize.sm,
-      color: theme.colors.textPrimary,
-    },
   });
-
-//Vamos a crear un hook, podemos crear una carpeta para estas en la sección de styles
-//O junto a los styles.
 
 //Creamos un record con ambos styles, modo claro y oscuro
 const stylesByMode = {

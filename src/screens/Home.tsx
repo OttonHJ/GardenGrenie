@@ -1,17 +1,19 @@
 import { PrivacyToggle } from "@/src/components/PrivacyToggle";
 import { ProfileSummary } from "@/src/components/ProfileSummary";
-import { AppTheme, getAppTheme, useAppTheme } from "@/src/theme/designSystem";
-import { StatusBar } from "expo-status-bar";
+import {
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
+} from "@/src/theme/designSystem";
 import React, { useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
-export function Home() {
+export default function Index() {
   const [isPublic, setIsPublic] = useState(true);
-  const { styles } = useProfileTheme();
+  const { styles } = useProfileTheme(stylesByMode);
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -40,7 +42,7 @@ export function Home() {
             <View style={styles.statItem}>
               <Text style={styles.statNumberOrange}>28</Text>
               <Text style={styles.statLabel}>Días</Text>
-              <Text style={styles.statSublabelOrange}>de racha</Text>
+              <Text style={styles.statLabel}>de racha</Text>
             </View>
           </View>
           {/* Stats horizontales con líneas divisorias */}
@@ -319,10 +321,3 @@ const stylesByMode = {
   light: createUserStyles(getAppTheme("light")),
   dark: createUserStyles(getAppTheme("dark")),
 };
-
-//Segun el tema, exportamos los estilos correctamos y el mismo
-//tema para los que no son estilos
-export function useProfileTheme() {
-  const theme = useAppTheme();
-  return { theme, styles: stylesByMode[theme.mode] };
-}

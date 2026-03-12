@@ -9,11 +9,11 @@ export default function RootLayout() {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="personGarden">
         <Label>Garden</Label>
-        <Icon sf={"house.fill"} drawable="ic_menu_mylocation" />
+        <Icon sf={"leaf.fill"} drawable="ic_menu_mylocation" />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="profileSettings">
         <Label>Profile</Label>
-        <Icon sf={"house.fill"} drawable="ic_menu_mylocation" />
+        <Icon sf={"person.fill"} drawable="ic_menu_mylocation" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

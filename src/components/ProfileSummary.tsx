@@ -16,12 +16,14 @@ export function ProfileSummary() {
         <View style={styles.personalInfoStack}>
           <Text style={styles.name}>María González</Text>
           <Text style={styles.username}>@plantlover</Text>
-          <View style={styles.birthdayInfo}>
-            <Image
-              style={styles.birthdayIcon}
-              source={require("@/assets/icons/cake.png")}
-            />
-            <Text style={styles.bio}>15 de Mayo </Text>
+          <View style={styles.alignContainer}>
+            <View style={styles.rowAlign}>
+              <Image
+                style={styles.iconRight}
+                source={require("@/assets/icons/cake.png")}
+              />
+              <Text style={styles.textInfo}>15 de Mayo </Text>
+            </View>
           </View>
         </View>
       </View>
@@ -34,56 +36,65 @@ export function ProfileSummary() {
 export const createUserStyles = (theme: AppTheme) =>
   StyleSheet.create({
     containerHeader: {
-      alignItems: "center",
-      paddingBottom: 16,
+      alignItems: "baseline",
+      marginBottom: theme.spacing.lg,
       flex: 1,
     },
     containerHeaderStack: {
       alignItems: "center",
-      paddingTop: 24,
+      paddingTop: theme.spacing.xxl,
       flex: 2,
       flexDirection: "row",
     },
-    personalInfoStack: {
-      marginLeft: 20,
-      marginTop: 10,
+    alignContainer: {
+      flex: 1,
       alignItems: "baseline",
-      alignSelf: "flex-start",
+      justifyContent: "space-between",
+      flexDirection: "row",
+      gap: theme.spacing.md,
+    },
+    personalInfoStack: {
+      marginLeft: theme.spacing.xl,
+      marginTop: theme.spacing.md,
+      textAlign: "center",
+      alignContent: "center",
+      justifyContent: "center",
     },
     profileImage: {
-      width: 114,
-      height: 114,
-      borderRadius: 56,
-      borderWidth: 2,
-      borderColor: "#c9e4de",
+      width: theme.imageSize.profile,
+      height: theme.imageSize.profile,
+      borderRadius: theme.radius.full,
+      borderWidth: theme.radius.xxs,
+      borderColor: theme.colors.borderPrivacy,
     },
     name: {
-      marginTop: 12,
-      fontSize: 20,
+      fontSize: theme.fontSize.lg,
       fontWeight: "600",
-      color: "#1a4037",
-      marginBottom: 2,
+      color: theme.colors.textPrimary,
+      marginBottom: theme.spacing.xs,
     },
     username: {
-      fontSize: 14,
-      color: "#5d8679",
-      marginTop: 4,
-      marginBottom: 3,
-    },
-    birthdayInfo: {
-      flexDirection: "row",
-    },
-    birthdayIcon: {
-      width: 25,
-      height: 25,
-      alignSelf: "flex-end",
-      marginRight: 5,
-    },
-    bio: {
       fontSize: theme.fontSize.md,
-      color: "#7a7a7a",
-      marginTop: 8,
+      color: theme.colors.textSecondary,
+      marginTop: theme.spacing.xs,
+      marginBottom: theme.spacing.sm,
+    },
+    rowAlign: {
+      flexDirection: "row",
       textAlign: "center",
+      alignContent: "center",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    iconRight: {
+      width: theme.imageSize.icon,
+      height: theme.imageSize.icon,
+      marginRight: theme.spacing.sm,
+    },
+    textInfo: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textPrimary,
+      marginTop: theme.spacing.xs,
     },
   });
 

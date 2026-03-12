@@ -1,6 +1,6 @@
 import { AppTheme, getAppTheme, useAppTheme } from "@/src/theme/designSystem";
 import React /*, { useState }*/ from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function personGarden() {
   //const [isPublic, setIsPublic] = useState(true);
@@ -13,88 +13,12 @@ export default function personGarden() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View /*style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}*/
-        >
-          <View style={styles.testCard}>
-            <Text>ESTA ES LA SECCION DE JARDIN</Text>
-            <Text>ACA SE MOSTRARAN LAS PLANTAS AGREGADAS</Text>
-          </View>
-
-          {/* Planta favorita - layout horizontal */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>PLANTA FAVORITA</Text>
-            <View style={styles.favoritePlant}>
-              <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1648528203163-8604bf696e7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb25zdGVyYSUyMGRlbGljaW9zYSUyMHBsYW50fGVufDF8fHx8MTc3Mjk0Nzk5NXww&ixlib=rb-4.1.0&q=80&w=400",
-                }}
-                style={styles.plantImage}
-              />
-              <View style={styles.plantInfo}>
-                <Text style={styles.plantName}>Monstera Deliciosa</Text>
-                <Text style={styles.plantStats}>86 consultas realizadas</Text>
-                <View style={styles.plantBadge}>
-                  <Text style={styles.plantBadgeText}>
-                    📈 Más consultada del mes
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          {/* Planta favorita - layout horizontal */}
-
-          {/* Planta favorita - layout horizontal */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>PLANTA FAVORITA</Text>
-            <View style={styles.favoritePlant}>
-              <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1648528203163-8604bf696e7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb25zdGVyYSUyMGRlbGljaW9zYSUyMHBsYW50fGVufDF8fHx8MTc3Mjk0Nzk5NXww&ixlib=rb-4.1.0&q=80&w=400",
-                }}
-                style={styles.plantImage}
-              />
-              <View style={styles.plantInfo}>
-                <Text style={styles.plantName}>Monstera Deliciosa</Text>
-                <Text style={styles.plantStats}>86 consultas realizadas</Text>
-                <View style={styles.plantBadge}>
-                  <Text style={styles.plantBadgeText}>
-                    📈 Más consultada del mes
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          {/* Planta favorita - layout horizontal */}
-
-          {/* Planta favorita - layout horizontal */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>PLANTA FAVORITA</Text>
-            <View style={styles.favoritePlant}>
-              <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1648528203163-8604bf696e7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb25zdGVyYSUyMGRlbGljaW9zYSUyMHBsYW50fGVufDF8fHx8MTc3Mjk0Nzk5NXww&ixlib=rb-4.1.0&q=80&w=400",
-                }}
-                style={styles.plantImage}
-              />
-              <View style={styles.plantInfo}>
-                <Text style={styles.plantName}>Monstera Deliciosa</Text>
-                <Text style={styles.plantStats}>86 consultas realizadas</Text>
-                <View style={styles.plantBadge}>
-                  <Text style={styles.plantBadgeText}>
-                    📈 Más consultada del mes
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          {/* Planta favorita - layout horizontal */}
-        </View>
+        <Text>HOLA</Text>
+        <View></View>
       </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({});
 
 ///Ahora en vez de crear una hoja de styles como lo hicimos anteriormente,
 //vamos a hacer lo siguiente

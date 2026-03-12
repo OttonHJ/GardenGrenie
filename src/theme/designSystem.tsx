@@ -45,6 +45,7 @@ interface ThemeColors {
 
 //Como manejar lo espacios en la app
 interface ThemeSpacing {
+  xxs: number;
   xs: number;
   sm: number;
   md: number;
@@ -55,6 +56,7 @@ interface ThemeSpacing {
 
 //Como manejar los border radius
 interface ThemeRadius {
+  xxs: number;
   sm: number;
   md: number;
   lg: number;
@@ -103,6 +105,7 @@ const sharedImageSize: ThemeImageSize = {
 };
 
 const sharedSpacing: ThemeSpacing = {
+  xxs: 2,
   xs: 4,
   sm: 8,
   md: 12,
@@ -112,11 +115,20 @@ const sharedSpacing: ThemeSpacing = {
 };
 
 const shareRadius: ThemeRadius = {
+  xxs: 2,
   sm: 12,
   md: 18,
   lg: 24,
   xl: 30,
-  full: 999,
+  full: 56,
+};
+
+//Aqui definimos los tamaños del font
+const sharedFontSize: ThemeFontSize = {
+  sm: 12,
+  md: 16,
+  lg: 20,
+  xl: 24,
 };
 
 //Aqui definimos los colores para el modo claro
@@ -136,7 +148,7 @@ const lightColors: ThemeColors = {
   //Colores de bordes
   borderPrimary: "#e8ebe5",
   borderToggle: "#c9e4de",
-  borderPrivacy: "#c9e4de",
+  borderPrivacy: "#6b9e8b",
   borderFooter: "#f4d5a1",
   separator: "#535f47",
 
@@ -197,14 +209,6 @@ const darkColors: ThemeColors = {
   },
 };
 
-//Aqui definimos los tamaños del font
-const sharedFontSize: ThemeFontSize = {
-  sm: 12,
-  md: 16,
-  lg: 20,
-  xl: 24,
-};
-
 //Aqui definimos la familia del font
 const sharedFontFam: ThemeFontFam = {
   standardFont: "Roboto",
@@ -252,4 +256,11 @@ export function getAppTheme(mode: ColorSchemeName): AppTheme {
 export function useAppTheme(): AppTheme {
   const mode = useColorScheme();
   return getAppTheme(mode);
+}
+
+//Segun el tema, exportamos los estilos correctamos y el mismo
+//tema para los que no son estilos
+export function useProfileTheme(stylesByMode) {
+  const theme = useAppTheme();
+  return { theme, styles: stylesByMode[theme.mode] };
 }

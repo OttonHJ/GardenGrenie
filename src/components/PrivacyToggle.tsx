@@ -1,17 +1,24 @@
+import {
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
+} from "@/src/theme/designSystem";
 import React, { useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export function PrivacyToggle() {
   const [isPublic, setIsPublic] = useState(true);
+  const { styles } = useProfileTheme(stylesByMode);
+
   return (
     <View style={styles.privacyContainer}>
-      <View style={styles.privacyToggle}>
+      <View style={styles.alignContainer}>
         <View style={styles.rowAlign}>
           <Image
             style={styles.iconRight}
-            source={require("@/assets/icons/padlock.png")}
+            source={require("@/assets/icons/worldwide.png")}
           />
-          <Text style={styles.textInfo}>Privado</Text>
+          <Text style={styles.textInfo}>Público</Text>
         </View>
 
         <TouchableOpacity
@@ -27,92 +34,85 @@ export function PrivacyToggle() {
             />
           </View>
         </TouchableOpacity>
-        <View style={styles.rowAlign}>
-          <Text style={[styles.textInfo, isPublic && styles.privacyTextActive]}>
-            Público
-          </Text>
-          <Image
-            style={styles.iconLeft}
-            source={require("@/assets/icons/open-padlock.png")}
-          />
-        </View>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  privacyContainer: {
-    alignItems: "center",
-    marginBottom: 24,
-    borderStyle: "solid",
-  },
-  privacyToggle: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: "#a8e5c1",
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: "#000000",
-  },
-  privacyText: {
-    fontSize: 12,
-    color: "#5d8679",
-  },
-  privacyTextInactive: {
-    fontSize: 12,
-    color: "#5d8679",
-  },
-  privacyTextActive: {
-    color: "#1a401e",
-    fontWeight: "bold",
-  },
-  toggleButton: {
-    padding: 2,
-  },
-  toggleTrack: {
-    width: 40,
-    height: 20,
-    backgroundColor: "#c9e4de",
-    borderRadius: 10,
-    justifyContent: "center",
-  },
-  toggleTrackActive: {
-    backgroundColor: "#6b9e8b",
-  },
-  toggleThumb: {
-    width: 16,
-    height: 16,
-    backgroundColor: "white",
-    borderRadius: 8,
-    position: "absolute",
-    left: 2,
-  },
-  toggleThumbActive: {
-    left: 22,
-  },
+export const createUserStyles = (theme: AppTheme) =>
+  StyleSheet.create({
+    privacyContainer: {
+      flex: 1,
+      alignItems: "baseline",
+      justifyContent: "space-between",
+      borderStyle: "solid",
+      borderColor: theme.colors.accentOrange,
+      borderWidth: 1,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.bgPrimary,
+      marginBottom: theme.spacing.xxl,
+      marginTop: theme.spacing.xxl,
+      paddingVertical: theme.spacing.sm,
+      padding: theme.spacing.md,
+    },
+    alignContainer: {
+      flex: 1,
+      alignItems: "baseline",
+      justifyContent: "space-between",
+      flexDirection: "row",
+      width: "85%",
+      gap: theme.spacing.md,
+    },
+    privacyText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textPrimary,
+    },
+    toggleButton: {
+      padding: theme.spacing.xs,
+    },
+    toggleTrack: {
+      width: 50,
+      height: theme.spacing.xxl,
+      backgroundColor: theme.colors.toggleTrack,
+      borderRadius: theme.radius.sm,
+      justifyContent: "center",
+    },
+    toggleTrackActive: {
+      backgroundColor: theme.colors.toggleTrackActive,
+    },
+    toggleThumb: {
+      width: theme.spacing.lg,
+      height: theme.spacing.lg,
+      backgroundColor: theme.colors.bgSecondary,
+      borderRadius: theme.radius.md,
+      position: "absolute",
+      left: theme.spacing.xs,
+    },
+    toggleThumbActive: {
+      left: 28,
+    },
+    rowAlign: {
+      flexDirection: "row",
+      textAlign: "center",
+      alignContent: "center",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    iconRight: {
+      width: theme.imageSize.icon,
+      height: theme.imageSize.icon,
+      marginRight: theme.spacing.sm,
+    },
+    textInfo: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textPrimary,
+    },
+  });
 
-  rowAlign: {
-    flexDirection: "row",
-  },
-  iconRight: {
-    width: 25,
-    height: 25,
-    alignSelf: "flex-end",
-    marginRight: 5,
-  },
-  iconLeft: {
-    width: 25,
-    height: 25,
-    alignSelf: "flex-end",
-    marginLeft: 5,
-  },
-  textInfo: {
-    fontSize: 12,
-    color: "#7a7a7a",
-    marginTop: 8,
-    textAlign: "center",
-  },
-});
+//Vamos a crear un hook, podemos crear una carpeta para estas en la sección de styles
+//O junto a los styles.
+//Creamos un record con ambos styles, modo claro y oscuro
+const stylesByMode = {
+  light: createUserStyles(getAppTheme("light")),
+  dark: createUserStyles(getAppTheme("dark")),
+};

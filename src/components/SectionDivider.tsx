@@ -1,7 +1,7 @@
 import {
-  AppTheme,
-  getAppTheme,
-  useProfileTheme,
+    AppTheme,
+    getAppTheme,
+    useProfileTheme,
 } from "@/src/theme/designSystem";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";

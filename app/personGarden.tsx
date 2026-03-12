@@ -1,4 +1,4 @@
-import { Home } from "@/src/screens/Home";
+import { Garden } from "@/src/screens/Garden";
 import {
   AppTheme,
   getAppTheme,
@@ -14,7 +14,7 @@ export default function personGarden() {
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <Home />
+        <Garden />
       </View>
     </SafeAreaProvider>
   );

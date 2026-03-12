@@ -260,7 +260,7 @@ export function useAppTheme(): AppTheme {
 
 //Segun el tema, exportamos los estilos correctamos y el mismo
 //tema para los que no son estilos
-export function useProfileTheme(stylesByMode) {
+export function useProfileTheme<T>(stylesByMode: Record<ThemeMode, T>) {
   const theme = useAppTheme();
   return { theme, styles: stylesByMode[theme.mode] };
 }

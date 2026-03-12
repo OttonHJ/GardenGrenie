@@ -4,7 +4,6 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -15,7 +14,6 @@ export default function Index() {
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <StatusBar style="light" />
         <Home />
       </View>
     </SafeAreaProvider>

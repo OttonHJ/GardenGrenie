@@ -1,7 +1,7 @@
 import {
-    AppTheme,
-    getAppTheme,
-    useProfileTheme,
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
 } from "@/src/theme/designSystem";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -10,6 +10,7 @@ export function StreakFooter() {
   const { styles } = useProfileTheme(stylesByMode);
   return (
     <View style={styles.footer}>
+      <Text style={styles.footerHeadline}>TU PROGRESO</Text>
       <View style={styles.footerContent}>
         <Text style={styles.footerText}>
           🔥 ¡28 días seguidos cuidando tus plantas!
@@ -29,12 +30,15 @@ export const createUserStyles = (theme: AppTheme) =>
       borderTopWidth: theme.spacing.xs,
       borderTopColor: theme.colors.borderFooter,
       marginHorizontal: -16,
+      alignItems: "center",
+      justifyContent: "center",
     },
     footerContent: {
       flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
       gap: theme.spacing.sm,
+    },
+    footerHeadline: {
+      color: theme.colors.accentOrange,
     },
     footerText: {
       fontSize: theme.fontSize.sm,

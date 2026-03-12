@@ -1,6 +1,7 @@
 import { PrivacyToggle } from "@/src/components/PrivacyToggle";
 import { ProfileSummary } from "@/src/components/ProfileSummary";
 import { SmallBio } from "@/src/components/SmallBio";
+import { StreakFooter } from "@/src/components/StreakFooter";
 import {
   AppTheme,
   getAppTheme,
@@ -9,6 +10,7 @@ import {
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { FavoritePlant } from "../components/FavoritePlant";
 
 export function Home() {
   const insets = useSafeAreaInsets();
@@ -45,6 +47,8 @@ export function Home() {
             </View>
           </View>
           {/* Stats horizontales con líneas divisorias */}
+          <SmallBio />
+          <FavoritePlant />
           {/* Categorías en grid */}
           <View style={styles.sectionLast}>
             <View style={styles.categoriesHeader}>
@@ -71,7 +75,7 @@ export function Home() {
           </View>
           {/* Categorías en grid */}
 
-          <SmallBio />
+          <StreakFooter />
         </View>
       </ScrollView>
     </View>

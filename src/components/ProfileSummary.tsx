@@ -1,9 +1,14 @@
-import { AppTheme, getAppTheme, useAppTheme } from "@/src/theme/designSystem";
+import {
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
+} from "@/src/theme/designSystem";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export function ProfileSummary() {
-  const { styles } = useProfileTheme();
+  const { styles } = useProfileTheme(stylesByMode);
+
   return (
     <View style={styles.containerHeader}>
       <View style={styles.containerHeaderStack}>
@@ -105,10 +110,3 @@ const stylesByMode = {
   light: createUserStyles(getAppTheme("light")),
   dark: createUserStyles(getAppTheme("dark")),
 };
-
-//Segun el tema, exportamos los estilos correctamos y el mismo
-//tema para los que no son estilos
-export function useProfileTheme() {
-  const theme = useAppTheme();
-  return { theme, styles: stylesByMode[theme.mode] };
-}

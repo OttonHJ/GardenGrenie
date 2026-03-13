@@ -27,8 +27,6 @@ export const createUserStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.bgPrimary,
-      justifyContent: "center",
-      alignItems: "center",
     },
   });
 

@@ -1,5 +1,9 @@
 import { Plant } from "@/src/components/PlantCard";
-import { AppTheme, getAppTheme, useProfileTheme } from "@/src/theme/designSystem";
+import {
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
+} from "@/src/theme/designSystem";
 import { calcNextWatering } from "@/src/utils/plantUtils";
 import React, { useState } from "react";
 import {
@@ -39,8 +43,8 @@ const EMPTY_FORM: FormState = {
 
 const CATEGORIES = ["suculentas", "tropicales", "aromaticas", "cactaceas"];
 const WATER_FREQUENCIES = [
-  { label: "c/3 días",  days: 3  },
-  { label: "c/7 días",  days: 7  },
+  { label: "c/3 días", days: 3 },
+  { label: "c/7 días", days: 7 },
   { label: "c/10 días", days: 10 },
   { label: "c/14 días", days: 14 },
 ];
@@ -49,19 +53,54 @@ const WATER_FREQUENCIES = [
 
 interface AddPlantModalProps {
   visible: boolean;
+  editingPlant?: Plant | null;
   onClose: () => void;
   onPlantAdded: (plant: Plant) => void;
+  onPlantEdited?: (plant: Plant) => void;
 }
 
-export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalProps) {
+export function AddPlantModal({
+  visible,
+  editingPlant,
+  onClose,
+  onPlantAdded,
+  onPlantEdited,
+}: AddPlantModalProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
+  const isEditMode = !!editingPlant;
+
+  const initialForm = (): FormState => {
+    if (!editingPlant) return EMPTY_FORM;
+    const match = editingPlant.waterFrequency.match(/\d+/);
+    const days = match ? parseInt(match[0]) : 7;
+    return {
+      name: editingPlant.name,
+      scientificName: editingPlant.scientificName,
+      category: editingPlant.category,
+      location: editingPlant.location,
+      sunlight: editingPlant.sunlight,
+      temperature: editingPlant.temperature,
+      waterFrequencyDays: days,
+    };
+  };
+
   const [step, setStep] = useState<Step>("options");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
 
+  React.useEffect(() => {
+    if (visible) {
+      // Apertura: sincronizar estado siempre desde cero
+      setForm(initialForm());
+      setStep(isEditMode ? "form" : "options");
+    } else {
+      // Cierre: resetear para que la próxima apertura empiece limpia
+      setStep("options");
+      setForm(EMPTY_FORM);
+    }
+  }, [visible, editingPlant]);
+
   const handleClose = () => {
-    setStep("options");
-    setForm(EMPTY_FORM);
-    onClose();
+    onClose(); // el useEffect [visible] se encarga del reset
   };
 
   const handleOptionSelect = (option: "camera" | "gallery" | "manual") => {
@@ -70,14 +109,14 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
       Alert.alert(
         "Cámara",
         "La integración con expo-camera se implementará en la siguiente iteración.",
-        [{ text: "OK", onPress: () => setStep("form") }]
+        [{ text: "OK", onPress: () => setStep("form") }],
       );
     } else if (option === "gallery") {
       // expo-image-picker se integrará aquí en la siguiente iteración
       Alert.alert(
         "Galería",
         "La integración con expo-image-picker se implementará en la siguiente iteración.",
-        [{ text: "OK", onPress: () => setStep("form") }]
+        [{ text: "OK", onPress: () => setStep("form") }],
       );
     } else {
       setStep("form");
@@ -90,25 +129,41 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
       return;
     }
 
-    const freqOption = WATER_FREQUENCIES.find(
-      (f) => f.days === form.waterFrequencyDays
-    ) ?? WATER_FREQUENCIES[1];
+    const freqOption =
+      WATER_FREQUENCIES.find((f) => f.days === form.waterFrequencyDays) ??
+      WATER_FREQUENCIES[1];
 
-    const newPlant: Plant = {
-      id: Date.now().toString(),
-      name: form.name.trim(),
-      scientificName: form.scientificName.trim(),
-      image: "",                                    // placeholder hasta integrar cámara
-      lastWatered: new Date().toISOString().split("T")[0],
-      nextWatering: calcNextWatering(form.waterFrequencyDays),
-      sunlight: form.sunlight,
-      temperature: form.temperature,
-      waterFrequency: freqOption.label,
-      location: form.location,
-      category: form.category,
-    };
+    if (isEditMode && editingPlant) {
+      // ── Modo edición: conservar id, imagen y fechas originales ──
+      const updatedPlant: Plant = {
+        ...editingPlant,
+        name: form.name.trim(),
+        scientificName: form.scientificName.trim(),
+        category: form.category,
+        location: form.location,
+        sunlight: form.sunlight,
+        temperature: form.temperature,
+        waterFrequency: freqOption.label,
+      };
+      onPlantEdited?.(updatedPlant);
+    } else {
+      // ── Modo creación ──
+      const newPlant: Plant = {
+        id: Date.now().toString(),
+        name: form.name.trim(),
+        scientificName: form.scientificName.trim(),
+        image: "",
+        lastWatered: new Date().toISOString().split("T")[0],
+        nextWatering: calcNextWatering(form.waterFrequencyDays),
+        sunlight: form.sunlight,
+        temperature: form.temperature,
+        waterFrequency: freqOption.label,
+        location: form.location,
+        category: form.category,
+      };
+      onPlantAdded(newPlant);
+    }
 
-    onPlantAdded(newPlant);
     handleClose();
   };
 
@@ -119,16 +174,26 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
       <Text style={styles.sheetTitle}>Agregar planta</Text>
       <Text style={styles.sheetSubtitle}>¿Cómo quieres agregarla?</Text>
 
-      <TouchableOpacity style={styles.option} onPress={() => handleOptionSelect("camera")} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.option}
+        onPress={() => handleOptionSelect("camera")}
+        activeOpacity={0.8}
+      >
         <Text style={styles.optionIcon}>📷</Text>
         <View style={styles.optionText}>
           <Text style={styles.optionTitle}>Tomar fotografía</Text>
-          <Text style={styles.optionSub}>Usa la cámara para fotografiar tu planta</Text>
+          <Text style={styles.optionSub}>
+            Usa la cámara para fotografiar tu planta
+          </Text>
         </View>
         <Text style={styles.optionArrow}>›</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => handleOptionSelect("gallery")} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.option}
+        onPress={() => handleOptionSelect("gallery")}
+        activeOpacity={0.8}
+      >
         <Text style={styles.optionIcon}>🖼️</Text>
         <View style={styles.optionText}>
           <Text style={styles.optionTitle}>Elegir de galería</Text>
@@ -137,7 +202,11 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
         <Text style={styles.optionArrow}>›</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.option, styles.optionHighlighted]} onPress={() => handleOptionSelect("manual")} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={[styles.option, styles.optionHighlighted]}
+        onPress={() => handleOptionSelect("manual")}
+        activeOpacity={0.8}
+      >
         <Text style={styles.optionIcon}>✏️</Text>
         <View style={styles.optionText}>
           <Text style={styles.optionTitle}>Ingresar manualmente</Text>
@@ -156,10 +225,14 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
   const renderForm = () => (
     <ScrollView style={styles.sheet} contentContainerStyle={styles.formContent}>
       <View style={styles.handle} />
-      <Text style={styles.sheetTitle}>Nueva planta</Text>
+      <Text style={styles.sheetTitle}>
+        {isEditMode ? "Editar planta" : "Nueva planta"}
+      </Text>
 
       {/* Nombre */}
-      <Text style={styles.label}>Nombre <Text style={styles.required}>*</Text></Text>
+      <Text style={styles.label}>
+        Nombre <Text style={styles.required}>*</Text>
+      </Text>
       <TextInput
         style={styles.input}
         placeholder="ej. Monstera Deliciosa"
@@ -184,10 +257,18 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
         {CATEGORIES.map((cat) => (
           <TouchableOpacity
             key={cat}
-            style={[styles.formChip, form.category === cat && styles.formChipActive]}
+            style={[
+              styles.formChip,
+              form.category === cat && styles.formChipActive,
+            ]}
             onPress={() => setForm({ ...form, category: cat })}
           >
-            <Text style={[styles.formChipText, form.category === cat && styles.formChipTextActive]}>
+            <Text
+              style={[
+                styles.formChipText,
+                form.category === cat && styles.formChipTextActive,
+              ]}
+            >
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </Text>
           </TouchableOpacity>
@@ -200,10 +281,18 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
         {(["interior", "exterior"] as const).map((loc) => (
           <TouchableOpacity
             key={loc}
-            style={[styles.formChip, form.location === loc && styles.formChipActive]}
+            style={[
+              styles.formChip,
+              form.location === loc && styles.formChipActive,
+            ]}
             onPress={() => setForm({ ...form, location: loc })}
           >
-            <Text style={[styles.formChipText, form.location === loc && styles.formChipTextActive]}>
+            <Text
+              style={[
+                styles.formChipText,
+                form.location === loc && styles.formChipTextActive,
+              ]}
+            >
               {loc === "interior" ? "🏠 Interior" : "🌞 Exterior"}
             </Text>
           </TouchableOpacity>
@@ -213,17 +302,27 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
       {/* Luz solar */}
       <Text style={styles.label}>Luz solar</Text>
       <View style={styles.chipRow}>
-        {([
-          { id: "low",    label: "🌥️ Poca"    },
-          { id: "medium", label: "🌤️ Media"   },
-          { id: "high",   label: "☀️ Directa" },
-        ] as const).map((opt) => (
+        {(
+          [
+            { id: "low", label: "🌥️ Poca" },
+            { id: "medium", label: "🌤️ Media" },
+            { id: "high", label: "☀️ Directa" },
+          ] as const
+        ).map((opt) => (
           <TouchableOpacity
             key={opt.id}
-            style={[styles.formChip, form.sunlight === opt.id && styles.formChipActive]}
+            style={[
+              styles.formChip,
+              form.sunlight === opt.id && styles.formChipActive,
+            ]}
             onPress={() => setForm({ ...form, sunlight: opt.id })}
           >
-            <Text style={[styles.formChipText, form.sunlight === opt.id && styles.formChipTextActive]}>
+            <Text
+              style={[
+                styles.formChipText,
+                form.sunlight === opt.id && styles.formChipTextActive,
+              ]}
+            >
               {opt.label}
             </Text>
           </TouchableOpacity>
@@ -236,10 +335,18 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
         {WATER_FREQUENCIES.map((f) => (
           <TouchableOpacity
             key={f.days}
-            style={[styles.formChip, form.waterFrequencyDays === f.days && styles.formChipActive]}
+            style={[
+              styles.formChip,
+              form.waterFrequencyDays === f.days && styles.formChipActive,
+            ]}
             onPress={() => setForm({ ...form, waterFrequencyDays: f.days })}
           >
-            <Text style={[styles.formChipText, form.waterFrequencyDays === f.days && styles.formChipTextActive]}>
+            <Text
+              style={[
+                styles.formChipText,
+                form.waterFrequencyDays === f.days && styles.formChipTextActive,
+              ]}
+            >
               {f.label}
             </Text>
           </TouchableOpacity>
@@ -258,11 +365,20 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
 
       {/* Botones */}
       <View style={styles.buttonRow}>
-        <TouchableOpacity style={styles.backButton} onPress={() => setStep("options")}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => setStep("options")}
+        >
           <Text style={styles.backButtonText}>← Volver</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave} activeOpacity={0.8}>
-          <Text style={styles.saveButtonText}>Guardar planta</Text>
+        <TouchableOpacity
+          style={styles.saveButton}
+          onPress={handleSave}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.saveButtonText}>
+            {isEditMode ? "Guardar cambios" : "Guardar planta"}
+          </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -275,7 +391,11 @@ export function AddPlantModal({ visible, onClose, onPlantAdded }: AddPlantModalP
       animationType="slide"
       onRequestClose={handleClose}
     >
-      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={handleClose} />
+      <TouchableOpacity
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={handleClose}
+      />
       {step === "options" ? renderOptions() : renderForm()}
     </Modal>
   );
@@ -291,7 +411,7 @@ const createStyles = (theme: AppTheme) =>
     },
     sheet: {
       backgroundColor: theme.colors.bgSecondary,
-      borderTopLeftRadius:  theme.radius.lg,
+      borderTopLeftRadius: theme.radius.lg,
       borderTopRightRadius: theme.radius.lg,
       paddingHorizontal: theme.spacing.lg,
       paddingBottom: theme.spacing.xxl,
@@ -447,5 +567,5 @@ const createStyles = (theme: AppTheme) =>
 
 const stylesByMode = {
   light: createStyles(getAppTheme("light")),
-  dark:  createStyles(getAppTheme("dark")),
+  dark: createStyles(getAppTheme("dark")),
 };

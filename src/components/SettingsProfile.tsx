@@ -2,7 +2,7 @@ import { AppTheme, getAppTheme, useAppTheme } from "@/src/theme/designSystem";
 import React /*, { useState }*/ from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-export function TestProfileSettings() {
+export function SettingsProfile() {
   //const [isPublic, setIsPublic] = useState(true);
   const { styles } = useProfileTheme();
 

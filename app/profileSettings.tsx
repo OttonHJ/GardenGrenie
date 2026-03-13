@@ -1,4 +1,4 @@
-import { Home } from "@/src/screens/Home";
+import { Profile } from "@/src/screens/Profile";
 import {
   AppTheme,
   getAppTheme,
@@ -14,7 +14,7 @@ export default function profileSettings() {
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <Home />
+        <Profile />
       </View>
     </SafeAreaProvider>
   );
@@ -28,7 +28,6 @@ export const createUserStyles = (theme: AppTheme) =>
       flex: 1,
       backgroundColor: theme.colors.bgPrimary,
       justifyContent: "center",
-      alignItems: "center",
     },
   });
 

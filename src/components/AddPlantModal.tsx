@@ -20,6 +20,7 @@ import {
 // ─── Tipos internos ────────────────────────────────────────────────────────────
 
 type Step = "options" | "form";
+type Origin = "manual" | "camera" | "gallery";
 
 interface FormState {
   name: string;
@@ -86,16 +87,19 @@ export function AddPlantModal({
 
   const [step, setStep] = useState<Step>("options");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [origin, setOrigin] = useState<Origin>("manual");
 
   React.useEffect(() => {
     if (visible) {
       // Apertura: sincronizar estado siempre desde cero
       setForm(initialForm());
       setStep(isEditMode ? "form" : "options");
+      setOrigin("manual");
     } else {
       // Cierre: resetear para que la próxima apertura empiece limpia
       setStep("options");
       setForm(EMPTY_FORM);
+      setOrigin("manual");
     }
   }, [visible, editingPlant]);
 
@@ -104,23 +108,8 @@ export function AddPlantModal({
   };
 
   const handleOptionSelect = (option: "camera" | "gallery" | "manual") => {
-    if (option === "camera") {
-      // expo-camera se integrará aquí en la siguiente iteración
-      Alert.alert(
-        "Cámara",
-        "La integración con expo-camera se implementará en la siguiente iteración.",
-        [{ text: "OK", onPress: () => setStep("form") }],
-      );
-    } else if (option === "gallery") {
-      // expo-image-picker se integrará aquí en la siguiente iteración
-      Alert.alert(
-        "Galería",
-        "La integración con expo-image-picker se implementará en la siguiente iteración.",
-        [{ text: "OK", onPress: () => setStep("form") }],
-      );
-    } else {
-      setStep("form");
-    }
+    setOrigin(option);
+    setStep("form");
   };
 
   const handleSave = () => {
@@ -228,6 +217,30 @@ export function AddPlantModal({
       <Text style={styles.sheetTitle}>
         {isEditMode ? "Editar planta" : "Nueva planta"}
       </Text>
+
+      {/* Banner informativo para cámara/galería */}
+      {!isEditMode && origin !== "manual" && (
+        <View
+          style={[
+            styles.infoBanner,
+            {
+              backgroundColor: theme.colors.categories.yellow.bg,
+              borderColor: theme.colors.categories.yellow.border,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.infoBannerText,
+              { color: theme.colors.categories.yellow.border },
+            ]}
+          >
+            {origin === "camera" ? "📷" : "🖼️"} La integración con{" "}
+            {origin === "camera" ? "la cámara" : "la galería"} estará disponible
+            próximamente. Completa los datos manualmente.
+          </Text>
+        </View>
+      )}
 
       {/* Nombre */}
       <Text style={styles.label}>
@@ -562,6 +575,16 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       fontWeight: "700",
       color: "#ffffff",
+    },
+    infoBanner: {
+      borderRadius: theme.radius.sm,
+      borderWidth: 1,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.md,
+    },
+    infoBannerText: {
+      fontSize: theme.fontSize.sm,
+      lineHeight: 18,
     },
   });
 

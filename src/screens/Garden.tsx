@@ -105,7 +105,10 @@ export function Garden() {
       <GardenTopBar
         plantCount={filteredPlants.length}
         activeFilter={activeFilter}
-        onAddPress={() => setModal(true)}
+        onAddPress={() => {
+          setEditingPlant(null);
+          setModal(true);
+        }}
       />
 
       <GardenSearchBar
@@ -125,7 +128,10 @@ export function Garden() {
       {filteredPlants.length === 0 ? (
         <GardenEmpty
           variant={plants.length === 0 ? "no-plants" : "no-results"}
-          onAddPress={() => setModal(true)}
+          onAddPress={() => {
+            setEditingPlant(null);
+            setModal(true);
+          }}
           onClearFilter={handleClearFilters}
         />
       ) : (

@@ -4,7 +4,7 @@ import { GardenFilterBar } from "@/src/components/GardenFilterBar";
 import { GardenSearchBar } from "@/src/components/GardenSearchBar";
 import { GardenTopBar } from "@/src/components/GardenTopBar";
 import PlantCard, { Plant } from "@/src/components/PlantCard";
-import { MOCK_PLANTS } from "@/src/data/mockPlants";
+import { usePlants } from "@/src/context/PlantContext";
 import {
   AppTheme,
   getAppTheme,
@@ -13,7 +13,6 @@ import {
 import {
   FilterId,
   SortId,
-  calcNextWatering,
   matchesFilter,
   sortPlants,
 } from "@/src/utils/plantUtils";
@@ -25,15 +24,18 @@ export function Garden() {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
 
-  // ── Estado ──────────────────────────────────────────────────────────────────
-  const [plants, setPlants] = useState<Plant[]>(MOCK_PLANTS);
+  // ── Estado global de plantas ─────────────────────────────────────────────
+  const { plants, addPlant, updatePlant, deletePlant, waterPlant } =
+    usePlants();
+
+  // ── Estado local de UI ───────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setFilter] = useState<FilterId>("all");
   const [sortBy, setSortBy] = useState<SortId>("name");
   const [modalVisible, setModal] = useState(false);
   const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
 
-  // ── Filtrado + búsqueda + ordenamiento ──────────────────────────────────────
+  // ── Filtrado + búsqueda + ordenamiento ───────────────────────────────────
   const filteredPlants = useMemo(() => {
     let result = plants.filter((p) => matchesFilter(p, activeFilter));
     if (searchQuery.trim()) {
@@ -47,43 +49,7 @@ export function Garden() {
     return sortPlants(result, sortBy);
   }, [plants, activeFilter, searchQuery, sortBy]);
 
-  // ── Handlers ────────────────────────────────────────────────────────────────
-
-  // Agregar planta nueva
-  const handleAddPlant = (newPlant: Plant) => {
-    setPlants((prev) => [newPlant, ...prev]);
-  };
-
-  // Guardar edición de planta existente
-  const handleSavePlant = (updatedPlant: Plant) => {
-    setPlants((prev) =>
-      prev.map((p) => (p.id === updatedPlant.id ? updatedPlant : p)),
-    );
-    setEditingPlant(null);
-  };
-
-  // Registrar riego: actualiza lastWatered y recalcula nextWatering
-  const handleWater = (plantId: string) => {
-    setPlants((prev) =>
-      prev.map((p) => {
-        if (p.id !== plantId) return p;
-        const match = p.waterFrequency.match(/\d+/);
-        const days = match ? parseInt(match[0]) : 7;
-        return {
-          ...p,
-          lastWatered: new Date().toISOString().split("T")[0],
-          nextWatering: calcNextWatering(days),
-        };
-      }),
-    );
-  };
-
-  // Eliminar planta
-  const handleDelete = (plantId: string) => {
-    setPlants((prev) => prev.filter((p) => p.id !== plantId));
-  };
-
-  // Abrir modal en modo edición
+  // ── Handlers ─────────────────────────────────────────────────────────────
   const handleEdit = (plant: Plant) => {
     setEditingPlant(plant);
     setModal(true);
@@ -99,7 +65,7 @@ export function Garden() {
     setSearchQuery("");
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <GardenTopBar
@@ -144,8 +110,8 @@ export function Garden() {
               colors={theme.colors}
               onPress={() => {}}
               onEdit={handleEdit}
-              onWater={handleWater}
-              onDelete={handleDelete}
+              onWater={waterPlant}
+              onDelete={deletePlant}
             />
           )}
           contentContainerStyle={styles.listContent}
@@ -157,8 +123,8 @@ export function Garden() {
         visible={modalVisible}
         editingPlant={editingPlant}
         onClose={handleCloseModal}
-        onPlantAdded={handleAddPlant}
-        onPlantEdited={handleSavePlant}
+        onPlantAdded={addPlant}
+        onPlantEdited={updatePlant}
       />
     </View>
   );

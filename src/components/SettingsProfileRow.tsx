@@ -32,7 +32,7 @@ export function SettingsProfileRow({
       style={[
         styles.row,
         !isLast && {
-          borderBottomWidth: 1,
+          borderBottomWidth: theme.spacing.xxs - 1,
           borderBottomColor: theme.colors.borderPrimary,
         },
       ]}
@@ -82,7 +82,7 @@ const createStyles = (theme: AppTheme) =>
       flexShrink: 0,
     },
     iconText: {
-      fontSize: 15,
+      fontSize: theme.fontSize.md,
     },
     textWrap: {
       flex: 1,
@@ -92,11 +92,11 @@ const createStyles = (theme: AppTheme) =>
       fontWeight: "600",
     },
     subtitle: {
-      fontSize: 11,
-      marginTop: 2,
+      fontSize: theme.fontSize.sm,
+      marginTop: theme.spacing.xxs,
     },
     value: {
-      fontSize: 11,
+      fontSize: theme.fontSize.sm,
       marginRight: theme.spacing.xs,
     },
     chevron: {

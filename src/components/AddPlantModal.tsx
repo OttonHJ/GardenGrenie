@@ -434,8 +434,8 @@ const createStyles = (theme: AppTheme) =>
       paddingBottom: theme.spacing.xxl,
     },
     handle: {
-      width: 40,
-      height: 4,
+      width: theme.spacing.xl * 2,
+      height: theme.spacing.xs,
       backgroundColor: theme.colors.borderPrimary,
       borderRadius: theme.radius.full,
       alignSelf: "center",
@@ -446,13 +446,14 @@ const createStyles = (theme: AppTheme) =>
       fontWeight: "700",
       color: theme.colors.textPrimary,
       textAlign: "center",
+      marginBottom: theme.spacing.sm,
     },
     sheetSubtitle: {
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.md,
       color: theme.colors.textTertiary,
       textAlign: "center",
-      marginTop: theme.spacing.xxs,
-      marginBottom: theme.spacing.lg,
+      marginTop: theme.spacing.xs,
+      marginBottom: theme.spacing.xl,
     },
 
     // Opciones
@@ -462,32 +463,32 @@ const createStyles = (theme: AppTheme) =>
       gap: theme.spacing.md,
       backgroundColor: theme.colors.bgPrimary,
       borderRadius: theme.radius.sm,
-      padding: theme.spacing.md,
+      padding: theme.spacing.lg,
       marginBottom: theme.spacing.sm,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs,
       borderColor: theme.colors.borderPrimary,
     },
     optionHighlighted: {
       borderColor: theme.colors.accentGreen,
     },
     optionIcon: {
-      fontSize: 24,
+      fontSize: theme.fontSize.xl,
     },
     optionText: {
       flex: 1,
     },
     optionTitle: {
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.md - 2,
       fontWeight: "600",
       color: theme.colors.textPrimary,
     },
     optionSub: {
-      fontSize: 11,
+      fontSize: theme.fontSize.sm,
       color: theme.colors.textTertiary,
       marginTop: 2,
     },
     optionArrow: {
-      fontSize: 20,
+      fontSize: theme.fontSize.xl,
       color: theme.colors.textTertiary,
     },
     cancelButton: {
@@ -496,17 +497,18 @@ const createStyles = (theme: AppTheme) =>
       marginTop: theme.spacing.xs,
     },
     cancelText: {
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.md,
       color: theme.colors.textTertiary,
+      fontWeight: "600",
     },
 
     // Formulario
     label: {
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.md,
       fontWeight: "600",
       color: theme.colors.textSecondary,
-      marginTop: theme.spacing.md,
-      marginBottom: theme.spacing.xs,
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.sm,
     },
     required: {
       color: theme.colors.accentOrange,
@@ -514,11 +516,11 @@ const createStyles = (theme: AppTheme) =>
     input: {
       backgroundColor: theme.colors.bgPrimary,
       borderRadius: theme.radius.sm,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs,
       borderColor: theme.colors.borderPrimary,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      fontSize: theme.fontSize.sm,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+      fontSize: theme.fontSize.md - 2,
       color: theme.colors.textPrimary,
     },
     chipRow: {
@@ -529,9 +531,9 @@ const createStyles = (theme: AppTheme) =>
     formChip: {
       borderRadius: theme.radius.full,
       paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.xs,
+      paddingVertical: theme.spacing.sm,
       backgroundColor: theme.colors.bgPrimary,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs,
       borderColor: theme.colors.borderPrimary,
     },
     formChipActive: {
@@ -560,7 +562,7 @@ const createStyles = (theme: AppTheme) =>
       alignItems: "center",
     },
     backButtonText: {
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.md,
       fontWeight: "600",
       color: theme.colors.textSecondary,
     },
@@ -572,13 +574,13 @@ const createStyles = (theme: AppTheme) =>
       alignItems: "center",
     },
     saveButtonText: {
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.md,
       fontWeight: "700",
       color: "#ffffff",
     },
     infoBanner: {
       borderRadius: theme.radius.sm,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs,
       padding: theme.spacing.md,
       marginBottom: theme.spacing.md,
     },

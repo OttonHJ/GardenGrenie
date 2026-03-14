@@ -40,7 +40,7 @@ export const createUserStyles = (theme: AppTheme) =>
     description: {
       fontSize: theme.fontSize.sm,
       color: theme.colors.textPrimary,
-      lineHeight: 22,
+      lineHeight: theme.spacing.xxl,
     },
   });
 

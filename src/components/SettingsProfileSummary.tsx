@@ -1,7 +1,7 @@
 import {
-    AppTheme,
-    getAppTheme,
-    useProfileTheme,
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
 } from "@/src/theme/designSystem";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -58,13 +58,13 @@ const createStyles = (theme: AppTheme) =>
     container: {
       alignItems: "center",
       paddingVertical: theme.spacing.xxl,
-      borderBottomWidth: 1,
+      borderBottomWidth: theme.spacing.xxs,
     },
     avatar: {
       width: theme.imageSize.profile,
       height: theme.imageSize.profile,
       borderRadius: theme.radius.full,
-      borderWidth: 2,
+      borderWidth: theme.spacing.xxs,
     },
     name: {
       fontSize: theme.fontSize.lg,

@@ -1,4 +1,8 @@
-import { AppTheme, getAppTheme, useProfileTheme } from "@/src/theme/designSystem";
+import {
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
+} from "@/src/theme/designSystem";
 import { Search, X } from "lucide-react-native";
 import React from "react";
 import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
@@ -9,13 +13,17 @@ interface GardenSearchBarProps {
   onClear: () => void;
 }
 
-export function GardenSearchBar({ value, onChangeText, onClear }: GardenSearchBarProps) {
+export function GardenSearchBar({
+  value,
+  onChangeText,
+  onClear,
+}: GardenSearchBarProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
 
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
-        <Search size={16} color={theme.colors.textTertiary} />
+        <Search size={24} color={theme.colors.textTertiary} />
         <TextInput
           style={styles.input}
           placeholder="Buscar planta..."
@@ -27,7 +35,10 @@ export function GardenSearchBar({ value, onChangeText, onClear }: GardenSearchBa
           autoCapitalize="none"
         />
         {value.length > 0 && (
-          <TouchableOpacity onPress={onClear} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <TouchableOpacity
+            onPress={onClear}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
             <X size={16} color={theme.colors.textTertiary} />
           </TouchableOpacity>
         )}
@@ -58,13 +69,13 @@ const createStyles = (theme: AppTheme) =>
     },
     input: {
       flex: 1,
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.md,
       color: theme.colors.textPrimary,
-      padding: 0,  // elimina padding interno en Android
+      padding: 0, // elimina padding interno en Android
     },
   });
 
 const stylesByMode = {
   light: createStyles(getAppTheme("light")),
-  dark:  createStyles(getAppTheme("dark")),
+  dark: createStyles(getAppTheme("dark")),
 };

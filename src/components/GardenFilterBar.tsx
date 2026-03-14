@@ -100,7 +100,7 @@ const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
     filtersContainer: {
       backgroundColor: theme.colors.bgSecondary,
-      borderBottomWidth: 1,
+      borderBottomWidth: theme.spacing.xxs,
       borderBottomColor: theme.colors.borderPrimary,
     },
     filtersRow: {
@@ -108,15 +108,15 @@ const createStyles = (theme: AppTheme) =>
       alignItems: "center",
       gap: theme.spacing.sm,
       paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.sm,
+      paddingVertical: theme.spacing.md,
     },
     chip: {
       alignSelf: "flex-start",
       borderRadius: theme.radius.full,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.lg,
+      paddingVertical: theme.spacing.sm,
       backgroundColor: theme.colors.bgPrimary,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs,
       borderColor: theme.colors.borderPrimary,
     },
     chipActiveGreen: {
@@ -141,16 +141,16 @@ const createStyles = (theme: AppTheme) =>
       alignItems: "center",
       backgroundColor: theme.colors.bgPrimary,
       paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.xs,
-      borderBottomWidth: 1,
+      paddingVertical: theme.spacing.sm,
+      borderBottomWidth: theme.spacing.xxs,
       borderBottomColor: theme.colors.borderPrimary,
     },
     resultText: {
-      fontSize: 11,
+      fontSize: theme.fontSize.sm,
       color: theme.colors.textTertiary,
     },
     sortButton: {
-      paddingVertical: theme.spacing.xxs,
+      paddingVertical: theme.spacing.xs,
     },
     sortText: {
       fontSize: theme.fontSize.sm,

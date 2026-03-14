@@ -412,7 +412,7 @@ const createStyles = (theme: AppTheme) =>
     header: {
       paddingHorizontal: theme.spacing.lg,
       paddingVertical: theme.spacing.md,
-      borderBottomWidth: 1,
+      borderBottomWidth: theme.spacing.xxs,
     },
     headerTitle: {
       fontSize: theme.fontSize.md,
@@ -426,7 +426,7 @@ const createStyles = (theme: AppTheme) =>
       marginHorizontal: theme.spacing.lg,
       marginTop: theme.spacing.md,
       borderRadius: theme.radius.sm,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
     },
@@ -447,9 +447,9 @@ const createStyles = (theme: AppTheme) =>
       padding: theme.spacing.xs,
     },
     navArrow: {
-      fontSize: 24,
+      fontSize: theme.fontSize.xl,
       fontWeight: "300",
-      lineHeight: 28,
+      lineHeight: theme.spacing.xxl,
     },
     monthTitle: {
       fontSize: theme.fontSize.md,
@@ -459,7 +459,7 @@ const createStyles = (theme: AppTheme) =>
       marginHorizontal: theme.spacing.lg,
       marginTop: theme.spacing.sm,
       borderRadius: theme.radius.sm,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs,
       overflow: "hidden",
       paddingVertical: theme.spacing.xs,
     },
@@ -473,32 +473,32 @@ const createStyles = (theme: AppTheme) =>
       justifyContent: "center",
     },
     dayName: {
-      fontSize: 10,
+      fontSize: theme.fontSize.sm,
       fontWeight: "600",
     },
     dayNum: {
-      fontSize: 13,
+      fontSize: theme.fontSize.md,
       fontWeight: "500",
     },
     eventDot: {
-      width: 4,
-      height: 4,
-      borderRadius: 2,
-      marginTop: 2,
+      width: theme.spacing.xs,
+      height: theme.spacing.xs,
+      borderRadius: theme.radius.xxs,
+      marginTop: theme.spacing.xxs,
     },
     eventsSection: {
       marginHorizontal: theme.spacing.lg,
       marginTop: theme.spacing.lg,
     },
     eventsSectionTitle: {
-      fontSize: 10,
+      fontSize: theme.fontSize.sm,
       fontWeight: "600",
       letterSpacing: 0.8,
       marginBottom: theme.spacing.sm,
     },
     emptyDay: {
       borderRadius: theme.radius.sm,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs,
       padding: theme.spacing.lg,
       alignItems: "center",
     },
@@ -509,8 +509,8 @@ const createStyles = (theme: AppTheme) =>
       flexDirection: "row",
       alignItems: "center",
       borderRadius: theme.radius.sm,
-      borderWidth: 1,
-      borderLeftWidth: 4,
+      borderWidth: theme.spacing.xxs - 1,
+      borderLeftWidth: theme.spacing.xs,
       padding: theme.spacing.md,
       marginBottom: theme.spacing.sm,
     },
@@ -522,8 +522,8 @@ const createStyles = (theme: AppTheme) =>
       fontWeight: "600",
     },
     eventMeta: {
-      fontSize: 11,
-      marginTop: 2,
+      fontSize: theme.fontSize.sm,
+      marginTop: theme.spacing.xxs,
     },
     eventBadge: {
       borderRadius: theme.radius.sm,
@@ -531,7 +531,7 @@ const createStyles = (theme: AppTheme) =>
       paddingVertical: theme.spacing.xxs,
     },
     eventBadgeText: {
-      fontSize: 10,
+      fontSize: theme.fontSize.sm,
       fontWeight: "600",
     },
   });

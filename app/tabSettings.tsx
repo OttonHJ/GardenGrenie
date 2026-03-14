@@ -1,4 +1,4 @@
-import { ScreenHome } from "@/src/screens/ScreenHome";
+import { ScreenProfile } from "@/src/screens/ScreenProfile";
 import {
   AppTheme,
   getAppTheme,
@@ -6,17 +6,14 @@ import {
 } from "@/src/theme/designSystem";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 
-export default function Index() {
+export default function tabSettings() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        <ScreenHome />
-      </View>
-    </SafeAreaProvider>
+    <View style={styles.container}>
+      <ScreenProfile />
+    </View>
   );
 }
 
@@ -27,6 +24,7 @@ export const createUserStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.bgPrimary,
+      justifyContent: "center",
     },
   });
 

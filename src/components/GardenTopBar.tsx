@@ -1,4 +1,8 @@
-import { AppTheme, getAppTheme, useProfileTheme } from "@/src/theme/designSystem";
+import {
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
+} from "@/src/theme/designSystem";
 import { FilterId } from "@/src/utils/plantUtils";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -9,7 +13,11 @@ interface GardenTopBarProps {
   onAddPress: () => void;
 }
 
-export function GardenTopBar({ plantCount, activeFilter, onAddPress }: GardenTopBarProps) {
+export function GardenTopBar({
+  plantCount,
+  activeFilter,
+  onAddPress,
+}: GardenTopBarProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
 
   const isUrgentFilter = activeFilter === "water-today";
@@ -49,12 +57,12 @@ const createStyles = (theme: AppTheme) =>
       alignItems: "center",
       backgroundColor: theme.colors.bgSecondary,
       paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.md,
-      borderBottomWidth: 1,
+      paddingVertical: theme.spacing.xl,
+      borderBottomWidth: theme.spacing.xxs - 1,
       borderBottomColor: theme.colors.borderPrimary,
     },
     title: {
-      fontSize: theme.fontSize.md,
+      fontSize: theme.fontSize.lg,
       fontWeight: "700",
       color: theme.colors.textPrimary,
     },
@@ -66,16 +74,16 @@ const createStyles = (theme: AppTheme) =>
       backgroundColor: theme.colors.accentOrange,
       borderRadius: theme.radius.sm,
       paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
+      paddingVertical: theme.spacing.md,
     },
     addButtonText: {
       color: "#ffffff",
-      fontSize: theme.fontSize.sm,
+      fontSize: theme.fontSize.md - 2,
       fontWeight: "700",
     },
   });
 
 const stylesByMode = {
   light: createStyles(getAppTheme("light")),
-  dark:  createStyles(getAppTheme("dark")),
+  dark: createStyles(getAppTheme("dark")),
 };

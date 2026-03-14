@@ -303,7 +303,7 @@ export default function PlantCard({
                   { backgroundColor: colors.categories.green.bg },
                 ]}
               >
-                <Droplets size={18} color={colors.accentGreen} />
+                <Droplets size={24} color={colors.accentGreen} />
               </View>
               <View style={styles.menuItemText}>
                 <Text
@@ -331,7 +331,7 @@ export default function PlantCard({
                   { backgroundColor: colors.categories.yellow.bg },
                 ]}
               >
-                <Pencil size={18} color={colors.categories.yellow.border} />
+                <Pencil size={24} color={colors.categories.yellow.border} />
               </View>
               <View style={styles.menuItemText}>
                 <Text
@@ -359,7 +359,7 @@ export default function PlantCard({
                   { backgroundColor: colors.categories.pink.bg },
                 ]}
               >
-                <Trash2 size={18} color={colors.categories.pink.border} />
+                <Trash2 size={24} color={colors.categories.pink.border} />
               </View>
               <View style={styles.menuItemText}>
                 <Text
@@ -408,14 +408,14 @@ const createStyles = (theme: AppTheme) =>
       marginBottom: theme.spacing.md,
       borderLeftWidth: theme.spacing.xs,
       shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
+      shadowOffset: { width: 0, height: theme.spacing.xxs },
       shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
+      shadowRadius: theme.spacing.xxs,
+      elevation: theme.spacing.xxs,
     },
     plantImage: {
-      width: theme.imageSize.plants,
-      height: theme.imageSize.plants,
+      width: theme.imageSize.plants - 20,
+      height: theme.imageSize.plants - 20,
       borderRadius: theme.radius.xxs * 4,
     },
     plantImageFallback: {
@@ -423,7 +423,7 @@ const createStyles = (theme: AppTheme) =>
       alignItems: "center",
     },
     plantImageEmoji: {
-      fontSize: 32,
+      fontSize: theme.fontSize.md * 2,
     },
     plantInfo: {
       flex: 1,
@@ -437,7 +437,7 @@ const createStyles = (theme: AppTheme) =>
     },
     titleContainer: { flex: 1 },
     plantName: {
-      fontSize: theme.fontSize.md - 1,
+      fontSize: theme.fontSize.md,
       fontWeight: "600",
       marginBottom: theme.spacing.xxs,
     },
@@ -456,7 +456,7 @@ const createStyles = (theme: AppTheme) =>
       marginBottom: theme.spacing.sm + 2,
     },
     categoryText: {
-      fontSize: 9,
+      fontSize: theme.fontSize.sm,
       fontWeight: "600",
       letterSpacing: 0.5,
       textTransform: "uppercase",
@@ -465,6 +465,7 @@ const createStyles = (theme: AppTheme) =>
       flexDirection: "row",
       gap: theme.spacing.md,
       marginBottom: theme.spacing.sm + 2,
+      marginTop: theme.spacing.sm,
     },
     statItem: {
       flexDirection: "row",
@@ -472,8 +473,16 @@ const createStyles = (theme: AppTheme) =>
       gap: theme.spacing.xs,
     },
     statTextContainer: { flexDirection: "column" },
-    statLabel: { fontSize: 9, lineHeight: 10 },
-    statValue: { fontSize: 11, fontWeight: "600", lineHeight: 13 },
+    statLabel: {
+      fontSize: theme.fontSize.sm,
+      lineHeight: theme.spacing.lg,
+      fontWeight: "600",
+    },
+    statValue: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      lineHeight: theme.spacing.lg,
+    },
     nextWatering: {
       flexDirection: "row",
       alignItems: "center",
@@ -481,9 +490,9 @@ const createStyles = (theme: AppTheme) =>
       paddingHorizontal: theme.spacing.sm,
       paddingVertical: theme.spacing.xs,
       borderRadius: theme.spacing.xs,
-      borderWidth: 1,
+      borderWidth: theme.spacing.xxs - 1,
     },
-    nextWateringText: { fontSize: 10 },
+    nextWateringText: { fontSize: theme.fontSize.sm },
 
     // Menú contextual
     menuOverlay: {
@@ -505,7 +514,7 @@ const createStyles = (theme: AppTheme) =>
       paddingVertical: theme.spacing.sm,
     },
     menuDivider: {
-      height: 1,
+      height: theme.spacing.xxs,
       marginBottom: theme.spacing.sm,
     },
     menuItem: {
@@ -515,8 +524,8 @@ const createStyles = (theme: AppTheme) =>
       paddingVertical: theme.spacing.md,
     },
     menuIconWrap: {
-      width: 40,
-      height: 40,
+      width: theme.imageSize.icon * 2,
+      height: theme.imageSize.icon * 2,
       borderRadius: theme.radius.sm,
       justifyContent: "center",
       alignItems: "center",
@@ -527,8 +536,8 @@ const createStyles = (theme: AppTheme) =>
       fontWeight: "600",
     },
     menuItemSub: {
-      fontSize: 11,
-      marginTop: 2,
+      fontSize: theme.fontSize.sm,
+      marginTop: theme.spacing.xxs,
     },
     menuCancel: {
       alignItems: "center",

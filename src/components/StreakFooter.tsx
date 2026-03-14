@@ -29,7 +29,7 @@ export const createUserStyles = (theme: AppTheme) =>
       padding: theme.spacing.lg,
       borderTopWidth: theme.spacing.xs,
       borderTopColor: theme.colors.borderFooter,
-      marginHorizontal: -16,
+      marginHorizontal: -theme.spacing.lg,
       alignItems: "center",
       justifyContent: "center",
     },

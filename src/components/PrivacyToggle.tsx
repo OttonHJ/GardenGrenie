@@ -71,7 +71,7 @@ export const createUserStyles = (theme: AppTheme) =>
       padding: theme.spacing.xs,
     },
     toggleTrack: {
-      width: 50,
+      width: theme.imageSize.icon * 2,
       height: theme.spacing.xxl,
       backgroundColor: theme.colors.toggleTrack,
       borderRadius: theme.radius.sm,
@@ -89,7 +89,7 @@ export const createUserStyles = (theme: AppTheme) =>
       left: theme.spacing.xs,
     },
     toggleThumbActive: {
-      left: 28,
+      left: theme.spacing.xxl + 4,
     },
     rowAlign: {
       flexDirection: "row",

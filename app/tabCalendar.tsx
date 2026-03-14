@@ -1,4 +1,4 @@
-import { ScreenProfile } from "@/src/screens/ScreenProfile";
+import { ScreenCalendar } from "@/src/screens/ScreenCalendar";
 import {
   AppTheme,
   getAppTheme,
@@ -6,17 +6,14 @@ import {
 } from "@/src/theme/designSystem";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 
-export default function menuSettings() {
+export default function tabalendar() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        <ScreenProfile />
-      </View>
-    </SafeAreaProvider>
+    <View style={styles.container}>
+      <ScreenCalendar />
+    </View>
   );
 }
 
@@ -27,7 +24,6 @@ export const createUserStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.bgPrimary,
-      justifyContent: "center",
     },
   });
 

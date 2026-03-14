@@ -6,17 +6,14 @@ import {
 } from "@/src/theme/designSystem";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 
-export default function menuGarden() {
+export default function tabGarden() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        <ScreenGarden />
-      </View>
-    </SafeAreaProvider>
+    <View style={styles.container}>
+      <ScreenGarden />
+    </View>
   );
 }
 

@@ -1,4 +1,4 @@
-import { ScreenCalendar } from "@/src/screens/ScreenCalendar";
+import { ScreenHome } from "@/src/screens/ScreenHome";
 import {
   AppTheme,
   getAppTheme,
@@ -6,17 +6,14 @@ import {
 } from "@/src/theme/designSystem";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 
-export default function menuCalendar() {
+export default function tabHome() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        <ScreenCalendar />
-      </View>
-    </SafeAreaProvider>
+    <View style={styles.container}>
+      <ScreenHome />
+    </View>
   );
 }
 

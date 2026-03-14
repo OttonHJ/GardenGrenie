@@ -17,7 +17,13 @@ export function ScreenHome() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
-    <View style={{ paddingBottom: insets.bottom, paddingTop: insets.top }}>
+    <View
+      style={{
+        flex: 1,
+        paddingBottom: insets.bottom,
+        paddingTop: insets.top,
+      }}
+    >
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -123,7 +129,7 @@ export const createUserStyles = (theme: AppTheme) =>
       color: theme.colors.textSecondary,
     },
     statNumberOrange: {
-      fontSize: 24,
+      fontSize: theme.fontSize.xl,
       fontWeight: "700",
       color: theme.colors.accentOrange,
     },
@@ -204,7 +210,7 @@ export const createUserStyles = (theme: AppTheme) =>
     categoryLabel: {
       fontSize: theme.fontSize.sm,
       color: theme.colors.textSecondary,
-      marginTop: 2,
+      marginTop: theme.spacing.xxs,
     },
   });
 

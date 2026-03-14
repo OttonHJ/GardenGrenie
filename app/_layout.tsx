@@ -16,19 +16,19 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <PlantsProvider>
         <NativeTabs>
-          <NativeTabs.Trigger name="index">
+          <NativeTabs.Trigger name="tabHome">
             <Label>Home</Label>
             <Icon sf={"house.fill"} drawable="ic_menu_mylocation" />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="menuGarden">
+          <NativeTabs.Trigger name="tabGarden">
             <Label>Garden</Label>
             <Icon sf={"leaf.fill"} drawable="leaf" />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="menuCalendar">
+          <NativeTabs.Trigger name="tabCalendar">
             <Label>Calendar</Label>
             <Icon sf={"calendar"} drawable="ic_menu_today" />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="menuSettings">
+          <NativeTabs.Trigger name="tabSettings">
             <Label>Profile</Label>
             <Icon sf={"person.fill"} drawable="person" />
           </NativeTabs.Trigger>

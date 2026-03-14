@@ -1,4 +1,8 @@
-import { AppTheme, getAppTheme, useProfileTheme } from "@/src/theme/designSystem";
+import {
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
+} from "@/src/theme/designSystem";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -8,7 +12,11 @@ interface GardenEmptyProps {
   onClearFilter: () => void;
 }
 
-export function GardenEmpty({ variant, onAddPress, onClearFilter }: GardenEmptyProps) {
+export function GardenEmpty({
+  variant,
+  onAddPress,
+  onClearFilter,
+}: GardenEmptyProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
 
   const isNoPlants = variant === "no-plants";
@@ -103,5 +111,5 @@ const createStyles = (theme: AppTheme) =>
 
 const stylesByMode = {
   light: createStyles(getAppTheme("light")),
-  dark:  createStyles(getAppTheme("dark")),
+  dark: createStyles(getAppTheme("dark")),
 };

@@ -33,12 +33,12 @@ export function ScreenHome() {
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>127</Text>
               <Text style={styles.statLabel}>Plantas</Text>
-              <Text style={styles.statSublabel}>identificadas</Text>
+              <Text style={styles.statLabel}>identificadas</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>42</Text>
               <Text style={styles.statLabel}>Amigos</Text>
-              <Text style={styles.statSublabel}>conectados</Text>
+              <Text style={styles.statLabel}>conectados</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumberOrange}>28</Text>

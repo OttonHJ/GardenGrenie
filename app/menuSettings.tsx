@@ -1,20 +1,20 @@
-import { Calendar } from "@/src/screens/Calendar";
+import { ScreenProfile } from "@/src/screens/ScreenProfile";
 import {
-    AppTheme,
-    getAppTheme,
-    useProfileTheme,
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
 } from "@/src/theme/designSystem";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-export default function calendar() {
+export default function menuSettings() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <Calendar />
+        <ScreenProfile />
       </View>
     </SafeAreaProvider>
   );
@@ -27,6 +27,7 @@ export const createUserStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.bgPrimary,
+      justifyContent: "center",
     },
   });
 

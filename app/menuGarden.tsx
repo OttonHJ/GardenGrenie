@@ -1,4 +1,4 @@
-import { Garden } from "@/src/screens/Garden";
+import { ScreenGarden } from "@/src/screens/ScreenGarden";
 import {
   AppTheme,
   getAppTheme,
@@ -8,13 +8,13 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-export default function personGarden() {
+export default function menuGarden() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <Garden />
+        <ScreenGarden />
       </View>
     </SafeAreaProvider>
   );

@@ -1,18 +1,18 @@
 import { Plant } from "@/src/components/PlantCard";
 import { usePlants } from "@/src/context/PlantContext";
 import {
-    AppTheme,
-    getAppTheme,
-    useProfileTheme,
+  AppTheme,
+  getAppTheme,
+  useProfileTheme,
 } from "@/src/theme/designSystem";
 import { isWateringDue } from "@/src/utils/plantUtils";
 import React, { useMemo, useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -67,7 +67,7 @@ interface WateringEvent {
 
 // ─── Componente ────────────────────────────────────────────────────────────────
 
-export function Calendar() {
+export function ScreenCalendar() {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
   const { plants } = usePlants();

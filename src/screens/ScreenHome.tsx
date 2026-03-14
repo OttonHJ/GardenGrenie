@@ -12,7 +12,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FavoritePlant } from "../components/FavoritePlant";
 
-export function Home() {
+export function ScreenHome() {
   const insets = useSafeAreaInsets();
   const { styles } = useProfileTheme(stylesByMode);
 

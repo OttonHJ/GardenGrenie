@@ -12,10 +12,14 @@ export function isWateringDue(nextWatering: string): boolean {
 }
 
 // Calcula la próxima fecha de riego: hoy + N días, formato "YYYY-MM-DD"
+// Usa fecha local para evitar desfase por zona horaria (toISOString devuelve UTC)
 export function calcNextWatering(frequencyDays: number): string {
   const date = new Date();
   date.setDate(date.getDate() + frequencyDays);
-  return date.toISOString().split("T")[0];
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 // ─── Filtros ───────────────────────────────────────────────────────────────────
@@ -36,23 +40,28 @@ export interface FilterOption {
 }
 
 export const FILTER_OPTIONS: FilterOption[] = [
-  { id: "all",         label: "🌿 Todas"      },
-  { id: "water-today", label: "💧 Regar hoy"  },
-  { id: "interior",    label: "🏠 Interior"   },
-  { id: "exterior",    label: "🌞 Exterior"   },
-  { id: "suculentas",  label: "🪴 Suculentas" },
-  { id: "tropicales",  label: "🌴 Tropicales" },
-  { id: "aromaticas",  label: "🌿 Aromáticas" },
-  { id: "cactaceas",   label: "🌵 Cactáceas"  },
+  { id: "all", label: "🌿 Todas" },
+  { id: "water-today", label: "💧 Regar hoy" },
+  { id: "interior", label: "🏠 Interior" },
+  { id: "exterior", label: "🌞 Exterior" },
+  { id: "suculentas", label: "🪴 Suculentas" },
+  { id: "tropicales", label: "🌴 Tropicales" },
+  { id: "aromaticas", label: "🌿 Aromáticas" },
+  { id: "cactaceas", label: "🌵 Cactáceas" },
 ];
 
 export function matchesFilter(plant: Plant, filter: FilterId): boolean {
   switch (filter) {
-    case "all":         return true;
-    case "water-today": return isWateringDue(plant.nextWatering);
-    case "interior":    return plant.location === "interior";
-    case "exterior":    return plant.location === "exterior";
-    default:            return plant.category.toLowerCase() === filter;
+    case "all":
+      return true;
+    case "water-today":
+      return isWateringDue(plant.nextWatering);
+    case "interior":
+      return plant.location === "interior";
+    case "exterior":
+      return plant.location === "exterior";
+    default:
+      return plant.category.toLowerCase() === filter;
   }
 }
 
@@ -66,9 +75,9 @@ export interface SortOption {
 }
 
 export const SORT_OPTIONS: SortOption[] = [
-  { id: "name",     label: "Nombre A-Z"    },
+  { id: "name", label: "Nombre A-Z" },
   { id: "watering", label: "Próximo riego" },
-  { id: "recent",   label: "Más reciente"  },
+  { id: "recent", label: "Más reciente" },
 ];
 
 export function sortPlants(plants: Plant[], sortBy: SortId): Plant[] {
@@ -80,7 +89,7 @@ export function sortPlants(plants: Plant[], sortBy: SortId): Plant[] {
       return copy.sort(
         (a, b) =>
           new Date(a.nextWatering).getTime() -
-          new Date(b.nextWatering).getTime()
+          new Date(b.nextWatering).getTime(),
       );
     case "recent":
     default:

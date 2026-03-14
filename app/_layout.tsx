@@ -20,15 +20,15 @@ export default function RootLayout() {
             <Label>Home</Label>
             <Icon sf={"house.fill"} drawable="ic_menu_mylocation" />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="personGarden">
+          <NativeTabs.Trigger name="menuGarden">
             <Label>Garden</Label>
             <Icon sf={"leaf.fill"} drawable="leaf" />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="calendar">
+          <NativeTabs.Trigger name="menuCalendar">
             <Label>Calendar</Label>
             <Icon sf={"calendar"} drawable="ic_menu_today" />
           </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="profileSettings">
+          <NativeTabs.Trigger name="menuSettings">
             <Label>Profile</Label>
             <Icon sf={"person.fill"} drawable="person" />
           </NativeTabs.Trigger>

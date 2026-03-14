@@ -1,4 +1,4 @@
-import { Home } from "@/src/screens/Home";
+import { ScreenHome } from "@/src/screens/ScreenHome";
 import {
   AppTheme,
   getAppTheme,
@@ -14,7 +14,7 @@ export default function Index() {
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <Home />
+        <ScreenHome />
       </View>
     </SafeAreaProvider>
   );

@@ -1,4 +1,4 @@
-import { Profile } from "@/src/screens/Profile";
+import { ScreenCalendar } from "@/src/screens/ScreenCalendar";
 import {
   AppTheme,
   getAppTheme,
@@ -8,13 +8,13 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-export default function profileSettings() {
+export default function menuCalendar() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (
     <SafeAreaProvider>
       <View style={styles.container}>
-        <Profile />
+        <ScreenCalendar />
       </View>
     </SafeAreaProvider>
   );
@@ -27,7 +27,6 @@ export const createUserStyles = (theme: AppTheme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.bgPrimary,
-      justifyContent: "center",
     },
   });
 

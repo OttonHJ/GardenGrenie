@@ -30,6 +30,7 @@ export const createUserStyles = (theme: AppTheme) =>
       borderTopWidth: theme.spacing.xs,
       borderTopColor: theme.colors.borderFooter,
       marginHorizontal: -theme.spacing.lg,
+      marginBottom: theme.spacing.lg - 2,
       alignItems: "center",
       justifyContent: "center",
     },

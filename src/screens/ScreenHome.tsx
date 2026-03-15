@@ -8,7 +8,13 @@ import {
   useProfileTheme,
 } from "@/src/theme/designSystem";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FavoritePlant } from "../components/FavoritePlant";
 
@@ -26,19 +32,24 @@ export function ScreenHome() {
     >
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: insets.bottom },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <View>
           <View style={styles.testCard}>
-            <ProfileSummary />
+            <TouchableOpacity>
+              <ProfileSummary />
+            </TouchableOpacity>
             <PrivacyToggle />
           </View>
           {/* Stats horizontales con líneas divisorias */}
           <View style={(styles.section, styles.statsContainer)}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>127</Text>
-              <Text style={styles.statLabel}>Plantas{"\\n"}registradas</Text>
+              <Text style={styles.statLabel}>Plantas\nregistradas</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>42</Text>
@@ -96,7 +107,6 @@ export const createUserStyles = (theme: AppTheme) =>
     },
     scrollContent: {
       paddingHorizontal: theme.spacing.lg,
-      paddingBottom: theme.spacing.xl,
     },
     testCard: {
       alignItems: "center",

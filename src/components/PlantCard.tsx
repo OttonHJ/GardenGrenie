@@ -28,6 +28,7 @@ import {
 
 export interface Plant {
   id: string;
+  createdAt: number; // timestamp para ordenar por fecha de creación
   name: string;
   scientificName: string;
   image: string | number; // string = URI remota/local, number = require() asset
@@ -70,10 +71,15 @@ export default function PlantCard({
     const match = plant.waterFrequency.match(/\d+/);
     const days = match ? parseInt(match[0]) : 7;
     onWater?.(plant.id);
-    Alert.alert(
-      "💧 Riego registrado",
-      `${plant.name} fue regada hoy.\nPróximo riego en ${days} días.`,
-    );
+    //El stetTimeout es para esperar a que se actualice el estado de la planta y
+    // mostrar la alerta con la info correcta, evitando que el alerta se muestre
+    //por encima de la pantalla modal
+    setTimeout(() => {
+      Alert.alert(
+        "💧 Riego registrado",
+        `${plant.name} fue regada hoy.\nPróximo riego en ${days} días.`,
+      );
+    }, 300);
   };
 
   const handleDelete = () => {

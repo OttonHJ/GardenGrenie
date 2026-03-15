@@ -24,9 +24,7 @@ export function SettingsProfileSummary({ onEditPress }: ProfileSummaryProps) {
       ]}
     >
       <Image
-        source={{
-          uri: "https://images.unsplash.com/photo-1656417671052-ff145afcc351?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGJvdGFuaWNhbCUyMGdhcmRlbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc3Mjk0Nzk5NHww&ixlib=rb-4.1.0&q=80&w=400",
-        }}
+        source={require("@/assets/images/profilePlaceholder.png")}
         style={[styles.avatar, { borderColor: theme.colors.accentGreen }]}
       />
       <Text style={[styles.name, { color: theme.colors.textPrimary }]}>

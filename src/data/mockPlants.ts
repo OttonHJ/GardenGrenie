@@ -16,6 +16,7 @@ const PLANT_IMG = require("@/assets/icons/plant.png");
 export const MOCK_PLANTS: Plant[] = [
   {
     id: "001",
+    createdAt: 1700000001000,
     name: "Cactus San Pedro",
     scientificName: "Echinopsis pachanoi",
     image: PLANT_IMG,
@@ -29,6 +30,7 @@ export const MOCK_PLANTS: Plant[] = [
   },
   {
     id: "002",
+    createdAt: 1700000002000,
     name: "Monstera Deliciosa",
     scientificName: "Monstera deliciosa",
     image: PLANT_IMG,
@@ -42,6 +44,7 @@ export const MOCK_PLANTS: Plant[] = [
   },
   {
     id: "003",
+    createdAt: 1700000003000,
     name: "Orquídea Phalaenopsis",
     scientificName: "Phalaenopsis sp.",
     image: PLANT_IMG,
@@ -55,6 +58,7 @@ export const MOCK_PLANTS: Plant[] = [
   },
   {
     id: "004",
+    createdAt: 1700000004000,
     name: "Aloe Vera",
     scientificName: "Aloe barbadensis",
     image: PLANT_IMG,
@@ -68,6 +72,7 @@ export const MOCK_PLANTS: Plant[] = [
   },
   {
     id: "005",
+    createdAt: 1700000005000,
     name: "Lavanda",
     scientificName: "Lavandula angustifolia",
     image: PLANT_IMG,
@@ -81,6 +86,7 @@ export const MOCK_PLANTS: Plant[] = [
   },
   {
     id: "006",
+    createdAt: 1700000006000,
     name: "Pothos",
     scientificName: "Epipremnum aureum",
     image: PLANT_IMG,
@@ -94,6 +100,7 @@ export const MOCK_PLANTS: Plant[] = [
   },
   {
     id: "007",
+    createdAt: 1700000007000,
     name: "Echeveria",
     scientificName: "Echeveria elegans",
     image: PLANT_IMG,
@@ -107,6 +114,7 @@ export const MOCK_PLANTS: Plant[] = [
   },
   {
     id: "008",
+    createdAt: 1700000008000,
     name: "Menta",
     scientificName: "Mentha spicata",
     image: PLANT_IMG,

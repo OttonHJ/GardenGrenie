@@ -70,29 +70,27 @@ export function AddPlantModal({
   const { theme, styles } = useProfileTheme(stylesByMode);
   const isEditMode = !!editingPlant;
 
-  const initialForm = (): FormState => {
-    if (!editingPlant) return EMPTY_FORM;
-    const match = editingPlant.waterFrequency.match(/\d+/);
-    const days = match ? parseInt(match[0]) : 7;
-    return {
-      name: editingPlant.name,
-      scientificName: editingPlant.scientificName,
-      category: editingPlant.category,
-      location: editingPlant.location,
-      sunlight: editingPlant.sunlight,
-      temperature: editingPlant.temperature,
-      waterFrequencyDays: days,
-    };
-  };
-
   const [step, setStep] = useState<Step>("options");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [origin, setOrigin] = useState<Origin>("manual");
 
   React.useEffect(() => {
     if (visible) {
+      const days = editingPlant?.waterFrequency.match(/\d+/)?.[0];
+      const resolvedForm: FormState = editingPlant
+        ? {
+            name: editingPlant.name,
+            scientificName: editingPlant.scientificName,
+            category: editingPlant.category,
+            location: editingPlant.location,
+            sunlight: editingPlant.sunlight,
+            temperature: editingPlant.temperature,
+            waterFrequencyDays: days ? parseInt(days) : 7,
+          }
+        : EMPTY_FORM;
+
       // Apertura: sincronizar estado siempre desde cero
-      setForm(initialForm());
+      setForm(resolvedForm);
       setStep(isEditMode ? "form" : "options");
       setOrigin("manual");
     } else {
@@ -139,6 +137,7 @@ export function AddPlantModal({
       // ── Modo creación ──
       const newPlant: Plant = {
         id: Date.now().toString(),
+        createdAt: Date.now(),
         name: form.name.trim(),
         scientificName: form.scientificName.trim(),
         image: "",

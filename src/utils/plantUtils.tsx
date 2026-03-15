@@ -93,6 +93,6 @@ export function sortPlants(plants: Plant[], sortBy: SortId): Plant[] {
       );
     case "recent":
     default:
-      return copy.sort((a, b) => b.id.localeCompare(a.id));
+      return copy.sort((a, b) => b.createdAt - a.createdAt);
   }
 }

@@ -107,7 +107,6 @@ export function ScreenGarden() {
           renderItem={({ item }) => (
             <PlantCard
               plant={item}
-              colors={theme.colors}
               onPress={() => {}}
               onEdit={handleEdit}
               onWater={waterPlant}

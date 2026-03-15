@@ -38,8 +38,7 @@ export function ScreenHome() {
           <View style={(styles.section, styles.statsContainer)}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>127</Text>
-              <Text style={styles.statLabel}>Plantas</Text>
-              <Text style={styles.statLabel}>identificadas</Text>
+              <Text style={styles.statLabel}>Plantas{"\\n"}registradas</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>42</Text>

@@ -7,7 +7,7 @@ import {
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
-export default function tabalendar() {
+export default function tabCalendar() {
   const { styles } = useProfileTheme(stylesByMode);
 
   return (

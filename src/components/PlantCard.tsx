@@ -43,7 +43,6 @@ export interface Plant {
 
 interface PlantCardProps {
   plant: Plant;
-  colors: AppTheme["colors"];
   onPress?: () => void;
   onEdit?: (plant: Plant) => void;
   onWater?: (plantId: string) => void;
@@ -54,13 +53,13 @@ interface PlantCardProps {
 
 export default function PlantCard({
   plant,
-  colors,
   onPress,
   onEdit,
   onWater,
   onDelete,
 }: PlantCardProps) {
-  const { styles } = useProfileTheme(stylesByMode);
+  const { styles, theme } = useProfileTheme(stylesByMode);
+  const colors = theme.colors;
   const [menuVisible, setMenuVisible] = useState(false);
   const isUrgent = isWateringDue(plant.nextWatering);
 

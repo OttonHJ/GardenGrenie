@@ -4,7 +4,7 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import { calcNextWatering } from "@/src/utils/plantUtils";
+import { calcNextWatering, todayDateString } from "@/src/utils/plantUtils";
 import React, { useState } from "react";
 import {
   Alert,
@@ -141,7 +141,7 @@ export function ModalAddPlant({
         name: form.name.trim(),
         scientificName: form.scientificName.trim(),
         image: "",
-        lastWatered: new Date().toISOString().split("T")[0],
+        lastWatered: todayDateString(),
         nextWatering: calcNextWatering(form.waterFrequencyDays),
         sunlight: form.sunlight,
         temperature: form.temperature,

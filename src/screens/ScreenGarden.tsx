@@ -138,7 +138,7 @@ const createStyles = (theme: AppTheme) =>
     listContent: {
       paddingHorizontal: theme.spacing.lg,
       paddingTop: theme.spacing.md,
-      paddingBottom: theme.spacing.xxl,
+      //paddingBottom: theme.spacing.xxl,
     },
   });
 

@@ -49,17 +49,15 @@ export function ScreenHome() {
           <View style={(styles.section, styles.statsContainer)}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>127</Text>
-              <Text style={styles.statLabel}>Plantas\nregistradas</Text>
+              <Text style={styles.statLabel}>{"Plantas\nregistradas"}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>42</Text>
-              <Text style={styles.statLabel}>Amigos</Text>
-              <Text style={styles.statLabel}>conectados</Text>
+              <Text style={styles.statLabel}>{"Amigos\nconectados"}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumberOrange}>28</Text>
-              <Text style={styles.statLabel}>Días</Text>
-              <Text style={styles.statLabel}>de racha</Text>
+              <Text style={styles.statLabel}>{"Días\nde racha"}</Text>
             </View>
           </View>
           {/* Stats horizontales con líneas divisorias */}
@@ -145,6 +143,7 @@ export const createUserStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       color: theme.colors.textTertiary,
       marginTop: theme.spacing.xs,
+      textAlign: "center",
     },
     statSublabel: {
       fontSize: theme.fontSize.sm,

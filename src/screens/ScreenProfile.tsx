@@ -1,5 +1,9 @@
 import { SettingsProfileRow } from "@/src/components/SettingsProfileRow";
 import { SettingsProfileSummary } from "@/src/components/SettingsProfileSummary";
+import { ModalAbout } from "@/src/modals/ModalAbout";
+import { ModalContact } from "@/src/modals/ModalContact";
+import { ModalPrivacy } from "@/src/modals/ModalPrivacy";
+import { ModalTerms } from "@/src/modals/ModalTerms";
 import {
   AppTheme,
   getAppTheme,
@@ -20,6 +24,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export function ScreenProfile() {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
+
+  // ── Estado de modales ────────────────────────────────────────────────────────
+  const [contactVisible, setContactVisible] = React.useState(false);
+  const [termsVisible, setTermsVisible] = React.useState(false);
+  const [privacyVisible, setPrivacyVisible] = React.useState(false);
+  const [aboutVisible, setAboutVisible] = React.useState(false);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -51,156 +61,187 @@ export function ScreenProfile() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <ScrollView
-      style={[styles.container, { paddingTop: insets.top }]}
-      showsVerticalScrollIndicator={false}
+    <View
+      style={{
+        flex: 1,
+        paddingBottom: insets.bottom,
+        paddingTop: insets.top,
+      }}
     >
-      {/* Cabecera: avatar + nombre + editar */}
-      <SettingsProfileSummary onEditPress={handleEditProfile} />
-
-      {/* Sección: Cuenta */}
-      <View style={styles.sectionLabel}>
-        <Text
-          style={[
-            styles.sectionLabelText,
-            { color: theme.colors.textTertiary },
-          ]}
-        >
-          CUENTA
-        </Text>
-      </View>
-      <View
-        style={[
-          styles.group,
-          {
-            backgroundColor: theme.colors.bgSecondary,
-            borderColor: theme.colors.borderPrimary,
-          },
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: insets.bottom },
         ]}
+        showsVerticalScrollIndicator={false}
       >
-        <SettingsProfileRow
-          icon="🔒"
-          iconBg={theme.colors.categories.brown.bg}
-          title="Seguridad"
-          subtitle="Contraseña, autenticación"
-          onPress={() => Alert.alert("Seguridad", "Próximamente.")}
-        />
-      </View>
+        {/* Cabecera: avatar + nombre + editar */}
+        <SettingsProfileSummary onEditPress={handleEditProfile} />
 
-      {/* Sección: Soporte */}
-      <View style={styles.sectionLabel}>
-        <Text
-          style={[
-            styles.sectionLabelText,
-            { color: theme.colors.textTertiary },
-          ]}
-        >
-          SOPORTE
-        </Text>
-      </View>
-      <View
-        style={[
-          styles.group,
-          {
-            backgroundColor: theme.colors.bgSecondary,
-            borderColor: theme.colors.borderPrimary,
-          },
-        ]}
-      >
-        <SettingsProfileRow
-          icon="💬"
-          iconBg={theme.colors.categories.green.bg}
-          title="Contáctanos"
-          onPress={() => Alert.alert("Contáctanos", "Próximamente.")}
-        />
-        <SettingsProfileRow
-          icon="📄"
-          iconBg={theme.colors.categories.yellow.bg}
-          title="Términos y condiciones"
-          onPress={() => Alert.alert("Términos", "Próximamente.")}
-        />
-        <SettingsProfileRow
-          icon="🛡️"
-          iconBg={theme.colors.categories.pink.bg}
-          title="Privacidad"
-          onPress={() => Alert.alert("Privacidad", "Próximamente.")}
-        />
-        <SettingsProfileRow
-          icon="🌿"
-          iconBg={theme.colors.categories.green.bg}
-          title="Acerca de GardenGreenie"
-          value="v1.0.0"
-          onPress={() => Alert.alert("GardenGreenie", "Versión 1.0.0")}
-          isLast
-        />
-      </View>
-
-      {/* Redes sociales */}
-      <View style={styles.sectionLabel}>
-        <Text
-          style={[
-            styles.sectionLabelText,
-            { color: theme.colors.textTertiary },
-          ]}
-        >
-          SÍGUENOS
-        </Text>
-      </View>
-      <View style={styles.socialRow}>
-        {[
-          { label: "𝕏", platform: "X" },
-          { label: "in", platform: "LinkedIn" },
-          { label: "ig", platform: "Instagram" },
-          { label: "yt", platform: "YouTube" },
-        ].map(({ label, platform }) => (
-          <TouchableOpacity
-            key={platform}
+        {/* Sección: Cuenta */}
+        <View style={styles.sectionLabel}>
+          <Text
             style={[
-              styles.socialBtn,
-              {
-                backgroundColor: theme.colors.bgSecondary,
-                borderColor: theme.colors.borderPrimary,
-              },
+              styles.sectionLabelText,
+              { color: theme.colors.textTertiary },
             ]}
-            onPress={() => handleSocial(platform)}
-            activeOpacity={0.7}
           >
-            <Text
-              style={[
-                styles.socialBtnText,
-                { color: theme.colors.textSecondary },
-              ]}
-            >
-              {label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Logout */}
-      <TouchableOpacity
-        style={[
-          styles.logoutBtn,
-          {
-            backgroundColor: theme.colors.categories.pink.bg,
-            borderColor: theme.colors.categories.pink.border,
-          },
-        ]}
-        onPress={handleLogout}
-        activeOpacity={0.8}
-      >
-        <Text
+            CUENTA
+          </Text>
+        </View>
+        <View
           style={[
-            styles.logoutText,
-            { color: theme.colors.categories.pink.border },
+            styles.group,
+            {
+              backgroundColor: theme.colors.bgSecondary,
+              borderColor: theme.colors.borderPrimary,
+            },
           ]}
         >
-          Cerrar sesión
-        </Text>
-      </TouchableOpacity>
+          <SettingsProfileRow
+            icon="🔒"
+            iconBg={theme.colors.categories.brown.bg}
+            title="Seguridad"
+            subtitle="Contraseña, autenticación"
+            onPress={() => Alert.alert("Seguridad", "Próximamente.")}
+          />
+        </View>
 
-      <View style={{ height: insets.bottom + 24 }} />
-    </ScrollView>
+        {/* Sección: Soporte */}
+        <View style={styles.sectionLabel}>
+          <Text
+            style={[
+              styles.sectionLabelText,
+              { color: theme.colors.textTertiary },
+            ]}
+          >
+            SOPORTE
+          </Text>
+        </View>
+        <View
+          style={[
+            styles.group,
+            {
+              backgroundColor: theme.colors.bgSecondary,
+              borderColor: theme.colors.borderPrimary,
+            },
+          ]}
+        >
+          <SettingsProfileRow
+            icon="💬"
+            iconBg={theme.colors.categories.green.bg}
+            title="Contáctanos"
+            onPress={() => setContactVisible(true)}
+          />
+          <SettingsProfileRow
+            icon="📄"
+            iconBg={theme.colors.categories.yellow.bg}
+            title="Términos y condiciones"
+            onPress={() => setTermsVisible(true)}
+          />
+          <SettingsProfileRow
+            icon="🛡️"
+            iconBg={theme.colors.categories.pink.bg}
+            title="Privacidad"
+            onPress={() => setPrivacyVisible(true)}
+          />
+          <SettingsProfileRow
+            icon="🌿"
+            iconBg={theme.colors.categories.green.bg}
+            title="Acerca de GardenGreenie"
+            value="v1.0.0"
+            onPress={() => setAboutVisible(true)}
+            isLast
+          />
+        </View>
+
+        {/* Redes sociales */}
+        <View style={styles.sectionLabel}>
+          <Text
+            style={[
+              styles.sectionLabelText,
+              { color: theme.colors.textTertiary },
+            ]}
+          >
+            SÍGUENOS
+          </Text>
+        </View>
+        <View style={styles.socialRow}>
+          {[
+            { label: "𝕏", platform: "X" },
+            { label: "in", platform: "LinkedIn" },
+            { label: "ig", platform: "Instagram" },
+            { label: "yt", platform: "YouTube" },
+          ].map(({ label, platform }) => (
+            <TouchableOpacity
+              key={platform}
+              style={[
+                styles.socialBtn,
+                {
+                  backgroundColor: theme.colors.bgSecondary,
+                  borderColor: theme.colors.borderPrimary,
+                },
+              ]}
+              onPress={() => handleSocial(platform)}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.socialBtnText,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
+                {label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Logout */}
+        <TouchableOpacity
+          style={[
+            styles.logoutBtn,
+            {
+              backgroundColor: theme.colors.categories.pink.bg,
+              borderColor: theme.colors.categories.pink.border,
+            },
+          ]}
+          onPress={handleLogout}
+          activeOpacity={0.8}
+        >
+          <Text
+            style={[
+              styles.logoutText,
+              { color: theme.colors.categories.pink.border },
+            ]}
+          >
+            Cerrar sesión
+          </Text>
+        </TouchableOpacity>
+
+        <View style={{ height: insets.bottom }} />
+      </ScrollView>
+
+      {/* ── Modales ── Se utliza visible para controlar la visibilidad
+ o onClose para ocultar las modales*/}
+      <ModalContact
+        visible={contactVisible}
+        onClose={() => setContactVisible(false)}
+      />
+      <ModalTerms
+        visible={termsVisible}
+        onClose={() => setTermsVisible(false)}
+      />
+      <ModalPrivacy
+        visible={privacyVisible}
+        onClose={() => setPrivacyVisible(false)}
+      />
+      <ModalAbout
+        visible={aboutVisible}
+        onClose={() => setAboutVisible(false)}
+      />
+    </View>
   );
 }
 
@@ -208,13 +249,15 @@ export function ScreenProfile() {
 
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    container: {
+    scrollView: {
       flex: 1,
-      backgroundColor: theme.colors.bgPrimary,
+    },
+    scrollContent: {
+      paddingHorizontal: theme.spacing.lg,
     },
     sectionLabel: {
       paddingHorizontal: theme.spacing.lg,
-      paddingTop: theme.spacing.lg,
+      paddingTop: theme.spacing.xxl,
       paddingBottom: theme.spacing.xs,
     },
     sectionLabelText: {

@@ -31,7 +31,7 @@ export function ScreenHome() {
       }}
     >
       <ScrollView
-        style={styles.scrollView}
+        style={styles.flex}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingBottom: insets.bottom },
@@ -39,8 +39,8 @@ export function ScreenHome() {
         showsVerticalScrollIndicator={false}
       >
         <View>
-          <View style={styles.testCard}>
-            <TouchableOpacity>
+          <View style={styles.profileCard}>
+            <TouchableOpacity style={styles.flex}>
               <ProfileSummary />
             </TouchableOpacity>
             <PrivacyToggle />
@@ -90,7 +90,6 @@ export function ScreenHome() {
             </View>
           </View>
           {/* Categorías en grid */}
-
           <StreakFooter />
         </View>
       </ScrollView>
@@ -102,13 +101,13 @@ export function ScreenHome() {
 //vamos a hacer lo siguiente
 export const createUserStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    scrollView: {
+    flex: {
       flex: 1,
     },
     scrollContent: {
       paddingHorizontal: theme.spacing.lg,
     },
-    testCard: {
+    profileCard: {
       alignItems: "center",
       backgroundColor: theme.colors.bgSecondary,
       borderWidth: 1,

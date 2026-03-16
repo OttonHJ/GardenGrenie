@@ -1,10 +1,10 @@
-import { AddPlantModal } from "@/src/components/AddPlantModal";
 import { GardenEmpty } from "@/src/components/GardenEmpty";
 import { GardenFilterBar } from "@/src/components/GardenFilterBar";
 import { GardenSearchBar } from "@/src/components/GardenSearchBar";
 import { GardenTopBar } from "@/src/components/GardenTopBar";
 import PlantCard, { Plant } from "@/src/components/PlantCard";
 import { usePlants } from "@/src/context/PlantContext";
+import { ModalAddPlant } from "@/src/modals/ModalAddPlant";
 import {
   AppTheme,
   getAppTheme,
@@ -118,7 +118,7 @@ export function ScreenGarden() {
         />
       )}
 
-      <AddPlantModal
+      <ModalAddPlant
         visible={modalVisible}
         editingPlant={editingPlant}
         onClose={handleCloseModal}

@@ -1,6 +1,6 @@
 import { Plant } from "@/src/components/PlantCard";
 import { MOCK_PLANTS } from "@/src/data/mockPlants";
-import { calcNextWatering } from "@/src/utils/plantUtils";
+import { calcNextWatering, todayDateString } from "@/src/utils/plantUtils";
 import React, { createContext, useCallback, useContext, useState } from "react";
 
 // ─── Tipos ─────────────────────────────────────────────────────────────────────
@@ -42,7 +42,7 @@ export function PlantsProvider({ children }: { children: React.ReactNode }) {
         const days = match ? parseInt(match[0]) : 7;
         return {
           ...p,
-          lastWatered: new Date().toISOString().split("T")[0],
+          lastWatered: todayDateString(),
           nextWatering: calcNextWatering(days),
         };
       }),

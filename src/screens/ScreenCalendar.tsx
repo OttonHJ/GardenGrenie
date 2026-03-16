@@ -395,8 +395,6 @@ export function ScreenCalendar() {
           ))
         )}
       </View>
-
-      <View style={{ height: insets.bottom + 24 }} />
     </ScrollView>
   );
 }

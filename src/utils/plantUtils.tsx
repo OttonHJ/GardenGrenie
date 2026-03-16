@@ -11,8 +11,13 @@ export function isWateringDue(nextWatering: string): boolean {
   return waterDate <= today;
 }
 
+// Devuelve la fecha de hoy en formato "YYYY-MM-DD" usando fecha local (no UTC)
+export function todayDateString(): string {
+  return calcNextWatering(0);
+}
+
 // Calcula la próxima fecha de riego: hoy + N días, formato "YYYY-MM-DD"
-// Usa fecha local para evitar desfase por zona horaria (toISOString devuelve UTC)
+// Usa fecha local para evitar desfase por zona horaria
 export function calcNextWatering(frequencyDays: number): string {
   const date = new Date();
   date.setDate(date.getDate() + frequencyDays);

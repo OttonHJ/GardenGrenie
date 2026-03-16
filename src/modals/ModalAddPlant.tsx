@@ -60,7 +60,7 @@ interface AddPlantModalProps {
   onPlantEdited?: (plant: Plant) => void;
 }
 
-export function AddPlantModal({
+export function ModalAddPlant({
   visible,
   editingPlant,
   onClose,

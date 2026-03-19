@@ -1,0 +1,461 @@
+{
+  "_metadata": {
+    "version": "1.1.0",
+    "appName": "GardenGreenie",
+    "createdAt": "2026-03-18",
+    "description": "Coleccion de datos de referencia para GardenGreenie — plantas, usuarios, categorias, riegos y seguridad",
+    "updatedAt": "2026-03-18",
+    "changelog": "v1.1.0 — Agregado objeto image en plantas, objeto avatar en usuarios y objeto streak con historial diario"
+  },
+  "categories": [
+    {
+      "id": "suculentas",
+      "label": "Suculentas",
+      "emoji": "🪴",
+      "description": "Plantas que almacenan agua en sus hojas, tallos o raices. Ideales para principiantes.",
+      "theme": {
+        "light": {
+          "bg": "#f0f9f5",
+          "border": "#6b9e8b"
+        },
+        "dark": {
+          "bg": "#1e3a32",
+          "border": "#6db89a"
+        }
+      },
+      "careProfile": {
+        "wateringFrequencyDays": 14,
+        "sunlight": "high",
+        "humidity": "low",
+        "typicalTemperatureRange": "10-30C"
+      }
+    },
+    {
+      "id": "tropicales",
+      "label": "Tropicales",
+      "emoji": "🌴",
+      "description": "Plantas de climas calidos y humedos. Requieren luz indirecta y riego frecuente.",
+      "theme": {
+        "light": {
+          "bg": "#f9f5f0",
+          "border": "#9e8b6b"
+        },
+        "dark": {
+          "bg": "#3a2e1e",
+          "border": "#b89a6d"
+        }
+      },
+      "careProfile": {
+        "wateringFrequencyDays": 7,
+        "sunlight": "medium",
+        "humidity": "high",
+        "typicalTemperatureRange": "18-30C"
+      }
+    },
+    {
+      "id": "aromaticas",
+      "label": "Aromaticas",
+      "emoji": "🌿",
+      "description": "Hierbas con aceites esenciales fragantes. Comestibles y utiles en cocina o medicina.",
+      "theme": {
+        "light": {
+          "bg": "#f9f0f5",
+          "border": "#9e6b8b"
+        },
+        "dark": {
+          "bg": "#3a1e32",
+          "border": "#b86d9a"
+        }
+      },
+      "careProfile": {
+        "wateringFrequencyDays": 3,
+        "sunlight": "medium",
+        "humidity": "medium",
+        "typicalTemperatureRange": "10-25C"
+      }
+    },
+    {
+      "id": "cactaceas",
+      "label": "Cactaceas",
+      "emoji": "🌵",
+      "description": "Cactus y plantas espinosas adaptadas a climas aridos. Minimo mantenimiento.",
+      "theme": {
+        "light": {
+          "bg": "#f5f9f0",
+          "border": "#8b9e6b"
+        },
+        "dark": {
+          "bg": "#2e3a1e",
+          "border": "#9ab86d"
+        }
+      },
+      "careProfile": {
+        "wateringFrequencyDays": 21,
+        "sunlight": "high",
+        "humidity": "low",
+        "typicalTemperatureRange": "15-35C"
+      }
+    }
+  ],
+  "wateringSchedules": [
+    {
+      "id": "ws-01",
+      "label": "c/3 dias",
+      "frequencyDays": 3,
+      "description": "Riego muy frecuente — plantas aromaticas y hierbas"
+    },
+    {
+      "id": "ws-02",
+      "label": "c/7 dias",
+      "frequencyDays": 7,
+      "description": "Riego semanal — tropicales y plantas de interior"
+    },
+    {
+      "id": "ws-03",
+      "label": "c/10 dias",
+      "frequencyDays": 10,
+      "description": "Riego moderado — suculentas jovenes y aromaticas resistentes"
+    },
+    {
+      "id": "ws-04",
+      "label": "c/14 dias",
+      "frequencyDays": 14,
+      "description": "Riego quincenal — suculentas maduras y cactaceas pequenas"
+    },
+    {
+      "id": "ws-05",
+      "label": "c/21 dias",
+      "frequencyDays": 21,
+      "description": "Riego esporadico — cactaceas establecidas"
+    }
+  ],
+  "sunlightLevels": [
+    {
+      "id": "low",
+      "label": "Poca luz",
+      "description": "Luz indirecta o sombra parcial. Menos de 3 horas de luz directa al dia."
+    },
+    {
+      "id": "medium",
+      "label": "Luz media",
+      "description": "Luz indirecta brillante. Entre 3 y 6 horas de luz al dia."
+    },
+    {
+      "id": "high",
+      "label": "Luz directa",
+      "description": "Exposicion directa al sol. Mas de 6 horas de sol directo al dia."
+    }
+  ],
+  "plants": [
+    {
+      "id": "001",
+      "createdAt": 1700000001000,
+      "name": "Cactus San Pedro",
+      "scientificName": "Echinopsis pachanoi",
+      "category": "cactaceas",
+      "location": "exterior",
+      "sunlight": "high",
+      "temperature": "18-30C",
+      "waterFrequency": "c/14 dias",
+      "waterFrequencyDays": 14,
+      "lastWatered": "2025-03-01",
+      "nextWatering": "2025-03-15",
+      "image": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "width": null,
+        "height": null
+      },
+      "notes": "Crece verticalmente. Resistente a heladas leves.",
+      "wateringHistory": ["2025-02-15", "2025-03-01"]
+    },
+    {
+      "id": "002",
+      "createdAt": 1700000002000,
+      "name": "Monstera Deliciosa",
+      "scientificName": "Monstera deliciosa",
+      "category": "tropicales",
+      "location": "interior",
+      "sunlight": "medium",
+      "temperature": "20-30C",
+      "waterFrequency": "c/7 dias",
+      "waterFrequencyDays": 7,
+      "lastWatered": "2025-03-05",
+      "nextWatering": "2025-03-12",
+      "image": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "width": null,
+        "height": null
+      },
+      "notes": "Limpiar las hojas con pano humedo mensualmente.",
+      "wateringHistory": [
+        "2025-02-05",
+        "2025-02-12",
+        "2025-02-19",
+        "2025-02-26",
+        "2025-03-05"
+      ]
+    },
+    {
+      "id": "003",
+      "createdAt": 1700000003000,
+      "name": "Orquidea Phalaenopsis",
+      "scientificName": "Phalaenopsis sp.",
+      "category": "tropicales",
+      "location": "interior",
+      "sunlight": "low",
+      "temperature": "18-25C",
+      "waterFrequency": "c/7 dias",
+      "waterFrequencyDays": 7,
+      "lastWatered": "2025-02-28",
+      "nextWatering": "2025-03-01",
+      "image": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "width": null,
+        "height": null
+      },
+      "notes": "Evitar agua en el centro de la planta. Riego por inmersion recomendado.",
+      "wateringHistory": [
+        "2025-02-07",
+        "2025-02-14",
+        "2025-02-21",
+        "2025-02-28"
+      ]
+    },
+    {
+      "id": "004",
+      "createdAt": 1700000004000,
+      "name": "Aloe Vera",
+      "scientificName": "Aloe barbadensis",
+      "category": "suculentas",
+      "location": "exterior",
+      "sunlight": "high",
+      "temperature": "15-30C",
+      "waterFrequency": "c/14 dias",
+      "waterFrequencyDays": 14,
+      "lastWatered": "2025-03-01",
+      "nextWatering": "2025-03-15",
+      "image": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "width": null,
+        "height": null
+      },
+      "notes": "El gel de las hojas tiene propiedades medicinales. Evitar encharcamiento.",
+      "wateringHistory": ["2025-02-01", "2025-02-15", "2025-03-01"]
+    },
+    {
+      "id": "005",
+      "createdAt": 1700000005000,
+      "name": "Lavanda",
+      "scientificName": "Lavandula angustifolia",
+      "category": "aromaticas",
+      "location": "exterior",
+      "sunlight": "high",
+      "temperature": "10-25C",
+      "waterFrequency": "c/10 dias",
+      "waterFrequencyDays": 10,
+      "lastWatered": "2025-03-08",
+      "nextWatering": "2025-03-18",
+      "image": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "width": null,
+        "height": null
+      },
+      "notes": "Podar despues de la floracion. Atrae polinizadores.",
+      "wateringHistory": ["2025-02-16", "2025-02-26", "2025-03-08"]
+    },
+    {
+      "id": "006",
+      "createdAt": 1700000006000,
+      "name": "Pothos",
+      "scientificName": "Epipremnum aureum",
+      "category": "tropicales",
+      "location": "interior",
+      "sunlight": "low",
+      "temperature": "18-30C",
+      "waterFrequency": "c/7 dias",
+      "waterFrequencyDays": 7,
+      "lastWatered": "2025-03-09",
+      "nextWatering": "2025-03-16",
+      "image": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "width": null,
+        "height": null
+      },
+      "notes": "Purifica el aire. Toxica para mascotas.",
+      "wateringHistory": ["2025-02-23", "2025-03-02", "2025-03-09"]
+    },
+    {
+      "id": "007",
+      "createdAt": 1700000007000,
+      "name": "Echeveria",
+      "scientificName": "Echeveria elegans",
+      "category": "suculentas",
+      "location": "exterior",
+      "sunlight": "high",
+      "temperature": "10-28C",
+      "waterFrequency": "c/10 dias",
+      "waterFrequencyDays": 10,
+      "lastWatered": "2025-03-01",
+      "nextWatering": "2025-03-11",
+      "image": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "width": null,
+        "height": null
+      },
+      "notes": "Evitar agua en la roseta. Propagar por hojas.",
+      "wateringHistory": ["2025-02-09", "2025-02-19", "2025-03-01"]
+    },
+    {
+      "id": "008",
+      "createdAt": 1700000008000,
+      "name": "Menta",
+      "scientificName": "Mentha spicata",
+      "category": "aromaticas",
+      "location": "interior",
+      "sunlight": "medium",
+      "temperature": "15-25C",
+      "waterFrequency": "c/3 dias",
+      "waterFrequencyDays": 3,
+      "lastWatered": "2025-03-10",
+      "nextWatering": "2025-03-13",
+      "image": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "width": null,
+        "height": null
+      },
+      "notes": "Invasiva en jardin abierto. Mejor en maceta. Cosechar regularmente.",
+      "wateringHistory": ["2025-03-04", "2025-03-07", "2025-03-10"]
+    }
+  ],
+  "users": [
+    {
+      "id": "usr-001",
+      "username": "mariagonzalez",
+      "displayName": "Maria Gonzalez",
+      "email": "maria.gonzalez@email.com",
+      "bio": "Amante de las plantas tropicales y suculentas.",
+      "location": "San Jose, Costa Rica",
+      "joinedAt": "2026-01-15T00:00:00.000Z",
+      "stats": {
+        "totalPlants": 8,
+        "totalWaterings": 47,
+        "friendsCount": 42
+      },
+      "preferences": {
+        "language": "es",
+        "theme": "dark",
+        "notifications": {
+          "wateringReminders": true,
+          "reminderHour": 8,
+          "weeklyReport": true
+        },
+        "privacy": {
+          "profilePublic": false,
+          "gardenPublic": false
+        }
+      },
+      "plantIds": ["001", "002", "003", "004", "005", "006", "007", "008"],
+      "streak": {
+        "currentDays": 28,
+        "longestDays": 35,
+        "lastActivityDate": "2026-03-18",
+        "startDate": "2026-02-19",
+        "history": [
+          {
+            "date": "2026-03-18",
+            "watered": true,
+            "plantsWatered": 2
+          },
+          {
+            "date": "2026-03-17",
+            "watered": true,
+            "plantsWatered": 1
+          },
+          {
+            "date": "2026-03-16",
+            "watered": true,
+            "plantsWatered": 3
+          },
+          {
+            "date": "2026-03-15",
+            "watered": false,
+            "plantsWatered": 0
+          },
+          {
+            "date": "2026-03-14",
+            "watered": true,
+            "plantsWatered": 1
+          }
+        ]
+      },
+      "avatar": {
+        "uri": null,
+        "localPath": null,
+        "source": null,
+        "uploadedAt": null,
+        "initials": "MG",
+        "color": "#6b9e8b"
+      }
+    }
+  ],
+  "security": {
+    "passwordPolicy": {
+      "minLength": 8,
+      "requireUppercase": true,
+      "requireNumber": true,
+      "requireSpecialChar": false,
+      "maxAgeDays": 180
+    },
+    "sessionPolicy": {
+      "tokenExpiryHours": 24,
+      "refreshTokenExpiryDays": 30,
+      "maxActiveSessions": 3
+    },
+    "authMethods": [
+      {
+        "id": "email_password",
+        "label": "Correo y contrasena",
+        "enabled": true
+      },
+      {
+        "id": "google",
+        "label": "Google",
+        "enabled": false
+      },
+      {
+        "id": "apple",
+        "label": "Apple",
+        "enabled": false
+      }
+    ],
+    "dataRetention": {
+      "wateringHistoryDays": 365,
+      "deletedPlantRecoveryDays": 30,
+      "inactiveAccountDays": 730
+    }
+  }
+}

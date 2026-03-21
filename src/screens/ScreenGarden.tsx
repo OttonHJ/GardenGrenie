@@ -10,12 +10,7 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import {
-  FilterId,
-  SortId,
-  matchesFilter,
-  sortPlants,
-} from "@/src/utils/plantUtils";
+import { SortId, matchesFilter, sortPlants } from "@/src/utils/plantUtils";
 import React, { useMemo, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,12 +20,19 @@ export function ScreenGarden() {
   const { theme, styles } = useProfileTheme(stylesByMode);
 
   // ── Estado global de plantas ─────────────────────────────────────────────
-  const { plants, addPlant, updatePlant, deletePlant, waterPlant } =
-    usePlants();
+  const {
+    plants,
+    addPlant,
+    updatePlant,
+    deletePlant,
+    waterPlant,
+    activeFilter,
+    setActiveFilter,
+  } = usePlants();
 
   // ── Estado local de UI ───────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setFilter] = useState<FilterId>("all");
+  // activeFilter viene del contexto — permite recibir filtros desde ScreenHome
   const [sortBy, setSortBy] = useState<SortId>("name");
   const [modalVisible, setModal] = useState(false);
   const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
@@ -61,7 +63,7 @@ export function ScreenGarden() {
   };
 
   const handleClearFilters = () => {
-    setFilter("all");
+    setActiveFilter("all");
     setSearchQuery("");
   };
 
@@ -85,7 +87,7 @@ export function ScreenGarden() {
 
       <GardenFilterBar
         activeFilter={activeFilter}
-        onFilterChange={setFilter}
+        onFilterChange={setActiveFilter}
         sortBy={sortBy}
         onSortChange={setSortBy}
         resultCount={filteredPlants.length}
@@ -138,6 +140,7 @@ const createStyles = (theme: AppTheme) =>
     listContent: {
       paddingHorizontal: theme.spacing.lg,
       paddingTop: theme.spacing.md,
+      //paddingBottom: theme.spacing.xxl,
     },
   });
 

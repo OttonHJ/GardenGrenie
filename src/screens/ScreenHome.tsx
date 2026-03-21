@@ -8,6 +8,8 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { FilterId, isWateringDue } from "@/src/utils/plantUtils";
+import { router } from "expo-router";
 import React, { useMemo } from "react";
 import {
   ScrollView,
@@ -22,10 +24,16 @@ import { FavoritePlant } from "../components/FavoritePlant";
 export function ScreenHome() {
   const insets = useSafeAreaInsets();
   const { styles } = useProfileTheme(stylesByMode);
-  const { plants } = usePlants();
+  const { plants, setActiveFilter } = usePlants();
 
-  // ── Estadísticas  ──────────────────────────────────
+  // ── Estadísticas derivadas del contexto ──────────────────────────────────
   const totalPlants = plants.length;
+
+  const waterToday = useMemo(
+    () => plants.filter((p) => isWateringDue(p.nextWatering)).length,
+    [plants],
+  );
+
   const countByCategory = useMemo(
     () => ({
       suculentas: plants.filter((p) => p.category === "suculentas").length,
@@ -35,7 +43,11 @@ export function ScreenHome() {
     }),
     [plants],
   );
-  // ── Estadísticas  ──────────────────────────────────
+
+  const handleCategoryPress = (filter: FilterId) => {
+    setActiveFilter(filter);
+    router.navigate("/tabGarden");
+  };
 
   return (
     <View
@@ -67,8 +79,14 @@ export function ScreenHome() {
               <Text style={styles.statLabel}>{"Plantas\nregistradas"}</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>42</Text>
-              <Text style={styles.statLabel}>{"Amigos\nconectados"}</Text>
+              <Text
+                style={
+                  waterToday > 0 ? styles.statNumberOrange : styles.statNumber
+                }
+              >
+                {waterToday}
+              </Text>
+              <Text style={styles.statLabel}>{"Regar\nhoy"}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumberOrange}>28</Text>
@@ -84,30 +102,46 @@ export function ScreenHome() {
               <Text style={styles.sectionTitle}>🍃 CATEGORÍAS</Text>
             </View>
             <View style={styles.categoriesGrid}>
-              <View style={[styles.categoryCard, styles.categoryGreen]}>
+              <TouchableOpacity
+                style={[styles.categoryCard, styles.categoryGreen]}
+                onPress={() => handleCategoryPress("suculentas")}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.categoryNumber}>
                   {countByCategory.suculentas}
                 </Text>
                 <Text style={styles.categoryLabel}>Suculentas</Text>
-              </View>
-              <View style={[styles.categoryCard, styles.categoryBrown]}>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.categoryCard, styles.categoryBrown]}
+                onPress={() => handleCategoryPress("tropicales")}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.categoryNumber}>
                   {countByCategory.tropicales}
                 </Text>
                 <Text style={styles.categoryLabel}>Tropicales</Text>
-              </View>
-              <View style={[styles.categoryCard, styles.categoryPink]}>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.categoryCard, styles.categoryPink]}
+                onPress={() => handleCategoryPress("aromaticas")}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.categoryNumber}>
                   {countByCategory.aromaticas}
                 </Text>
                 <Text style={styles.categoryLabel}>Aromáticas</Text>
-              </View>
-              <View style={[styles.categoryCard, styles.categoryYellow]}>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.categoryCard, styles.categoryYellow]}
+                onPress={() => handleCategoryPress("cactaceas")}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.categoryNumber}>
                   {countByCategory.cactaceas}
                 </Text>
                 <Text style={styles.categoryLabel}>Cactáceas</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
           {/* Categorías en grid */}

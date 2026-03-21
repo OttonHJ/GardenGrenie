@@ -1,6 +1,10 @@
 import { Plant } from "@/src/components/PlantCard";
 import { MOCK_PLANTS } from "@/src/data/mockPlants";
-import { calcNextWatering, todayDateString } from "@/src/utils/plantUtils";
+import {
+  FilterId,
+  calcNextWatering,
+  todayDateString,
+} from "@/src/utils/plantUtils";
 import React, { createContext, useCallback, useContext, useState } from "react";
 
 // ─── Tipos ─────────────────────────────────────────────────────────────────────
@@ -11,6 +15,8 @@ interface PlantsContextValue {
   updatePlant: (plant: Plant) => void;
   deletePlant: (plantId: string) => void;
   waterPlant: (plantId: string) => void;
+  activeFilter: FilterId;
+  setActiveFilter: (filter: FilterId) => void;
 }
 
 // ─── Contexto ──────────────────────────────────────────────────────────────────
@@ -21,6 +27,7 @@ const PlantsContext = createContext<PlantsContextValue | null>(null);
 
 export function PlantsProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>(MOCK_PLANTS);
+  const [activeFilter, setActiveFilter] = useState<FilterId>("all");
 
   const addPlant = useCallback((plant: Plant) => {
     setPlants((prev) => [plant, ...prev]);
@@ -51,7 +58,15 @@ export function PlantsProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <PlantsContext.Provider
-      value={{ plants, addPlant, updatePlant, deletePlant, waterPlant }}
+      value={{
+        plants,
+        addPlant,
+        updatePlant,
+        deletePlant,
+        waterPlant,
+        activeFilter,
+        setActiveFilter,
+      }}
     >
       {children}
     </PlantsContext.Provider>

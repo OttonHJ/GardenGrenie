@@ -1,5 +1,6 @@
 import { SettingsProfileRow } from "@/src/components/SettingsProfileRow";
 import { SettingsProfileSummary } from "@/src/components/SettingsProfileSummary";
+import { useAuth } from "@/src/context/AuthContext";
 import { ModalAbout } from "@/src/modals/ModalAbout";
 import { ModalContact } from "@/src/modals/ModalContact";
 import { ModalPrivacy } from "@/src/modals/ModalPrivacy";
@@ -37,13 +38,15 @@ export function ScreenProfile() {
     Alert.alert("Editar perfil", "Próximamente.");
   };
 
+  const { logout } = useAuth();
+
   const handleLogout = () => {
     Alert.alert(
       "Cerrar sesión",
       "¿Estás seguro de que quieres cerrar sesión?",
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Cerrar sesión", style: "destructive", onPress: () => {} },
+        { text: "Cerrar sesión", style: "destructive", onPress: logout },
       ],
     );
   };

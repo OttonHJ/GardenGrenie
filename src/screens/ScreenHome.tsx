@@ -2,12 +2,13 @@ import { PrivacyToggle } from "@/src/components/PrivacyToggle";
 import { ProfileSummary } from "@/src/components/ProfileSummary";
 import { SmallBio } from "@/src/components/SmallBio";
 import { StreakFooter } from "@/src/components/StreakFooter";
+import { usePlants } from "@/src/context/PlantContext";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -21,6 +22,20 @@ import { FavoritePlant } from "../components/FavoritePlant";
 export function ScreenHome() {
   const insets = useSafeAreaInsets();
   const { styles } = useProfileTheme(stylesByMode);
+  const { plants } = usePlants();
+
+  // ── Estadísticas  ──────────────────────────────────
+  const totalPlants = plants.length;
+  const countByCategory = useMemo(
+    () => ({
+      suculentas: plants.filter((p) => p.category === "suculentas").length,
+      tropicales: plants.filter((p) => p.category === "tropicales").length,
+      aromaticas: plants.filter((p) => p.category === "aromaticas").length,
+      cactaceas: plants.filter((p) => p.category === "cactaceas").length,
+    }),
+    [plants],
+  );
+  // ── Estadísticas  ──────────────────────────────────
 
   return (
     <View
@@ -48,7 +63,7 @@ export function ScreenHome() {
           {/* Stats horizontales con líneas divisorias */}
           <View style={(styles.section, styles.statsContainer)}>
             <View style={styles.statItem}>
-              <Text style={styles.statNumber}>127</Text>
+              <Text style={styles.statNumber}>{totalPlants}</Text>
               <Text style={styles.statLabel}>{"Plantas\nregistradas"}</Text>
             </View>
             <View style={styles.statItem}>
@@ -70,19 +85,27 @@ export function ScreenHome() {
             </View>
             <View style={styles.categoriesGrid}>
               <View style={[styles.categoryCard, styles.categoryGreen]}>
-                <Text style={styles.categoryNumber}>34</Text>
+                <Text style={styles.categoryNumber}>
+                  {countByCategory.suculentas}
+                </Text>
                 <Text style={styles.categoryLabel}>Suculentas</Text>
               </View>
               <View style={[styles.categoryCard, styles.categoryBrown]}>
-                <Text style={styles.categoryNumber}>28</Text>
+                <Text style={styles.categoryNumber}>
+                  {countByCategory.tropicales}
+                </Text>
                 <Text style={styles.categoryLabel}>Tropicales</Text>
               </View>
               <View style={[styles.categoryCard, styles.categoryPink]}>
-                <Text style={styles.categoryNumber}>22</Text>
+                <Text style={styles.categoryNumber}>
+                  {countByCategory.aromaticas}
+                </Text>
                 <Text style={styles.categoryLabel}>Aromáticas</Text>
               </View>
               <View style={[styles.categoryCard, styles.categoryYellow]}>
-                <Text style={styles.categoryNumber}>18</Text>
+                <Text style={styles.categoryNumber}>
+                  {countByCategory.cactaceas}
+                </Text>
                 <Text style={styles.categoryLabel}>Cactáceas</Text>
               </View>
             </View>

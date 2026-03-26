@@ -1,4 +1,3 @@
-import { useAuth } from "@/src/auth/useAuth";
 import {
   AppTheme,
   getAppTheme,
@@ -38,8 +37,8 @@ export function ScreenLogin({
   const handleLogin = () => {
     // Integración con Firebase Auth pendiente
     // Por ahora llama al callback que activa isAuthenticated en _layout
-    //onLoginSuccess();
-    useAuth().authGoogle();
+    onLoginSuccess();
+    //useAuth().authGoogle();
   };
 
   return (

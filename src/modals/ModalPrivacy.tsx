@@ -48,27 +48,27 @@ export function ModalPrivacy({ visible, onClose }: PrivacyModalProps) {
           {[
             {
               heading: "¿Qué datos recopilamos?",
-              body: "Solo recopilamos los datos que tú ingresas voluntariamente: nombre de usuario, información de tus plantas (nombre, categoría, frecuencia de riego) y fotografías que tú tomas o seleccionas.",
+              body: "Recopilamos los datos que ingresas voluntariamente: nombre, correo electrónico, alias, fecha de nacimiento, biografía, información de tus plantas (nombre, categoría, frecuencia de riego) y las fotografías que tomas o seleccionas para identificarlas.",
             },
             {
               heading: "¿Dónde se almacenan tus datos?",
-              body: "Todos tus datos se almacenan localmente en tu dispositivo. No subimos ni sincronizamos tu información con servidores externos en esta versión de la app.",
+              body: "Tu información se almacena de forma segura en la nube mediante Firebase, un servicio de Google. Esto nos permite sincronizar tus datos entre dispositivos y mantenerlos disponibles incluso si cambias de teléfono.",
             },
             {
               heading: "¿Compartimos tus datos?",
-              body: "No. No vendemos, alquilamos ni compartimos tu información personal con terceros bajo ninguna circunstancia.",
+              body: "No vendemos ni alquilamos tu información personal. Tus datos son procesados por Firebase (Google) únicamente para brindar el servicio. Puedes consultar la política de privacidad de Google en google.com/policies/privacy.",
             },
             {
               heading: "Fotografías y cámara",
-              body: "GardenGreenie solicita acceso a tu cámara y galería únicamente para que puedas fotografiar tus plantas. Estas fotos se guardan en tu dispositivo y no se transmiten a ningún servidor.",
+              body: "GardenGreenie solicita acceso a tu cámara y galería para que puedas fotografiar tus plantas. Las fotos que seleccionas se suben a Firebase Storage para mostrarlas en tu jardín. No se usan con ningún otro fin.",
             },
             {
               heading: "Tus derechos",
-              body: "Tienes control total sobre tus datos. Puedes editar o eliminar cualquier planta o información desde la app en cualquier momento.",
+              body: "Puedes editar o eliminar cualquier planta o información desde la app en cualquier momento. Para eliminar tu cuenta y todos tus datos, contáctanos a través del formulario de contacto.",
             },
             {
               heading: "Cambios en esta política",
-              body: "Si actualizamos esta política de privacidad, te notificaremos dentro de la app antes de que los cambios entren en vigor.",
+              body: "Si actualizamos esta política, te notificaremos dentro de la app antes de que los cambios entren en vigor.",
             },
           ].map(({ heading, body }) => (
             <View key={heading} style={styles.section}>

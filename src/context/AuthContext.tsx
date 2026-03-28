@@ -17,8 +17,7 @@ import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 GoogleSignin.configure({
-  webClientId:
-    "990735411747-6mpv7kjfl4mp8ac4vqtu3g98qev4a3hh.apps.googleusercontent.com",
+  webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
 });
 
 // ─── Tipos ─────────────────────────────────────────────────────────────────────

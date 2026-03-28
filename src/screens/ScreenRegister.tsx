@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/context/AuthContext";
 import {
   AppTheme,
   getAppTheme,
@@ -5,6 +6,7 @@ import {
 } from "@/src/theme/designSystem";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -18,15 +20,25 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ScreenRegisterProps {
   onNavigateLogin: () => void;
-  onRegisterSuccess: () => void;
 }
 
-export function ScreenRegister({
-  onNavigateLogin,
-  onRegisterSuccess,
-}: ScreenRegisterProps) {
+function firebaseRegisterError(code: string): string {
+  switch (code) {
+    case "auth/email-already-in-use":
+      return "Ya existe una cuenta con ese correo.";
+    case "auth/invalid-email":
+      return "El correo no es válido.";
+    case "auth/weak-password":
+      return "La contraseña es muy débil.";
+    default:
+      return "Ocurrió un error. Intenta de nuevo.";
+  }
+}
+
+export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
+  const { register } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -34,8 +46,9 @@ export function ScreenRegister({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     setError("");
 
     if (!name.trim()) {
@@ -55,9 +68,14 @@ export function ScreenRegister({
       return;
     }
 
-    // Integración con Firebase Auth pendiente
-    // Por ahora llama al callback que activa isAuthenticated en _layout
-    onRegisterSuccess();
+    setIsLoading(true);
+    try {
+      await register(name.trim(), email.trim(), password);
+    } catch (e: any) {
+      setError(firebaseRegisterError(e.code));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -213,12 +231,17 @@ export function ScreenRegister({
           <TouchableOpacity
             style={[
               styles.primaryBtn,
-              { backgroundColor: theme.colors.accentGreen },
+              { backgroundColor: theme.colors.accentGreen, opacity: isLoading ? 0.7 : 1 },
             ]}
             onPress={handleRegister}
             activeOpacity={0.8}
+            disabled={isLoading}
           >
-            <Text style={styles.primaryBtnText}>Crear cuenta</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text style={styles.primaryBtnText}>Crear cuenta</Text>
+            )}
           </TouchableOpacity>
         </View>
 

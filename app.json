@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "react-app",
-    "slug": "react-app",
+    "name": "GardenGrenie",
+    "slug": "GardenGrenie",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/context/AuthContext";
 import {
   AppTheme,
   getAppTheme,
@@ -5,6 +6,7 @@ import {
 } from "@/src/theme/designSystem";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -19,26 +21,63 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 interface ScreenLoginProps {
   onNavigateRegister: () => void;
   onNavigateForgot: () => void;
-  onLoginSuccess: () => void;
+}
+
+function firebaseLoginError(code: string): string {
+  switch (code) {
+    case "auth/invalid-credential":
+    case "auth/user-not-found":
+    case "auth/wrong-password":
+      return "Correo o contraseña incorrectos.";
+    case "auth/invalid-email":
+      return "El correo no es válido.";
+    case "auth/too-many-requests":
+      return "Demasiados intentos. Intenta más tarde.";
+    case "auth/user-disabled":
+      return "Esta cuenta ha sido deshabilitada.";
+    default:
+      return "Ocurrió un error. Intenta de nuevo.";
+  }
 }
 
 export function ScreenLogin({
   onNavigateRegister,
   onNavigateForgot,
-  onLoginSuccess,
 }: ScreenLoginProps) {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
+  const { login, loginWithGoogle } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  const handleLogin = () => {
-    // Integración con Firebase Auth pendiente
-    // Por ahora llama al callback que activa isAuthenticated en _layout
-    onLoginSuccess();
-    //useAuth().authGoogle();
+  const handleLogin = async () => {
+    setError("");
+    if (!email.trim() || !password) return;
+    setIsLoading(true);
+    try {
+      await login(email.trim(), password);
+    } catch (e: any) {
+      setError(firebaseLoginError(e.code));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    setIsGoogleLoading(true);
+    try {
+      await loginWithGoogle();
+    } catch {
+      setError("No se pudo iniciar sesión con Google. Intenta de nuevo.");
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
   return (
@@ -137,16 +176,76 @@ export function ScreenLogin({
             </Text>
           </TouchableOpacity>
 
+          {/* Error */}
+          {error !== "" && (
+            <View
+              style={[
+                styles.errorBanner,
+                {
+                  backgroundColor: theme.colors.categories.pink.bg,
+                  borderColor: theme.colors.categories.pink.border,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.errorText,
+                  { color: theme.colors.categories.pink.border },
+                ]}
+              >
+                {error}
+              </Text>
+            </View>
+          )}
+
           {/* Botón de ingreso */}
           <TouchableOpacity
             style={[
               styles.primaryBtn,
-              { backgroundColor: theme.colors.accentGreen },
+              { backgroundColor: theme.colors.accentGreen, opacity: isLoading ? 0.7 : 1 },
             ]}
             onPress={handleLogin}
             activeOpacity={0.8}
+            disabled={isLoading || isGoogleLoading}
           >
-            <Text style={styles.primaryBtnText}>Ingresar</Text>
+            {isLoading ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text style={styles.primaryBtnText}>Ingresar</Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Separador */}
+          <View style={styles.divider}>
+            <View style={[styles.dividerLine, { backgroundColor: theme.colors.borderPrimary }]} />
+            <Text style={[styles.dividerText, { color: theme.colors.textTertiary }]}>o</Text>
+            <View style={[styles.dividerLine, { backgroundColor: theme.colors.borderPrimary }]} />
+          </View>
+
+          {/* Botón Google */}
+          <TouchableOpacity
+            style={[
+              styles.googleBtn,
+              {
+                backgroundColor: theme.colors.bgSecondary,
+                borderColor: theme.colors.borderPrimary,
+                opacity: isGoogleLoading ? 0.7 : 1,
+              },
+            ]}
+            onPress={handleGoogleLogin}
+            activeOpacity={0.8}
+            disabled={isLoading || isGoogleLoading}
+          >
+            {isGoogleLoading ? (
+              <ActivityIndicator color={theme.colors.textPrimary} />
+            ) : (
+              <>
+                <Text style={styles.googleIcon}>G</Text>
+                <Text style={[styles.googleBtnText, { color: theme.colors.textPrimary }]}>
+                  Continuar con Google
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -202,6 +301,17 @@ const createStyles = (theme: AppTheme) =>
     form: {
       marginBottom: theme.spacing.xxl,
     },
+    errorBanner: {
+      borderRadius: theme.radius.sm,
+      borderWidth: theme.spacing.xxs,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      marginBottom: theme.spacing.md,
+    },
+    errorText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+    },
     formTitle: {
       fontSize: theme.fontSize.lg,
       fontWeight: "700",
@@ -252,6 +362,37 @@ const createStyles = (theme: AppTheme) =>
       color: "#ffffff",
       fontSize: theme.fontSize.sm,
       fontWeight: "700",
+    },
+    divider: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginVertical: theme.spacing.lg,
+      gap: theme.spacing.sm,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+    },
+    dividerText: {
+      fontSize: theme.fontSize.sm,
+    },
+    googleBtn: {
+      borderRadius: theme.radius.sm,
+      borderWidth: theme.spacing.xxs,
+      paddingVertical: theme.spacing.md + 2,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.sm,
+    },
+    googleIcon: {
+      fontSize: theme.fontSize.md,
+      fontWeight: "700",
+      color: "#4285F4",
+    },
+    googleBtnText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
     },
     footer: {
       flexDirection: "row",

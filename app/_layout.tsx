@@ -10,31 +10,37 @@ import {
 } from "@/src/theme/designSystem";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import React, { useState } from "react";
-import { StyleSheet } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 type AuthScreen = "login" | "register" | "forgot";
 
 // Componente interno que consume el contexto
 function AppContent() {
-  const { styles } = useProfileTheme(stylesByMode);
-  const { isAuthenticated, login } = useAuth();
+  const { theme } = useProfileTheme(stylesByMode);
+  const { user, loading } = useAuth();
   const [authScreen, setAuthScreen] = useState<AuthScreen>("login");
 
-  if (!isAuthenticated) {
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.bgPrimary }}>
+        <ActivityIndicator size="large" color={theme.colors.accentGreen} />
+      </View>
+    );
+  }
+
+  if (!user) {
     return (
       <>
         {authScreen === "login" && (
           <ScreenLogin
             onNavigateRegister={() => setAuthScreen("register")}
             onNavigateForgot={() => setAuthScreen("forgot")}
-            onLoginSuccess={login}
           />
         )}
         {authScreen === "register" && (
           <ScreenRegister
             onNavigateLogin={() => setAuthScreen("login")}
-            onRegisterSuccess={login}
           />
         )}
         {authScreen === "forgot" && (
@@ -80,7 +86,7 @@ export default function RootLayout() {
   );
 }
 
-export const createUserStyles = (theme: AppTheme) => StyleSheet.create({});
+export const createUserStyles = (_theme: AppTheme) => StyleSheet.create({});
 
 const stylesByMode = {
   light: createUserStyles(getAppTheme("light")),

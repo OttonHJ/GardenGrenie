@@ -5,7 +5,7 @@ export function useAuth() {
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     androidClientId:
       "990735411747-q6fjehof4iods2mcmjd98ivdllcj1omu.apps.googleusercontent.com",
-    //isidCliente: "", - Esta seria la infomacion para iOS
+    //iosClientId: "", - Esta seria la infomacion para iOS
   });
 
   useEffect(() => {

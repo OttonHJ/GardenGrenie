@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/context/AuthContext";
 import {
   AppTheme,
   getAppTheme,
@@ -26,14 +27,21 @@ export function ScreenForgotPassword({
 }: ScreenForgotPasswordProps) {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
+  const { sendPasswordReset } = useAuth();
 
   const [email, setEmail] = useState("");
   const [step, setStep] = useState<Step>("form");
+  const [error, setError] = useState("");
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!email.trim()) return;
-    // Integración con Firebase Auth pendiente
-    setStep("sent");
+    setError("");
+    try {
+      await sendPasswordReset(email.trim());
+      setStep("sent");
+    } catch {
+      setError("No se pudo enviar el correo. Verifica la dirección.");
+    }
   };
 
   if (step === "sent") {
@@ -119,6 +127,12 @@ export function ScreenForgotPassword({
             autoCorrect={false}
           />
 
+          {error !== "" && (
+            <Text style={[styles.errorText, { color: theme.colors.categories.pink.border }]}>
+              {error}
+            </Text>
+          )}
+
           <TouchableOpacity
             style={[
               styles.primaryBtn,
@@ -184,6 +198,11 @@ const createStyles = (theme: AppTheme) =>
       paddingVertical: theme.spacing.md,
       fontSize: theme.fontSize.sm,
       marginBottom: theme.spacing.xl,
+    },
+    errorText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      marginBottom: theme.spacing.md,
     },
     primaryBtn: {
       borderRadius: theme.radius.sm,

@@ -148,6 +148,16 @@ export function ModalAddPlant({
     if (!uri || !user) return "";
     const response = await fetch(uri);
     const blob = await response.blob();
+
+    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/heic"];
+    if (!validTypes.includes(blob.type)) {
+      throw new Error("El archivo seleccionado no es una imagen válida.");
+    }
+    const maxBytes = 5 * 1024 * 1024; // 5 MB
+    if (blob.size > maxBytes) {
+      throw new Error("La imagen no puede superar los 5 MB.");
+    }
+
     const storageRef = ref(storage, `users/${user.uid}/plants/${plantId}`);
     await uploadBytes(storageRef, blob);
     return await getDownloadURL(storageRef);

@@ -65,8 +65,16 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
       setError("El alias solo puede tener letras minúsculas, números, puntos y guiones bajos.");
       return;
     }
+    if (birthday.trim() && !/^\d{2}\/\d{2}\/\d{4}$/.test(birthday.trim())) {
+      setError("La fecha debe tener el formato DD/MM/AAAA.");
+      return;
+    }
     if (!email.trim()) {
       setError("El correo es obligatorio.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("El correo no tiene un formato válido.");
       return;
     }
     if (password.length < 8) {

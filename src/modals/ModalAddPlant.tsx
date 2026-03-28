@@ -98,7 +98,7 @@ export function ModalAddPlant({
 
       setForm(resolvedForm);
       setStep(isEditMode ? "form" : "options");
-      setImageUri(typeof editingPlant?.image === "string" ? editingPlant.image : "");
+      setImageUri(editingPlant?.image ?? "");
     } else {
       setStep("options");
       setForm(EMPTY_FORM);

@@ -23,11 +23,20 @@ interface ContactModalProps {
 export function ModalContact({ visible, onClose }: ContactModalProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
   const handleSend = () => {
     if (!name.trim()) {
       Alert.alert("Campo requerido", "Por favor ingresa tu nombre.");
+      return;
+    }
+    if (!email.trim()) {
+      Alert.alert("Campo requerido", "Por favor ingresa tu correo.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      Alert.alert("Correo inválido", "Ingresa un correo con formato válido.");
       return;
     }
     if (!message.trim()) {
@@ -41,11 +50,13 @@ export function ModalContact({ visible, onClose }: ContactModalProps) {
       [{ text: "OK", onPress: onClose }],
     );
     setName("");
+    setEmail("");
     setMessage("");
   };
 
   const handleClose = () => {
     setName("");
+    setEmail("");
     setMessage("");
     onClose();
   };
@@ -90,6 +101,27 @@ export function ModalContact({ visible, onClose }: ContactModalProps) {
             placeholderTextColor={theme.colors.textTertiary}
             value={name}
             onChangeText={setName}
+          />
+
+          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+            Correo electrónico <Text style={{ color: theme.colors.accentOrange }}>*</Text>
+          </Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.colors.bgPrimary,
+                borderColor: theme.colors.borderPrimary,
+                color: theme.colors.textPrimary,
+              },
+            ]}
+            placeholder="tu@correo.com"
+            placeholderTextColor={theme.colors.textTertiary}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
           />
 
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>

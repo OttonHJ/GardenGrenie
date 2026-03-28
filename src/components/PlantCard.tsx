@@ -31,7 +31,7 @@ export interface Plant {
   createdAt: number; // timestamp para ordenar por fecha de creación
   name: string;
   scientificName: string;
-  image: string | number; // string = URI remota/local, number = require() asset
+  image: string;
   lastWatered: string;
   nextWatering: string; // formato ISO: "2025-08-20"
   sunlight: "low" | "medium" | "high";
@@ -141,11 +141,7 @@ export default function PlantCard({
         {/* Imagen */}
         {plant.image ? (
           <Image
-            source={
-              typeof plant.image === "number"
-                ? plant.image
-                : { uri: plant.image as string }
-            }
+            source={{ uri: plant.image }}
             style={styles.plantImage}
           />
         ) : (

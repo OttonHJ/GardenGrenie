@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/context/AuthContext";
 import {
   AppTheme,
   getAppTheme,
@@ -12,6 +13,9 @@ interface ProfileSummaryProps {
 
 export function SettingsProfileSummary({ onEditPress }: ProfileSummaryProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
+  const { user } = useAuth();
+
+  const displayName = user?.displayName ?? user?.email?.split("@")[0] ?? "Usuario";
 
   return (
     <View
@@ -24,11 +28,15 @@ export function SettingsProfileSummary({ onEditPress }: ProfileSummaryProps) {
       ]}
     >
       <Image
-        source={require("@/assets/images/profilePlaceholder.png")}
+        source={
+          user?.photoURL
+            ? { uri: user.photoURL }
+            : require("@/assets/images/profilePlaceholder.png")
+        }
         style={[styles.avatar, { borderColor: theme.colors.accentGreen }]}
       />
       <Text style={[styles.name, { color: theme.colors.textPrimary }]}>
-        María González
+        {displayName}
       </Text>
       <TouchableOpacity
         style={[

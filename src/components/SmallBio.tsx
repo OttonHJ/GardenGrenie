@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/context/AuthContext";
 import {
   AppTheme,
   getAppTheme,
@@ -8,14 +9,15 @@ import { StyleSheet, Text, View } from "react-native";
 
 export function SmallBio() {
   const { styles } = useProfileTheme(stylesByMode);
+  const { profile } = useAuth();
+
+  const bio = profile?.bio?.trim();
+  if (!bio) return null;
+
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>SOBRE MÍ</Text>
-      <Text style={styles.description}>
-        Apasionada de la botánica y el cuidado de plantas. Me encanta compartir
-        mis conocimientos y ayudar a otros a mantener sus plantas felices y
-        saludables.
-      </Text>
+      <Text style={styles.description}>{bio}</Text>
     </View>
   );
 }

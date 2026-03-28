@@ -1,3 +1,4 @@
+import { useAuth } from "@/src/context/AuthContext";
 import {
   AppTheme,
   getAppTheme,
@@ -8,26 +9,29 @@ import { Image, StyleSheet, Text, View } from "react-native";
 
 export function ProfileSummary() {
   const { styles } = useProfileTheme(stylesByMode);
+  const { user, profile } = useAuth();
+
+  const displayName = profile?.displayName || user?.displayName || user?.email?.split("@")[0] || "Usuario";
+  const username = profile?.username ? `@${profile.username}` : user?.email ?? "";
+  const birthday = profile?.birthday ?? "";
 
   return (
     <View style={styles.containerHeader}>
       <View style={styles.containerHeaderStack}>
         <Image
-          source={require("@/assets/images/profilePlaceholder.png")}
+          source={
+            user?.photoURL
+              ? { uri: user.photoURL }
+              : require("@/assets/images/profilePlaceholder.png")
+          }
           style={styles.profileImage}
         />
         <View style={styles.personalInfoStack}>
-          <Text style={styles.name}>María González</Text>
-          <Text style={styles.username}>@plantlover</Text>
-          <View style={styles.alignContainer}>
-            <View style={styles.rowAlign}>
-              <Image
-                style={styles.iconRight}
-                source={require("@/assets/icons/cake.png")}
-              />
-              <Text style={styles.textInfo}>15 de Mayo </Text>
-            </View>
-          </View>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.username}>{username}</Text>
+          {!!birthday && (
+            <Text style={styles.username}>🎂 {birthday}</Text>
+          )}
         </View>
       </View>
     </View>

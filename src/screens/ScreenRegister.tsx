@@ -41,6 +41,8 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
   const { register } = useAuth();
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [birthday, setBirthday] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -53,6 +55,14 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
 
     if (!name.trim()) {
       setError("El nombre es obligatorio.");
+      return;
+    }
+    if (!username.trim()) {
+      setError("El alias es obligatorio.");
+      return;
+    }
+    if (!/^[a-z0-9_.]+$/.test(username.trim())) {
+      setError("El alias solo puede tener letras minúsculas, números, puntos y guiones bajos.");
       return;
     }
     if (!email.trim()) {
@@ -70,7 +80,7 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
 
     setIsLoading(true);
     try {
-      await register(name.trim(), email.trim(), password);
+      await register(name.trim(), email.trim(), password, username.trim(), birthday.trim());
     } catch (e: any) {
       setError(firebaseRegisterError(e.code));
     } finally {
@@ -148,6 +158,45 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
+          />
+
+          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+            Alias <Text style={{ color: theme.colors.accentOrange ?? "#f97316" }}>*</Text>
+          </Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.colors.bgSecondary,
+                borderColor: theme.colors.borderPrimary,
+                color: theme.colors.textPrimary,
+              },
+            ]}
+            placeholder="ej. maria.gonzalez"
+            placeholderTextColor={theme.colors.textTertiary}
+            value={username}
+            onChangeText={(v) => setUsername(v.toLowerCase().replace(/\s/g, ""))}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+
+          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+            Fecha de nacimiento
+          </Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.colors.bgSecondary,
+                borderColor: theme.colors.borderPrimary,
+                color: theme.colors.textPrimary,
+              },
+            ]}
+            placeholder="DD/MM/AAAA"
+            placeholderTextColor={theme.colors.textTertiary}
+            value={birthday}
+            onChangeText={setBirthday}
+            keyboardType="numeric"
           />
 
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>

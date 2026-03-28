@@ -1,13 +1,19 @@
 import { Plant } from "@/src/components/PlantCard";
+import { storage } from "@/src/config/firebase";
+import { useAuth } from "@/src/context/AuthContext";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
 import { calcNextWatering, todayDateString } from "@/src/utils/plantUtils";
+import * as ImagePicker from "expo-image-picker";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -20,7 +26,6 @@ import {
 // ─── Tipos internos ────────────────────────────────────────────────────────────
 
 type Step = "options" | "form";
-type Origin = "manual" | "camera" | "gallery";
 
 interface FormState {
   name: string;
@@ -68,11 +73,13 @@ export function ModalAddPlant({
   onPlantEdited,
 }: AddPlantModalProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
+  const { user } = useAuth();
   const isEditMode = !!editingPlant;
 
   const [step, setStep] = useState<Step>("options");
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [origin, setOrigin] = useState<Origin>("manual");
+  const [imageUri, setImageUri] = useState<string>("");
+  const [isSaving, setIsSaving] = useState(false);
 
   React.useEffect(() => {
     if (visible) {
@@ -89,70 +96,116 @@ export function ModalAddPlant({
           }
         : EMPTY_FORM;
 
-      // Apertura: sincronizar estado siempre desde cero
       setForm(resolvedForm);
       setStep(isEditMode ? "form" : "options");
-      setOrigin("manual");
+      setImageUri(typeof editingPlant?.image === "string" ? editingPlant.image : "");
     } else {
-      // Cierre: resetear para que la próxima apertura empiece limpia
       setStep("options");
       setForm(EMPTY_FORM);
-      setOrigin("manual");
+      setImageUri("");
     }
   }, [visible, editingPlant]);
 
   const handleClose = () => {
-    onClose(); // el useEffect [visible] se encarga del reset
+    onClose();
   };
 
-  const handleOptionSelect = (option: "camera" | "gallery" | "manual") => {
-    setOrigin(option);
+  const handleOptionSelect = async (option: "camera" | "gallery" | "manual") => {
+    if (option === "camera") {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permiso requerido", "Necesitamos acceso a la cámara.");
+        setStep("form");
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: "images",
+        quality: 0.7,
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+      if (!result.canceled) setImageUri(result.assets[0].uri);
+    } else if (option === "gallery") {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permiso requerido", "Necesitamos acceso a la galería.");
+        setStep("form");
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "images",
+        quality: 0.7,
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+      if (!result.canceled) setImageUri(result.assets[0].uri);
+    }
+
     setStep("form");
   };
 
-  const handleSave = () => {
+  const uploadImage = async (uri: string, plantId: string): Promise<string> => {
+    if (!uri || !user) return "";
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const storageRef = ref(storage, `users/${user.uid}/plants/${plantId}`);
+    await uploadBytes(storageRef, blob);
+    return await getDownloadURL(storageRef);
+  };
+
+  const handleSave = async () => {
     if (!form.name.trim()) {
       Alert.alert("Campo requerido", "El nombre de la planta es obligatorio.");
       return;
     }
 
-    const freqOption =
-      WATER_FREQUENCIES.find((f) => f.days === form.waterFrequencyDays) ??
-      WATER_FREQUENCIES[1];
+    setIsSaving(true);
+    try {
+      const freqOption =
+        WATER_FREQUENCIES.find((f) => f.days === form.waterFrequencyDays) ??
+        WATER_FREQUENCIES[1];
 
-    if (isEditMode && editingPlant) {
-      // ── Modo edición: conservar id, imagen y fechas originales ──
-      const updatedPlant: Plant = {
-        ...editingPlant,
-        name: form.name.trim(),
-        scientificName: form.scientificName.trim(),
-        category: form.category,
-        location: form.location,
-        sunlight: form.sunlight,
-        temperature: form.temperature,
-        waterFrequency: freqOption.label,
-      };
-      onPlantEdited?.(updatedPlant);
-    } else {
-      // ── Modo creación ──
-      const newPlant: Plant = {
-        id: Date.now().toString(),
-        createdAt: Date.now(),
-        name: form.name.trim(),
-        scientificName: form.scientificName.trim(),
-        image: "",
-        lastWatered: todayDateString(),
-        nextWatering: calcNextWatering(form.waterFrequencyDays),
-        sunlight: form.sunlight,
-        temperature: form.temperature,
-        waterFrequency: freqOption.label,
-        location: form.location,
-        category: form.category,
-      };
-      onPlantAdded(newPlant);
+      if (isEditMode && editingPlant) {
+        const finalImage = imageUri !== (editingPlant.image as string)
+          ? await uploadImage(imageUri, editingPlant.id)
+          : imageUri;
+        const updatedPlant: Plant = {
+          ...editingPlant,
+          name: form.name.trim(),
+          scientificName: form.scientificName.trim(),
+          category: form.category,
+          location: form.location,
+          sunlight: form.sunlight,
+          temperature: form.temperature,
+          waterFrequency: freqOption.label,
+          image: finalImage,
+        };
+        onPlantEdited?.(updatedPlant);
+      } else {
+        const plantId = Date.now().toString();
+        const finalImage = await uploadImage(imageUri, plantId);
+        const newPlant: Plant = {
+          id: plantId,
+          createdAt: Date.now(),
+          name: form.name.trim(),
+          scientificName: form.scientificName.trim(),
+          image: finalImage,
+          lastWatered: todayDateString(),
+          nextWatering: calcNextWatering(form.waterFrequencyDays),
+          sunlight: form.sunlight,
+          temperature: form.temperature,
+          waterFrequency: freqOption.label,
+          location: form.location,
+          category: form.category,
+        };
+        onPlantAdded(newPlant);
+      }
+      handleClose();
+    } catch {
+      Alert.alert("Error", "No se pudo guardar la planta. Intenta de nuevo.");
+    } finally {
+      setIsSaving(false);
     }
-
-    handleClose();
   };
 
   // ── Pantalla de opciones ──
@@ -217,28 +270,28 @@ export function ModalAddPlant({
         {isEditMode ? "Editar planta" : "Nueva planta"}
       </Text>
 
-      {/* Banner informativo para cámara/galería */}
-      {!isEditMode && origin !== "manual" && (
-        <View
-          style={[
-            styles.infoBanner,
-            {
-              backgroundColor: theme.colors.categories.yellow.bg,
-              borderColor: theme.colors.categories.yellow.border,
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.infoBannerText,
-              { color: theme.colors.categories.yellow.border },
-            ]}
+      {/* Vista previa de imagen */}
+      {imageUri ? (
+        <View style={styles.imagePreviewContainer}>
+          <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+          <TouchableOpacity
+            style={styles.removeImageButton}
+            onPress={() => setImageUri("")}
           >
-            {origin === "camera" ? "📷" : "🖼️"} La integración con{" "}
-            {origin === "camera" ? "la cámara" : "la galería"} estará disponible
-            próximamente. Completa los datos manualmente.
-          </Text>
+            <Text style={styles.removeImageText}>✕</Text>
+          </TouchableOpacity>
         </View>
+      ) : (
+        <TouchableOpacity
+          style={[styles.imagePlaceholder, { borderColor: theme.colors.borderPrimary }]}
+          onPress={() => handleOptionSelect("gallery")}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.imagePlaceholderIcon}>🌿</Text>
+          <Text style={[styles.imagePlaceholderText, { color: theme.colors.textTertiary }]}>
+            Agregar foto
+          </Text>
+        </TouchableOpacity>
       )}
 
       {/* Nombre */}
@@ -380,17 +433,23 @@ export function ModalAddPlant({
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => setStep("options")}
+          disabled={isSaving}
         >
           <Text style={styles.backButtonText}>← Volver</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.saveButton}
+          style={[styles.saveButton, isSaving && { opacity: 0.7 }]}
           onPress={handleSave}
           activeOpacity={0.8}
+          disabled={isSaving}
         >
-          <Text style={styles.saveButtonText}>
-            {isEditMode ? "Guardar cambios" : "Guardar planta"}
-          </Text>
+          {isSaving ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.saveButtonText}>
+              {isEditMode ? "Guardar cambios" : "Guardar planta"}
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -586,6 +645,52 @@ const createStyles = (theme: AppTheme) =>
     infoBannerText: {
       fontSize: theme.fontSize.sm,
       lineHeight: 18,
+    },
+    imagePreviewContainer: {
+      alignSelf: "center",
+      marginTop: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
+    },
+    imagePreview: {
+      width: 120,
+      height: 120,
+      borderRadius: theme.radius.md,
+    },
+    removeImageButton: {
+      position: "absolute",
+      top: -8,
+      right: -8,
+      backgroundColor: theme.colors.accentOrange,
+      borderRadius: theme.radius.full,
+      width: 24,
+      height: 24,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    removeImageText: {
+      color: "#ffffff",
+      fontSize: 12,
+      fontWeight: "700",
+    },
+    imagePlaceholder: {
+      alignSelf: "center",
+      marginTop: theme.spacing.md,
+      marginBottom: theme.spacing.sm,
+      width: 120,
+      height: 120,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderStyle: "dashed",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
+    },
+    imagePlaceholderIcon: {
+      fontSize: 32,
+    },
+    imagePlaceholderText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
     },
   });
 

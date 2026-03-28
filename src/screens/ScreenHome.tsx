@@ -73,7 +73,7 @@ export function ScreenHome() {
             <PrivacyToggle />
           </View>
           {/* Stats horizontales con líneas divisorias */}
-          <View style={(styles.section, styles.statsContainer)}>
+          <View style={[styles.section, styles.statsContainer]}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{totalPlants}</Text>
               <Text style={styles.statLabel}>{"Plantas\nregistradas"}</Text>

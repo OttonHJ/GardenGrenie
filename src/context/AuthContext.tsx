@@ -30,6 +30,7 @@ export interface UserProfile {
   username: string;
   birthday: string;
   bio: string;
+  profilePublic: boolean;
 }
 
 interface AuthContextValue {
@@ -55,12 +56,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 8000);
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      clearTimeout(timeout);
       setUser(firebaseUser);
       if (!firebaseUser) setProfile(null);
       setLoading(false);
     });
-    return unsubscribe;
+    return () => {
+      clearTimeout(timeout);
+      unsubscribe();
+    };
   }, []);
 
   // Listener en tiempo real al doc del usuario en Firestore
@@ -77,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           username: data.username ?? "",
           birthday: data.birthday ?? "",
           bio: data.bio ?? "",
+          profilePublic: data.profilePublic ?? false,
         });
       }
     });

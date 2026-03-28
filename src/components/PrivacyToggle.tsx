@@ -1,14 +1,34 @@
+import { useAuth } from "@/src/context/AuthContext";
+import { db } from "@/src/config/firebase";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import React, { useState } from "react";
+import { doc, updateDoc } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export function PrivacyToggle() {
-  const [isPublic, setIsPublic] = useState(true);
+  const { user, profile } = useAuth();
+  const [isPublic, setIsPublic] = useState(false);
   const { styles } = useProfileTheme(stylesByMode);
+
+  // Sincroniza el estado inicial desde Firestore
+  useEffect(() => {
+    if (profile) setIsPublic(profile.profilePublic ?? false);
+  }, [profile]);
+
+  const handleToggle = async () => {
+    const next = !isPublic;
+    setIsPublic(next);
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, "users", user.uid), { profilePublic: next });
+    } catch {
+      setIsPublic(!next); // revierte si falla
+    }
+  };
 
   return (
     <View style={styles.privacyContainer}>
@@ -22,7 +42,7 @@ export function PrivacyToggle() {
         </View>
 
         <TouchableOpacity
-          onPress={() => setIsPublic(!isPublic)}
+          onPress={handleToggle}
           style={styles.toggleButton}
           activeOpacity={0.7}
         >

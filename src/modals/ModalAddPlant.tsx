@@ -4,6 +4,10 @@ import { useAuth } from "@/src/context/AuthContext";
 import { ModalCamera } from "@/src/modals/ModalCamera";
 import PermissionService from "@/src/services/permissionService";
 import {
+  PlantIdentification,
+  identifyPlant,
+} from "@/src/services/plantIdService";
+import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
@@ -84,6 +88,10 @@ export function ModalAddPlant({
   const [isSaving, setIsSaving] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
 
+  // Estado de la identificación por IA
+  const [isIdentifying, setIsIdentifying] = useState(false);
+  const [identification, setIdentification] = useState<PlantIdentification | null>(null);
+
   React.useEffect(() => {
     if (visible) {
       const days = editingPlant?.waterFrequency.match(/\d+/)?.[0];
@@ -106,6 +114,8 @@ export function ModalAddPlant({
       setStep("options");
       setForm(EMPTY_FORM);
       setImageUri("");
+      setIdentification(null);
+      setIsIdentifying(false);
     }
   }, [visible, editingPlant]);
 
@@ -113,10 +123,39 @@ export function ModalAddPlant({
     onClose();
   };
 
-  const handleCameraCapture = (uri: string) => {
+  /*
+   * Toma el resultado de plant.id y llena los campos del formulario.
+   * Solo sobreescribe campos vacíos — si el usuario ya escribió algo, lo respeta.
+   */
+  const applyIdentification = (result: PlantIdentification) => {
+    setIdentification(result);
+    if (!result.identified) return;
+    setForm((prev) => ({
+      ...prev,
+      name: prev.name || result.name,
+      scientificName: prev.scientificName || result.scientificName,
+      category: result.category || prev.category,
+      waterFrequencyDays: result.waterFrequencyDays,
+    }));
+  };
+
+  /*
+   * Después de tomar una foto con la cámara, navega al formulario
+   * e intenta identificar la planta en segundo plano.
+   */
+  const handleCameraCapture = async (uri: string) => {
     setImageUri(uri);
     setCameraVisible(false);
     setStep("form");
+    setIsIdentifying(true);
+    try {
+      const result = await identifyPlant(uri);
+      applyIdentification(result);
+    } catch {
+      // Si falla la identificación el usuario puede llenar el formulario manualmente
+    } finally {
+      setIsIdentifying(false);
+    }
   };
 
   const handleOptionSelect = async (option: "camera" | "gallery" | "manual") => {
@@ -136,7 +175,22 @@ export function ModalAddPlant({
         allowsEditing: true,
         aspect: [1, 1],
       });
-      if (!result.canceled) setImageUri(result.assets[0].uri);
+      if (!result.canceled) {
+        const uri = result.assets[0].uri;
+        setImageUri(uri);
+        setStep("form");
+        // Identifica la planta seleccionada de galería igual que con la cámara
+        setIsIdentifying(true);
+        try {
+          const identified = await identifyPlant(uri);
+          applyIdentification(identified);
+        } catch {
+          // Fallo silencioso — el usuario llena manualmente
+        } finally {
+          setIsIdentifying(false);
+        }
+        return;
+      }
     }
 
     setStep("form");
@@ -293,6 +347,43 @@ export function ModalAddPlant({
       <Text style={styles.sheetTitle}>
         {isEditMode ? "Editar planta" : "Nueva planta"}
       </Text>
+
+      {/* Banner de identificación por IA */}
+      {isIdentifying && (
+        <View style={[styles.infoBanner, { backgroundColor: theme.colors.bgPrimary, borderColor: theme.colors.borderPrimary }]}>
+          <ActivityIndicator size="small" color={theme.colors.accentGreen} />
+          <Text style={[styles.infoBannerText, { color: theme.colors.textSecondary, marginLeft: 8 }]}>
+            Identificando planta con IA...
+          </Text>
+        </View>
+      )}
+
+      {/* Resultado de identificación — muestra nombre y % de confianza */}
+      {!isIdentifying && identification?.identified && (
+        <View style={[styles.infoBanner, {
+          backgroundColor: theme.colors.categories.green.bg,
+          borderColor: theme.colors.categories.green.border,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }]}>
+          <Text style={[styles.infoBannerText, { color: theme.colors.categories.green.border, flex: 1 }]}>
+            🌿 {identification.scientificName} — {Math.round(identification.probability * 100)}% de confianza
+          </Text>
+          <TouchableOpacity onPress={() => setIdentification(null)}>
+            <Text style={{ color: theme.colors.categories.green.border, fontSize: 18, marginLeft: 8 }}>×</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Aviso si no se pudo identificar */}
+      {!isIdentifying && identification !== null && !identification.identified && (
+        <View style={[styles.infoBanner, { backgroundColor: theme.colors.categories.pink.bg, borderColor: theme.colors.categories.pink.border }]}>
+          <Text style={[styles.infoBannerText, { color: theme.colors.categories.pink.border }]}>
+            No se pudo identificar la planta. Completá los datos manualmente.
+          </Text>
+        </View>
+      )}
 
       {/* Vista previa de imagen */}
       {imageUri ? (

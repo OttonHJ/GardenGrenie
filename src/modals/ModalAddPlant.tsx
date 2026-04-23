@@ -1,6 +1,8 @@
 import { Plant } from "@/src/components/PlantCard";
 import { storage } from "@/src/config/firebase";
 import { useAuth } from "@/src/context/AuthContext";
+import { ModalCamera } from "@/src/modals/ModalCamera";
+import PermissionService from "@/src/services/permissionService";
 import {
   AppTheme,
   getAppTheme,
@@ -80,6 +82,7 @@ export function ModalAddPlant({
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [imageUri, setImageUri] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
+  const [cameraVisible, setCameraVisible] = useState(false);
 
   React.useEffect(() => {
     if (visible) {
@@ -110,24 +113,19 @@ export function ModalAddPlant({
     onClose();
   };
 
+  const handleCameraCapture = (uri: string) => {
+    setImageUri(uri);
+    setCameraVisible(false);
+    setStep("form");
+  };
+
   const handleOptionSelect = async (option: "camera" | "gallery" | "manual") => {
     if (option === "camera") {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permiso requerido", "Necesitamos acceso a la cámara.");
-        setStep("form");
-        return;
-      }
-      const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: "images",
-        quality: 0.7,
-        allowsEditing: true,
-        aspect: [1, 1],
-      });
-      if (!result.canceled) setImageUri(result.assets[0].uri);
+      setCameraVisible(true);
+      return;
     } else if (option === "gallery") {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
+      const status = await PermissionService.requestMediaLibraryPermission();
+      if (!PermissionService.isGranted(status)) {
         Alert.alert("Permiso requerido", "Necesitamos acceso a la galería.");
         setStep("form");
         return;
@@ -144,22 +142,37 @@ export function ModalAddPlant({
     setStep("form");
   };
 
+  const handlePickImage = () => {
+    Alert.alert("Agregar foto", "¿Cómo quieres agregar la foto?", [
+      { text: "Tomar foto", onPress: () => handleOptionSelect("camera") },
+      { text: "Elegir de galería", onPress: () => handleOptionSelect("gallery") },
+      { text: "Cancelar", style: "cancel" },
+    ]);
+  };
+
   const uploadImage = async (uri: string, plantId: string): Promise<string> => {
     if (!uri || !user) return "";
     const response = await fetch(uri);
+    if (!response.ok) throw new Error(`fetch error ${response.status}`);
     const blob = await response.blob();
 
-    const validTypes = ["image/jpeg", "image/png", "image/webp", "image/heic"];
-    if (!validTypes.includes(blob.type)) {
-      throw new Error("El archivo seleccionado no es una imagen válida.");
-    }
-    const maxBytes = 5 * 1024 * 1024; // 5 MB
+    const maxBytes = 5 * 1024 * 1024;
     if (blob.size > maxBytes) {
       throw new Error("La imagen no puede superar los 5 MB.");
     }
 
+    const ext = uri.split("?")[0].split(".").pop()?.toLowerCase() ?? "jpg";
+    const mimeMap: Record<string, string> = {
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      webp: "image/webp",
+      heic: "image/heic",
+    };
+    const contentType = mimeMap[ext] ?? "image/jpeg";
+
     const storageRef = ref(storage, `users/${user.uid}/plants/${plantId}`);
-    await uploadBytes(storageRef, blob);
+    await uploadBytes(storageRef, blob, { contentType });
     return await getDownloadURL(storageRef);
   };
 
@@ -211,7 +224,8 @@ export function ModalAddPlant({
         onPlantAdded(newPlant);
       }
       handleClose();
-    } catch {
+    } catch (e: any) {
+      console.error("[ModalAddPlant save error]", e?.code, e?.message, e);
       Alert.alert("Error", "No se pudo guardar la planta. Intenta de nuevo.");
     } finally {
       setIsSaving(false);
@@ -282,7 +296,11 @@ export function ModalAddPlant({
 
       {/* Vista previa de imagen */}
       {imageUri ? (
-        <View style={styles.imagePreviewContainer}>
+        <TouchableOpacity
+          style={styles.imagePreviewContainer}
+          onPress={handlePickImage}
+          activeOpacity={0.8}
+        >
           <Image source={{ uri: imageUri }} style={styles.imagePreview} />
           <TouchableOpacity
             style={styles.removeImageButton}
@@ -290,11 +308,11 @@ export function ModalAddPlant({
           >
             <Text style={styles.removeImageText}>✕</Text>
           </TouchableOpacity>
-        </View>
+        </TouchableOpacity>
       ) : (
         <TouchableOpacity
           style={[styles.imagePlaceholder, { borderColor: theme.colors.borderPrimary }]}
-          onPress={() => handleOptionSelect("gallery")}
+          onPress={handlePickImage}
           activeOpacity={0.7}
         >
           <Text style={styles.imagePlaceholderIcon}>🌿</Text>
@@ -478,6 +496,11 @@ export function ModalAddPlant({
         onPress={handleClose}
       />
       {step === "options" ? renderOptions() : renderForm()}
+      <ModalCamera
+        visible={cameraVisible}
+        onCapture={handleCameraCapture}
+        onClose={() => setCameraVisible(false)}
+      />
     </Modal>
   );
 }

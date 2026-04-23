@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "GardenGrenie",
-    "slug": "GardenGrenie",
+    "slug": "react-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -50,13 +50,25 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "GardenGrenie necesita la cámara para fotografiar tus plantas"
+          "cameraPermission": "GardenGrenie necesita acceso a la cámara para fotografiar tus plantas",
+          "microphonePermission": "GardenGrenie necesita acceso al micrófono",
+          "recordAudioAndroid": true,
+          "barcodeScannerEnabled": false
         }
       ],
       [
         "expo-image-picker",
         {
           "photosPermission": "GardenGrenie accede a tus fotos para agregar plantas"
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "GardenGrenie necesita acceso a tus fotos para agregar plantas",
+          "savePhotosPermission": "GardenGrenie necesita permiso para guardar fotos",
+          "isAccessMediaLocationEnabled": true,
+          "granularPermissions": ["audio", "photo"]
         }
       ]
     ],
@@ -69,6 +81,7 @@
       "eas": {
         "projectId": "43909859-536e-465e-9d88-5d3e192643de"
       }
-    }
+    },
+    "owner": "ottonhj"
   }
 }

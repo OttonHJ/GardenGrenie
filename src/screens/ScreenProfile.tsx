@@ -5,6 +5,7 @@ import { ModalAbout } from "@/src/modals/ModalAbout";
 import { ModalContact } from "@/src/modals/ModalContact";
 import { ModalPrivacy } from "@/src/modals/ModalPrivacy";
 import { ModalTerms } from "@/src/modals/ModalTerms";
+import { ScreenEditProfile } from "@/src/screens/ScreenEditProfile";
 import {
   AppTheme,
   getAppTheme,
@@ -28,6 +29,8 @@ export function ScreenProfile() {
 
   // ── Estado de modales ────────────────────────────────────────────────────────
   const [contactVisible, setContactVisible] = React.useState(false);
+  // Estado que controla la visibilidad de la pantalla de edición de perfil
+  const [editProfileVisible, setEditProfileVisible] = React.useState(false);
   const [termsVisible, setTermsVisible] = React.useState(false);
   const [privacyVisible, setPrivacyVisible] = React.useState(false);
   const [aboutVisible, setAboutVisible] = React.useState(false);
@@ -35,7 +38,8 @@ export function ScreenProfile() {
   // ── Handlers ────────────────────────────────────────────────────────────────
 
   const handleEditProfile = () => {
-    Alert.alert("Editar perfil", "Próximamente.");
+    // Abre la pantalla de edición de perfil como modal
+    setEditProfileVisible(true);
   };
 
   const { logout } = useAuth();
@@ -228,6 +232,12 @@ export function ScreenProfile() {
 
       {/* ── Modales ── Se utliza visible para controlar la visibilidad
  o onClose para ocultar las modales*/}
+      {/* Pantalla de edición de perfil — se presenta sobre ScreenProfile */}
+      <ScreenEditProfile
+        visible={editProfileVisible}
+        onClose={() => setEditProfileVisible(false)}
+      />
+
       <ModalContact
         visible={contactVisible}
         onClose={() => setContactVisible(false)}

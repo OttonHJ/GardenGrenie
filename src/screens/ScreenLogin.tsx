@@ -1,10 +1,14 @@
+import FormInput from "@/src/components/FormInput";
 import { useAuth } from "@/src/context/AuthContext";
+import { LoginFormData, loginSchema } from "@/src/schemas";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -12,17 +16,23 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// ─── Tipos ─────────────────────────────────────────────────────────────────────
 
 interface ScreenLoginProps {
   onNavigateRegister: () => void;
   onNavigateForgot: () => void;
 }
 
+// ─── Mapeo de errores Firebase ─────────────────────────────────────────────────
+
+// Traduce los códigos de error de Firebase Auth a mensajes en español.
+// Estos errores son globales — no pertenecen a un campo específico,
+// sino al intento de autenticación completo.
 function firebaseLoginError(code: string): string {
   switch (code) {
     case "auth/invalid-credential":
@@ -40,45 +50,77 @@ function firebaseLoginError(code: string): string {
   }
 }
 
+// ─── Componente ────────────────────────────────────────────────────────────────
+
 export function ScreenLogin({
   onNavigateRegister,
   onNavigateForgot,
 }: ScreenLoginProps) {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
+
+  // Métodos de autenticación del contexto
   const { login, loginWithGoogle } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  // Estados de carga separados para email/password y Google
+  // ya que ambos botones pueden estar activos simultáneamente
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  const handleLogin = async () => {
-    setError("");
-    if (!email.trim() || !password) return;
+  // Error global para fallos de Firebase Auth — separado de los errores
+  // de validación de campos que maneja RHF/Zod internamente
+  const [globalError, setGlobalError] = useState("");
+
+  // ── Configuración de React Hook Form ──────────────────────────────────────
+
+  const {
+    control, // conecta los FormInput con el estado de RHF
+    handleSubmit, // envuelve onSubmit con la validación de Zod
+    formState: { errors }, // errores de validación campo por campo
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  // ── Handler de login con email y contraseña ────────────────────────────────
+
+  // handleSubmit de RHF ejecuta onSubmit solo si Zod valida el formulario.
+  // Si hay errores de validación, los asigna a errors y no llama onSubmit.
+  const onSubmit = async (data: LoginFormData) => {
+    setGlobalError("");
     setIsLoading(true);
     try {
-      await login(email.trim(), password);
+      await login(data.email, data.password);
+      // Si login es exitoso, onAuthStateChanged en AuthContext detecta
+      // el cambio y _layout.tsx muestra los tabs automáticamente
     } catch (e: any) {
-      setError(firebaseLoginError(e.code));
+      // Error de Firebase — se muestra en el banner global
+      setGlobalError(firebaseLoginError(e.code));
     } finally {
       setIsLoading(false);
     }
   };
 
+  // ── Handler de login con Google ───────────────────────────────────────────
+
   const handleGoogleLogin = async () => {
-    setError("");
+    setGlobalError("");
     setIsGoogleLoading(true);
     try {
       await loginWithGoogle();
-    } catch {
-      setError("No se pudo iniciar sesión con Google. Intenta de nuevo.");
+    } catch (e: any) {
+      console.error("[Google Sign-In error]", e?.code, e?.message, e);
+      setGlobalError("No se pudo iniciar sesión con Google. Intenta de nuevo.");
     } finally {
       setIsGoogleLoading(false);
     }
   };
+
+  // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
     <KeyboardAvoidingView
@@ -91,7 +133,7 @@ export function ScreenLogin({
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Logo y título */}
+        {/* ── Logo y título de la app ── */}
         <View style={styles.header}>
           <Text style={styles.logo}>🌿</Text>
           <Text style={[styles.appName, { color: theme.colors.accentGreen }]}>
@@ -102,72 +144,49 @@ export function ScreenLogin({
           </Text>
         </View>
 
-        {/* Formulario */}
+        {/* ── Formulario ── */}
         <View style={styles.form}>
           <Text style={[styles.formTitle, { color: theme.colors.textPrimary }]}>
             Iniciar sesión
           </Text>
 
-          {/* Email */}
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Correo electrónico
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.bgSecondary,
-                borderColor: theme.colors.borderPrimary,
-                color: theme.colors.textPrimary,
-              },
-            ]}
-            placeholder="tu@correo.com"
-            placeholderTextColor={theme.colors.textTertiary}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
+          {/* Campo email — type="email" configura keyboardType y autoCapitalize */}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <FormInput
+                ref={ref}
+                label="Correo electrónico"
+                type="email"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.email?.message}
+                placeholder="tu@correo.com"
+              />
+            )}
           />
 
-          {/* Contraseña */}
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Contraseña
-          </Text>
-          <View style={styles.passwordRow}>
-            <TextInput
-              style={[
-                styles.input,
-                styles.passwordInput,
-                {
-                  backgroundColor: theme.colors.bgSecondary,
-                  borderColor: theme.colors.borderPrimary,
-                  color: theme.colors.textPrimary,
-                },
-              ]}
-              placeholder="Tu contraseña"
-              placeholderTextColor={theme.colors.textTertiary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TouchableOpacity
-              style={[
-                styles.eyeBtn,
-                {
-                  borderColor: theme.colors.borderPrimary,
-                  backgroundColor: theme.colors.bgSecondary,
-                },
-              ]}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Text style={{ fontSize: 16 }}>{showPassword ? "🙈" : "👁️"}</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Campo contraseña — type="password" incluye el toggle 👁️ */}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <FormInput
+                ref={ref}
+                label="Contraseña"
+                type="password"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.password?.message}
+                placeholder="Tu contraseña"
+              />
+            )}
+          />
 
-          {/* Olvidé contraseña */}
+          {/* Link a recuperar contraseña — alineado a la derecha */}
           <TouchableOpacity style={styles.forgotBtn} onPress={onNavigateForgot}>
             <Text
               style={[styles.forgotText, { color: theme.colors.accentGreen }]}
@@ -176,8 +195,9 @@ export function ScreenLogin({
             </Text>
           </TouchableOpacity>
 
-          {/* Error */}
-          {error !== "" && (
+          {/* Banner de error global — solo visible cuando hay error de Firebase.
+              Se cierra automáticamente en el siguiente intento de login. */}
+          {globalError !== "" && (
             <View
               style={[
                 styles.errorBanner,
@@ -189,22 +209,36 @@ export function ScreenLogin({
             >
               <Text
                 style={[
-                  styles.errorText,
+                  styles.errorBannerText,
                   { color: theme.colors.categories.pink.border },
                 ]}
               >
-                {error}
+                {globalError}
               </Text>
+              {/* Botón × para cerrar el banner manualmente */}
+              <TouchableOpacity onPress={() => setGlobalError("")}>
+                <Text
+                  style={[
+                    styles.errorBannerClose,
+                    { color: theme.colors.categories.pink.border },
+                  ]}
+                >
+                  ×
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
 
-          {/* Botón de ingreso */}
+          {/* Botón principal — deshabilitado mientras cualquier carga está activa */}
           <TouchableOpacity
             style={[
               styles.primaryBtn,
-              { backgroundColor: theme.colors.accentGreen, opacity: isLoading ? 0.7 : 1 },
+              {
+                backgroundColor: theme.colors.accentGreen,
+                opacity: isLoading ? 0.7 : 1,
+              },
             ]}
-            onPress={handleLogin}
+            onPress={handleSubmit(onSubmit)}
             activeOpacity={0.8}
             disabled={isLoading || isGoogleLoading}
           >
@@ -215,14 +249,28 @@ export function ScreenLogin({
             )}
           </TouchableOpacity>
 
-          {/* Separador */}
+          {/* Separador visual entre email/password y Google */}
           <View style={styles.divider}>
-            <View style={[styles.dividerLine, { backgroundColor: theme.colors.borderPrimary }]} />
-            <Text style={[styles.dividerText, { color: theme.colors.textTertiary }]}>o</Text>
-            <View style={[styles.dividerLine, { backgroundColor: theme.colors.borderPrimary }]} />
+            <View
+              style={[
+                styles.dividerLine,
+                { backgroundColor: theme.colors.borderPrimary },
+              ]}
+            />
+            <Text
+              style={[styles.dividerText, { color: theme.colors.textTertiary }]}
+            >
+              o
+            </Text>
+            <View
+              style={[
+                styles.dividerLine,
+                { backgroundColor: theme.colors.borderPrimary },
+              ]}
+            />
           </View>
 
-          {/* Botón Google */}
+          {/* Botón de Google — estado de carga independiente del botón principal */}
           <TouchableOpacity
             style={[
               styles.googleBtn,
@@ -241,7 +289,12 @@ export function ScreenLogin({
             ) : (
               <>
                 <Text style={styles.googleIcon}>G</Text>
-                <Text style={[styles.googleBtnText, { color: theme.colors.textPrimary }]}>
+                <Text
+                  style={[
+                    styles.googleBtnText,
+                    { color: theme.colors.textPrimary },
+                  ]}
+                >
                   Continuar con Google
                 </Text>
               </>
@@ -249,7 +302,7 @@ export function ScreenLogin({
           </TouchableOpacity>
         </View>
 
-        {/* Ir a registro */}
+        {/* ── Footer con link a registro ── */}
         <View style={styles.footer}>
           <Text
             style={[styles.footerText, { color: theme.colors.textTertiary }]}
@@ -269,6 +322,8 @@ export function ScreenLogin({
   );
 }
 
+// ─── Estilos ───────────────────────────────────────────────────────────────────
+
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
     container: {
@@ -281,6 +336,7 @@ const createStyles = (theme: AppTheme) =>
       flexGrow: 1,
       justifyContent: "center",
     },
+    // Encabezado centrado con logo, nombre y tagline
     header: {
       alignItems: "center",
       marginBottom: theme.spacing.xxl * 2,
@@ -301,49 +357,12 @@ const createStyles = (theme: AppTheme) =>
     form: {
       marginBottom: theme.spacing.xxl,
     },
-    errorBanner: {
-      borderRadius: theme.radius.sm,
-      borderWidth: theme.spacing.xxs,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.sm,
-      marginBottom: theme.spacing.md,
-    },
-    errorText: {
-      fontSize: theme.fontSize.sm,
-      fontWeight: "600",
-    },
     formTitle: {
       fontSize: theme.fontSize.lg,
       fontWeight: "700",
-      marginBottom: theme.spacing.xl,
-    },
-    label: {
-      fontSize: theme.fontSize.sm,
-      fontWeight: "600",
       marginBottom: theme.spacing.xs,
-      marginTop: theme.spacing.md,
     },
-    input: {
-      borderRadius: theme.radius.sm,
-      borderWidth: theme.spacing.xxs,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
-      fontSize: theme.fontSize.sm,
-    },
-    passwordRow: {
-      flexDirection: "row",
-      gap: theme.spacing.sm,
-    },
-    passwordInput: {
-      flex: 1,
-    },
-    eyeBtn: {
-      borderRadius: theme.radius.sm,
-      borderWidth: theme.spacing.xxs,
-      paddingHorizontal: theme.spacing.md,
-      justifyContent: "center",
-      alignItems: "center",
-    },
+    // Link de contraseña olvidada — alineado a la derecha
     forgotBtn: {
       alignSelf: "flex-end",
       marginTop: theme.spacing.sm,
@@ -353,6 +372,28 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       fontWeight: "600",
     },
+    // Banner de error global — tipo 3 del sistema de notificaciones
+    errorBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderRadius: theme.radius.sm,
+      borderWidth: theme.spacing.xxs,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      marginBottom: theme.spacing.md,
+    },
+    errorBannerText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      flex: 1,
+    },
+    errorBannerClose: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: "300",
+      marginLeft: theme.spacing.sm,
+    },
+    // Botón principal de ingreso
     primaryBtn: {
       borderRadius: theme.radius.sm,
       paddingVertical: theme.spacing.md + 2,
@@ -363,6 +404,7 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       fontWeight: "700",
     },
+    // Separador entre los dos métodos de login
     divider: {
       flexDirection: "row",
       alignItems: "center",
@@ -376,6 +418,7 @@ const createStyles = (theme: AppTheme) =>
     dividerText: {
       fontSize: theme.fontSize.sm,
     },
+    // Botón de Google con borde y fondo secundario
     googleBtn: {
       borderRadius: theme.radius.sm,
       borderWidth: theme.spacing.xxs,
@@ -394,6 +437,7 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       fontWeight: "600",
     },
+    // Footer con link a registro
     footer: {
       flexDirection: "row",
       justifyContent: "center",

@@ -1,7 +1,5 @@
 import { auth, db } from "@/src/config/firebase";
-import {
-  GoogleSignin,
-} from "@react-native-google-signin/google-signin";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import {
   GoogleAuthProvider,
   User,
@@ -13,8 +11,20 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { doc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore";
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import {
+  doc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 GoogleSignin.configure({
   webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
@@ -38,9 +48,22 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-  register: (name: string, email: string, password: string, username: string, birthday: string) => Promise<void>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    username: string,
+    birthday: string,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
+  // Actualiza los campos editables del perfil en Firestore y en Firebase Auth
+  updateUserProfile: (data: {
+    displayName?: string;
+    username?: string;
+    birthday?: string;
+    bio?: string;
+  }) => Promise<void>;
 }
 
 // ─── Contexto ──────────────────────────────────────────────────────────────────
@@ -89,28 +112,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return unsubscribe;
   }, [user]);
 
-  const saveUserDoc = useCallback(async (
-    firebaseUser: User,
-    extra?: { username?: string; birthday?: string },
-  ) => {
-    const ref = doc(db, "users", firebaseUser.uid);
-    const base = {
-      displayName: firebaseUser.displayName ?? "",
-      email: firebaseUser.email ?? "",
-      photoURL: firebaseUser.photoURL ?? "",
-      updatedAt: serverTimestamp(),
-    };
-    if (extra) {
-      await setDoc(ref, { ...base, username: extra.username ?? "", birthday: extra.birthday ?? "", bio: "" }, { merge: true });
-    } else {
-      await setDoc(ref, base, { merge: true });
-    }
-  }, []);
+  const saveUserDoc = useCallback(
+    async (
+      firebaseUser: User,
+      extra?: { username?: string; birthday?: string },
+    ) => {
+      const ref = doc(db, "users", firebaseUser.uid);
+      const base = {
+        displayName: firebaseUser.displayName ?? "",
+        email: firebaseUser.email ?? "",
+        photoURL: firebaseUser.photoURL ?? "",
+        updatedAt: serverTimestamp(),
+      };
+      if (extra) {
+        await setDoc(
+          ref,
+          {
+            ...base,
+            username: extra.username ?? "",
+            birthday: extra.birthday ?? "",
+            bio: "",
+          },
+          { merge: true },
+        );
+      } else {
+        await setDoc(ref, base, { merge: true });
+      }
+    },
+    [],
+  );
 
-  const login = useCallback(async (email: string, password: string) => {
-    const { user } = await signInWithEmailAndPassword(auth, email, password);
-    await saveUserDoc(user);
-  }, [saveUserDoc]);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const { user } = await signInWithEmailAndPassword(auth, email, password);
+      await saveUserDoc(user);
+    },
+    [saveUserDoc],
+  );
 
   const loginWithGoogle = useCallback(async () => {
     await GoogleSignin.hasPlayServices();
@@ -122,11 +160,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await saveUserDoc(user);
   }, [saveUserDoc]);
 
-  const register = useCallback(async (name: string, email: string, password: string, username: string, birthday: string) => {
-    const { user } = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(user, { displayName: name });
-    await saveUserDoc(user, { username, birthday });
-  }, [saveUserDoc]);
+  const register = useCallback(
+    async (
+      name: string,
+      email: string,
+      password: string,
+      username: string,
+      birthday: string,
+    ) => {
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      await updateProfile(user, { displayName: name });
+      await saveUserDoc(user, { username, birthday });
+    },
+    [saveUserDoc],
+  );
 
   const logout = useCallback(async () => {
     await signOut(auth);
@@ -137,8 +188,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await sendPasswordResetEmail(auth, email);
   }, []);
 
+  // ── Actualización de perfil ────────────────────────────────────────────────
+  const updateUserProfile = useCallback(
+    async (data: {
+      displayName?: string;
+      username?: string;
+      birthday?: string;
+      bio?: string;
+    }) => {
+      // No puede ejecutarse sin usuario autenticado
+      if (!user) throw new Error("No hay usuario autenticado");
+
+      const ref = doc(db, "users", user.uid);
+
+      // Construir el objeto a actualizar — solo los campos que llegan en data
+      // evitando sobreescribir campos que no se están editando
+      const updateData: Record<string, any> = {
+        updatedAt: serverTimestamp(),
+      };
+
+      if (data.displayName !== undefined)
+        updateData.displayName = data.displayName;
+      if (data.username !== undefined) updateData.username = data.username;
+      if (data.birthday !== undefined) updateData.birthday = data.birthday;
+      if (data.bio !== undefined) updateData.bio = data.bio;
+
+      // Actualizar el documento en Firestore
+      await updateDoc(ref, updateData);
+
+      // Si el displayName cambió, también actualizar en Firebase Auth
+      // para que user.displayName quede sincronizado con Firestore
+      if (data.displayName !== undefined && auth.currentUser) {
+        await updateProfile(auth.currentUser, {
+          displayName: data.displayName,
+        });
+      }
+    },
+    [user],
+  );
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, loginWithGoogle, register, logout, sendPasswordReset }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        profile,
+        loading,
+        login,
+        loginWithGoogle,
+        register,
+        logout,
+        sendPasswordReset,
+        updateUserProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

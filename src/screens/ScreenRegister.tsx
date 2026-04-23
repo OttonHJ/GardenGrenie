@@ -1,10 +1,14 @@
+import FormInput from "@/src/components/FormInput";
 import { useAuth } from "@/src/context/AuthContext";
+import { RegisterFormData, registerSchema } from "@/src/schemas";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -12,16 +16,22 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+// ─── Tipos ─────────────────────────────────────────────────────────────────────
+
 interface ScreenRegisterProps {
   onNavigateLogin: () => void;
 }
 
+// ─── Mapeo de errores Firebase ─────────────────────────────────────────────────
+
+// Traduce códigos de error de Firebase Auth a mensajes en español.
+// Solo cubre errores del proceso de creación de cuenta — la validación
+// de formato de campos ya la maneja registerSchema con Zod.
 function firebaseRegisterError(code: string): string {
   switch (code) {
     case "auth/email-already-in-use":
@@ -35,66 +45,68 @@ function firebaseRegisterError(code: string): string {
   }
 }
 
+// ─── Componente ────────────────────────────────────────────────────────────────
+
 export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
+
+  // Método de registro del contexto
   const { register } = useAuth();
 
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [birthday, setBirthday] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  // Estado de carga del botón — UI state, no de formulario
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = async () => {
-    setError("");
+  // Error global para fallos de Firebase — separado de los errores
+  // de validación de campos que maneja RHF/Zod internamente
+  const [globalError, setGlobalError] = useState("");
 
-    if (!name.trim()) {
-      setError("El nombre es obligatorio.");
-      return;
-    }
-    if (!username.trim()) {
-      setError("El alias es obligatorio.");
-      return;
-    }
-    if (!/^[a-z0-9_.]+$/.test(username.trim())) {
-      setError("El alias solo puede tener letras minúsculas, números, puntos y guiones bajos.");
-      return;
-    }
-    if (birthday.trim() && !/^\d{2}\/\d{2}\/\d{4}$/.test(birthday.trim())) {
-      setError("La fecha debe tener el formato DD/MM/AAAA.");
-      return;
-    }
-    if (!email.trim()) {
-      setError("El correo es obligatorio.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError("El correo no tiene un formato válido.");
-      return;
-    }
-    if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
-      return;
-    }
+  // ── Configuración de React Hook Form ──────────────────────────────────────
 
+  const {
+    control, // conecta los FormInput con el estado de RHF
+    handleSubmit, // envuelve onSubmit con la validación del esquema Zod
+    formState: { errors }, // errores de validación por campo
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    // Valores iniciales vacíos para todos los campos del esquema
+    defaultValues: {
+      name: "",
+      username: "",
+      birthday: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  // ── Handler de registro ───────────────────────────────────────────────────
+
+  // handleSubmit solo ejecuta onSubmit si Zod valida todos los campos.
+  // Toda la validación manual que existía antes (if !name.trim(), regex,
+  // password === confirmPassword, etc.) ahora la hace registerSchema.
+  const onSubmit = async (data: RegisterFormData) => {
+    setGlobalError("");
     setIsLoading(true);
     try {
-      await register(name.trim(), email.trim(), password, username.trim(), birthday.trim());
+      await register(
+        data.name,
+        data.email,
+        data.password,
+        data.username,
+        data.birthday ?? "",
+      );
+      // Si register es exitoso, onAuthStateChanged en AuthContext
+      // detecta el nuevo usuario y _layout.tsx monta los tabs
     } catch (e: any) {
-      setError(firebaseRegisterError(e.code));
+      // Error de Firebase — se muestra en el banner global
+      setGlobalError(firebaseRegisterError(e.code));
     } finally {
       setIsLoading(false);
     }
   };
+
+  // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
     <KeyboardAvoidingView
@@ -107,9 +119,14 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Encabezado */}
+        {/* ── Encabezado con botón volver ── */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={onNavigateLogin} style={styles.backBtn}>
+          <TouchableOpacity
+            onPress={onNavigateLogin}
+            style={styles.backBtn}
+            accessibilityLabel="Volver al inicio de sesión"
+            accessibilityRole="button"
+          >
             <Text
               style={[styles.backText, { color: theme.colors.accentGreen }]}
             >
@@ -125,8 +142,9 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
           </Text>
         </View>
 
-        {/* Error */}
-        {error !== "" && (
+        {/* Banner de error global — solo para errores de Firebase.
+            Se limpia automáticamente en el siguiente intento de submit. */}
+        {globalError !== "" && (
           <View
             style={[
               styles.errorBanner,
@@ -138,159 +156,165 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
           >
             <Text
               style={[
-                styles.errorText,
+                styles.errorBannerText,
                 { color: theme.colors.categories.pink.border },
               ]}
             >
-              {error}
+              {globalError}
             </Text>
+            {/* Botón × para cerrar el banner manualmente */}
+            <TouchableOpacity onPress={() => setGlobalError("")}>
+              <Text
+                style={[
+                  styles.errorBannerClose,
+                  { color: theme.colors.categories.pink.border },
+                ]}
+              >
+                ×
+              </Text>
+            </TouchableOpacity>
           </View>
         )}
 
-        {/* Formulario */}
+        {/* ── Formulario ──
+            Cada Controller conecta un FormInput con RHF.
+            Los errores de validación aparecen debajo de cada campo
+            automáticamente cuando el usuario intenta hacer submit
+            o cuando abandona un campo con error (onBlur). */}
         <View style={styles.form}>
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Nombre
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.bgSecondary,
-                borderColor: theme.colors.borderPrimary,
-                color: theme.colors.textPrimary,
-              },
-            ]}
-            placeholder="Tu nombre"
-            placeholderTextColor={theme.colors.textTertiary}
-            value={name}
-            onChangeText={setName}
-            autoCapitalize="words"
+          {/* Nombre — capitalización por palabras */}
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <FormInput
+                ref={ref}
+                label="Nombre"
+                type="text"
+                required
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.name?.message}
+                placeholder="Tu nombre completo"
+                autoCapitalize="words"
+              />
+            )}
           />
 
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Alias <Text style={{ color: theme.colors.accentOrange ?? "#f97316" }}>*</Text>
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.bgSecondary,
-                borderColor: theme.colors.borderPrimary,
-                color: theme.colors.textPrimary,
-              },
-            ]}
-            placeholder="ej. maria.gonzalez"
-            placeholderTextColor={theme.colors.textTertiary}
-            value={username}
-            onChangeText={(v) => setUsername(v.toLowerCase().replace(/\s/g, ""))}
-            autoCapitalize="none"
-            autoCorrect={false}
+          {/* Alias — type formatted fuerza minúsculas y elimina espacios.
+              El transform se aplica en cada keystroke antes de notificar a RHF,
+              por lo que el usuario nunca puede ingresar mayúsculas o espacios */}
+          <Controller
+            control={control}
+            name="username"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <FormInput
+                ref={ref}
+                label="Alias"
+                type="formatted"
+                required
+                transform={(v) => v.toLowerCase().replace(/\s/g, "")}
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.username?.message}
+                placeholder="ej. maria.gonzalez"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            )}
           />
 
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Fecha de nacimiento
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.bgSecondary,
-                borderColor: theme.colors.borderPrimary,
-                color: theme.colors.textPrimary,
-              },
-            ]}
-            placeholder="DD/MM/AAAA"
-            placeholderTextColor={theme.colors.textTertiary}
-            value={birthday}
-            onChangeText={setBirthday}
-            keyboardType="numeric"
+          {/* Fecha de nacimiento — campo opcional con formato DD/MM/AAAA.
+              El teclado numérico facilita el ingreso en móvil */}
+          <Controller
+            control={control}
+            name="birthday"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <FormInput
+                ref={ref}
+                label="Fecha de nacimiento"
+                type="formatted"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.birthday?.message}
+                placeholder="DD/MM/AAAA"
+                keyboardType="numeric"
+              />
+            )}
           />
 
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Correo electrónico
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.bgSecondary,
-                borderColor: theme.colors.borderPrimary,
-                color: theme.colors.textPrimary,
-              },
-            ]}
-            placeholder="tu@correo.com"
-            placeholderTextColor={theme.colors.textTertiary}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
+          {/* Correo — type="email" configura automáticamente keyboardType
+              y autoCapitalize="none" sin que el padre los especifique */}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <FormInput
+                ref={ref}
+                label="Correo electrónico"
+                type="email"
+                required
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.email?.message}
+                placeholder="tu@correo.com"
+              />
+            )}
           />
 
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Contraseña
-          </Text>
-          <View style={styles.passwordRow}>
-            <TextInput
-              style={[
-                styles.input,
-                styles.passwordInput,
-                {
-                  backgroundColor: theme.colors.bgSecondary,
-                  borderColor: theme.colors.borderPrimary,
-                  color: theme.colors.textPrimary,
-                },
-              ]}
-              placeholder="Mínimo 8 caracteres"
-              placeholderTextColor={theme.colors.textTertiary}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            <TouchableOpacity
-              style={[
-                styles.eyeBtn,
-                {
-                  borderColor: theme.colors.borderPrimary,
-                  backgroundColor: theme.colors.bgSecondary,
-                },
-              ]}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Text style={{ fontSize: 16 }}>{showPassword ? "🙈" : "👁️"}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-            Confirmar contraseña
-          </Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.colors.bgSecondary,
-                borderColor: theme.colors.borderPrimary,
-                color: theme.colors.textPrimary,
-              },
-            ]}
-            placeholder="Repite tu contraseña"
-            placeholderTextColor={theme.colors.textTertiary}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry={!showPassword}
-            autoCapitalize="none"
-            autoCorrect={false}
+          {/* Contraseña — type="password" incluye el toggle de visibilidad */}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <FormInput
+                ref={ref}
+                label="Contraseña"
+                type="password"
+                required
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.password?.message}
+                placeholder="Mínimo 8 caracteres"
+              />
+            )}
           />
 
+          {/* Confirmar contraseña — Zod valida que coincida con password
+              mediante el .refine() en registerSchema */}
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field: { onChange, onBlur, value, ref } }) => (
+              <FormInput
+                ref={ref}
+                label="Confirmar contraseña"
+                type="password"
+                required
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                error={errors.confirmPassword?.message}
+                placeholder="Repite tu contraseña"
+              />
+            )}
+          />
+
+          {/* Botón de registro — deshabilitado durante la carga */}
           <TouchableOpacity
             style={[
               styles.primaryBtn,
-              { backgroundColor: theme.colors.accentGreen, opacity: isLoading ? 0.7 : 1 },
+              {
+                backgroundColor: theme.colors.accentGreen,
+                opacity: isLoading ? 0.7 : 1,
+              },
             ]}
-            onPress={handleRegister}
+            onPress={handleSubmit(onSubmit)}
             activeOpacity={0.8}
             disabled={isLoading}
           >
@@ -302,7 +326,7 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
           </TouchableOpacity>
         </View>
 
-        {/* Ir a login */}
+        {/* ── Footer con link a login ── */}
         <View style={styles.footer}>
           <Text
             style={[styles.footerText, { color: theme.colors.textTertiary }]}
@@ -322,6 +346,8 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
   );
 }
 
+// ─── Estilos ───────────────────────────────────────────────────────────────────
+
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
     container: {
@@ -333,6 +359,7 @@ const createStyles = (theme: AppTheme) =>
       paddingBottom: theme.spacing.xxl,
       flexGrow: 1,
     },
+    // Encabezado con botón volver + logo + título
     header: {
       alignItems: "center",
       marginTop: theme.spacing.xl,
@@ -358,47 +385,31 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       marginTop: theme.spacing.xs,
     },
+    // Banner de error global — tipo 3 del sistema de notificaciones
     errorBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
       borderRadius: theme.radius.sm,
       borderWidth: theme.spacing.xxs,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
       marginBottom: theme.spacing.md,
     },
-    errorText: {
+    errorBannerText: {
       fontSize: theme.fontSize.sm,
       fontWeight: "600",
+      flex: 1,
+    },
+    errorBannerClose: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: "300",
+      marginLeft: theme.spacing.sm,
     },
     form: {
       marginBottom: theme.spacing.xxl,
     },
-    label: {
-      fontSize: theme.fontSize.sm,
-      fontWeight: "600",
-      marginBottom: theme.spacing.xs,
-      marginTop: theme.spacing.md,
-    },
-    input: {
-      borderRadius: theme.radius.sm,
-      borderWidth: theme.spacing.xxs,
-      paddingHorizontal: theme.spacing.md,
-      paddingVertical: theme.spacing.md,
-      fontSize: theme.fontSize.sm,
-    },
-    passwordRow: {
-      flexDirection: "row",
-      gap: theme.spacing.sm,
-    },
-    passwordInput: {
-      flex: 1,
-    },
-    eyeBtn: {
-      borderRadius: theme.radius.sm,
-      borderWidth: theme.spacing.xxs,
-      paddingHorizontal: theme.spacing.md,
-      justifyContent: "center",
-      alignItems: "center",
-    },
+    // Botón principal de registro
     primaryBtn: {
       borderRadius: theme.radius.sm,
       paddingVertical: theme.spacing.md + 2,
@@ -410,6 +421,7 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       fontWeight: "700",
     },
+    // Footer con link a login
     footer: {
       flexDirection: "row",
       justifyContent: "center",

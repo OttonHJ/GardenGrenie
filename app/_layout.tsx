@@ -57,19 +57,19 @@ function AppContent() {
       <NativeTabs>
         <NativeTabs.Trigger name="tabHome">
           <Label>Home</Label>
-          <Icon sf={"house.fill"} drawable="ic_menu_mylocation" />
+          <Icon sf={"house.fill"} drawable="tab_home" />
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="tabGarden">
-          <Label>Garden</Label>
-          <Icon sf={"leaf.fill"} drawable="leaf" />
+          <Label>Jardín</Label>
+          <Icon sf={"leaf.fill"} drawable="tab_garden" />
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="tabCalendar">
-          <Label>Calendar</Label>
-          <Icon sf={"calendar"} drawable="ic_menu_today" />
+          <Label>Calendario</Label>
+          <Icon sf={"calendar"} drawable="tab_calendar" />
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="tabSettings">
-          <Label>Profile</Label>
-          <Icon sf={"person.fill"} drawable="person" />
+          <Label>Perfil</Label>
+          <Icon sf={"person.fill"} drawable="tab_profile" />
         </NativeTabs.Trigger>
       </NativeTabs>
     </PlantsProvider>

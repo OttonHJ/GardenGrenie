@@ -158,7 +158,7 @@ export function ModalAddPlant({
       const result = await identifyPlant(uri);
       applyIdentification(result);
     } catch {
-      // Si falla la identificación el usuario puede llenar el formulario manualmente
+      setIdentification({ identified: false, name: "", scientificName: "", probability: 0, waterFrequencyDays: 7, category: "tropicales", allSuggestions: [] });
     } finally {
       setIsIdentifying(false);
     }
@@ -191,7 +191,7 @@ export function ModalAddPlant({
           const identified = await identifyPlant(uri);
           applyIdentification(identified);
         } catch {
-          // Fallo silencioso — el usuario llena manualmente
+          setIdentification({ identified: false, name: "", scientificName: "", probability: 0, waterFrequencyDays: 7, category: "tropicales", allSuggestions: [] });
         } finally {
           setIsIdentifying(false);
         }
@@ -267,21 +267,25 @@ export function ModalAddPlant({
       } else {
         const plantId = Date.now().toString();
 
-        if (!isConnected && imageUri && user) {
-          // Offline: persist image locally and enqueue for later upload
-          const localPath = await persistImageLocally(imageUri, plantId);
-          await enqueue({
-            plantId,
-            userId: user.uid,
-            imagePath: localPath,
-            needsIdentification: !!imageUri && !form.scientificName.trim(),
-          });
+        if (!isConnected) {
+          // Offline: queue image upload (if any), save metadata via Firestore SDK (queues offline)
+          let pendingUpload = false;
+          if (imageUri && user) {
+            const localPath = await persistImageLocally(imageUri, plantId);
+            await enqueue({
+              plantId,
+              userId: user.uid,
+              imagePath: localPath,
+              needsIdentification: !form.scientificName.trim(),
+            });
+            pendingUpload = true;
+          }
           const newPlant: Plant = {
             id: plantId,
             createdAt: Date.now(),
             name: form.name.trim(),
             scientificName: form.scientificName.trim(),
-            image: "",
+            image: imageUri || "",
             lastWatered: todayDateString(),
             nextWatering: calcNextWatering(form.waterFrequencyDays),
             sunlight: form.sunlight,
@@ -289,7 +293,7 @@ export function ModalAddPlant({
             waterFrequency: freqOption.label,
             location: form.location,
             category: form.category,
-            pendingUpload: true,
+            pendingUpload,
           };
           onPlantAdded(newPlant);
         } else {

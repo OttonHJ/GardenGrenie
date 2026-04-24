@@ -1,50 +1,133 @@
-# Welcome to your Expo app 👋
+# GardenGenie
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App móvil React Native (Expo) para identificar y gestionar plantas con IA, autenticación Google y sincronización Firebase.
 
-## Get started
+---
 
-1. Install dependencies
+## Requisitos previos
 
-   ```bash
-   npm install
-   ```
+- Node.js 18+
+- JDK 21 ([Eclipse Adoptium](https://adoptium.net/))
+- Android Studio con un emulador **Google Play** (Pixel 9 Pro API 36 recomendado)
+- Variables de entorno configuradas en `.env` (ver `.env.example`)
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Instalación
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Ejecutar en emulador Android
 
-To learn more about developing your project with Expo, look at the following resources:
+Este proyecto usa módulos nativos (`expo-dev-client`, `react-native-google-signin`) que **no funcionan en Expo Go**. Siempre usar el dev client.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Primera vez (compilar APK de desarrollo)
 
-## Join the community
+```bash
+npx expo run:android
+```
 
-Join our community of developers creating universal apps.
+Esto compila e instala el APK en el emulador. Solo necesario al agregar/cambiar módulos nativos.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Ejecuciones siguientes (arranque rápido)
+
+Abrir **dos terminales**:
+
+**Terminal 1 — túnel de red:**
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+```
+
+**Terminal 2 — servidor Metro:**
+```bash
+npx expo start --localhost
+```
+
+Luego presionar `a` en Metro para abrir la app en el emulador.
+
+> **Por qué `adb reverse`:** El emulador no puede alcanzar la IP LAN del host. `adb reverse` redirige el puerto 8081 del emulador al host, permitiendo que `--localhost` funcione.
+
+### Limpiar caché (si la app no carga o hay errores extraños)
+
+```bash
+npx expo start --clear --localhost
+```
+
+---
+
+## Google Sign-In — configuración necesaria
+
+Para que Google Sign-In funcione en un build de desarrollo:
+
+1. El emulador debe tener **Google Play Services** y una **cuenta Google** agregada  
+   (Settings → Accounts → Add account → Google)
+2. El SHA-1 del keystore de debug debe estar registrado en Firebase Console  
+   (Project Settings → Your apps → Android app → Add fingerprint)
+
+Para obtener el SHA-1 del keystore de debug del proyecto:
+
+```powershell
+& "C:\Program Files\Eclipse Adoptium\jdk-21.0.10.7-hotspot\bin\keytool.exe" `
+  -list -v `
+  -keystore "android\app\debug.keystore" `
+  -alias androiddebugkey `
+  -storepass android -keypass android
+```
+
+---
+
+## Firestore Security Rules
+
+Las reglas mínimas necesarias para que la app funcione (Firebase Console → Firestore → Rules):
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+---
+
+## Estructura principal
+
+```
+app/          # Rutas (expo-router)
+src/
+  components/ # Componentes reutilizables (OfflineBanner, FormInput, ...)
+  config/     # Firebase (firebase.ts)
+  context/    # AuthContext
+  hooks/      # useNetworkStatus
+  screens/    # Pantallas
+  services/   # plantIdService, cameraService, permissionService
+  theme/      # Design system
+android/      # Proyecto Android nativo
+```
+
+---
+
+## Variables de entorno
+
+Crear `.env` en la raíz con:
+
+```
+EXPO_PUBLIC_FIREBASE_API_KEY=
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+EXPO_PUBLIC_FIREBASE_APP_ID=
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=
+EXPO_PUBLIC_PLANT_ID_API_KEY=
+```

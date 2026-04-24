@@ -1,5 +1,6 @@
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
 import { PlantsProvider } from "@/src/context/PlantContext";
+import { OfflineBanner } from "@/src/components/OfflineBanner";
 import { ScreenForgotPassword } from "@/src/screens/ScreenForgotPassword";
 import { ScreenLogin } from "@/src/screens/ScreenLogin";
 import { ScreenRegister } from "@/src/screens/ScreenRegister";
@@ -54,6 +55,7 @@ function AppContent() {
 
   return (
     <PlantsProvider>
+      <OfflineBanner />
       <NativeTabs>
         <NativeTabs.Trigger name="tabHome">
           <Label>Home</Label>

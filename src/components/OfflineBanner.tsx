@@ -19,11 +19,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export function OfflineBanner() {
   const { isConnected, isChecking } = useNetworkStatus();
   const insets = useSafeAreaInsets();
-
-  if (isChecking || isConnected) return null;
+  const visible = !isChecking && !isConnected;
 
   return (
-    <View style={[styles.banner, { paddingTop: insets.top + 8 }]}>
+    <View
+      style={[
+        styles.banner,
+        { paddingTop: insets.top + 8 },
+        !visible && { display: "none" },
+      ]}
+    >
       <Text style={styles.text}>
         Sin conexión — los cambios se sincronizarán al reconectarte
       </Text>

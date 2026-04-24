@@ -6,7 +6,7 @@
  * y transforma la respuesta en datos listos para llenar el formulario.
  */
 
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 
 // URL del backend desplegado en Render
 const BACKEND_URL = "https://gardengrenie-backend.onrender.com";

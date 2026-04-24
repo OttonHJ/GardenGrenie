@@ -53,7 +53,6 @@ export function ScreenHome() {
     <View
       style={{
         flex: 1,
-        paddingBottom: insets.bottom,
         paddingTop: insets.top,
       }}
     >
@@ -61,7 +60,7 @@ export function ScreenHome() {
         style={styles.flex}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom },
+          { paddingBottom: insets.bottom + 60 },
         ]}
         showsVerticalScrollIndicator={false}
       >

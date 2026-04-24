@@ -1,6 +1,8 @@
 import { Plant } from "@/src/components/PlantCard";
 import { db } from "@/src/config/firebase";
 import { useAuth } from "@/src/context/AuthContext";
+import { syncPendingUploads } from "@/src/services/offlineSyncService";
+import { useNetworkStatus } from "@/src/hooks/useNetworkStatus";
 import {
   FilterId,
   calcNextWatering,
@@ -21,6 +23,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -58,6 +61,7 @@ function docToPlant(id: string, data: Record<string, any>): Plant {
     waterFrequency: data.waterFrequency ?? "c/7 días",
     location: data.location ?? "interior",
     category: data.category ?? "",
+    pendingUpload: data.pendingUpload ?? false,
   };
 }
 
@@ -75,6 +79,7 @@ function plantToDoc(plant: Plant): Record<string, any> {
     waterFrequency: plant.waterFrequency,
     location: plant.location,
     category: plant.category,
+    pendingUpload: plant.pendingUpload ?? false,
   };
 }
 
@@ -85,6 +90,24 @@ export function PlantsProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterId>("all");
+  const { isConnected } = useNetworkStatus();
+  const prevConnectedRef = useRef(isConnected);
+
+  // Sync on reconnect (offline → online during session)
+  useEffect(() => {
+    if (isConnected && !prevConnectedRef.current && user) {
+      syncPendingUploads(user.uid).catch(() => {});
+    }
+    prevConnectedRef.current = isConnected;
+  }, [isConnected, user]);
+
+  // Sync on startup / login if already online
+  useEffect(() => {
+    if (user && isConnected) {
+      syncPendingUploads(user.uid).catch(() => {});
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   // Escucha en tiempo real la colección del usuario
   useEffect(() => {

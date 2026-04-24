@@ -8,6 +8,11 @@ import {
   identifyPlant,
 } from "@/src/services/plantIdService";
 import {
+  enqueue,
+  persistImageLocally,
+} from "@/src/services/offlineSyncService";
+import { useNetworkStatus } from "@/src/hooks/useNetworkStatus";
+import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
@@ -80,6 +85,7 @@ export function ModalAddPlant({
 }: AddPlantModalProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
   const { user } = useAuth();
+  const { isConnected } = useNetworkStatus();
   const isEditMode = !!editingPlant;
 
   const [step, setStep] = useState<Step>("options");
@@ -260,22 +266,50 @@ export function ModalAddPlant({
         onPlantEdited?.(updatedPlant);
       } else {
         const plantId = Date.now().toString();
-        const finalImage = await uploadImage(imageUri, plantId);
-        const newPlant: Plant = {
-          id: plantId,
-          createdAt: Date.now(),
-          name: form.name.trim(),
-          scientificName: form.scientificName.trim(),
-          image: finalImage,
-          lastWatered: todayDateString(),
-          nextWatering: calcNextWatering(form.waterFrequencyDays),
-          sunlight: form.sunlight,
-          temperature: form.temperature,
-          waterFrequency: freqOption.label,
-          location: form.location,
-          category: form.category,
-        };
-        onPlantAdded(newPlant);
+
+        if (!isConnected && imageUri && user) {
+          // Offline: persist image locally and enqueue for later upload
+          const localPath = await persistImageLocally(imageUri, plantId);
+          await enqueue({
+            plantId,
+            userId: user.uid,
+            imagePath: localPath,
+            needsIdentification: !!imageUri && !form.scientificName.trim(),
+          });
+          const newPlant: Plant = {
+            id: plantId,
+            createdAt: Date.now(),
+            name: form.name.trim(),
+            scientificName: form.scientificName.trim(),
+            image: "",
+            lastWatered: todayDateString(),
+            nextWatering: calcNextWatering(form.waterFrequencyDays),
+            sunlight: form.sunlight,
+            temperature: form.temperature,
+            waterFrequency: freqOption.label,
+            location: form.location,
+            category: form.category,
+            pendingUpload: true,
+          };
+          onPlantAdded(newPlant);
+        } else {
+          const finalImage = await uploadImage(imageUri, plantId);
+          const newPlant: Plant = {
+            id: plantId,
+            createdAt: Date.now(),
+            name: form.name.trim(),
+            scientificName: form.scientificName.trim(),
+            image: finalImage,
+            lastWatered: todayDateString(),
+            nextWatering: calcNextWatering(form.waterFrequencyDays),
+            sunlight: form.sunlight,
+            temperature: form.temperature,
+            waterFrequency: freqOption.label,
+            location: form.location,
+            category: form.category,
+          };
+          onPlantAdded(newPlant);
+        }
       }
       handleClose();
     } catch (e: any) {
@@ -378,9 +412,11 @@ export function ModalAddPlant({
 
       {/* Aviso si no se pudo identificar */}
       {!isIdentifying && identification !== null && !identification.identified && (
-        <View style={[styles.infoBanner, { backgroundColor: theme.colors.categories.pink.bg, borderColor: theme.colors.categories.pink.border }]}>
-          <Text style={[styles.infoBannerText, { color: theme.colors.categories.pink.border }]}>
-            No se pudo identificar la planta. Completá los datos manualmente.
+        <View style={[styles.infoBanner, { backgroundColor: theme.colors.categories.yellow.bg, borderColor: theme.colors.categories.yellow.border }]}>
+          <Text style={[styles.infoBannerText, { color: theme.colors.categories.yellow.border }]}>
+            {!isConnected
+              ? "Sin conexión — la planta será identificada automáticamente al reconectar."
+              : "No se pudo identificar la planta. Completá los datos manualmente."}
           </Text>
         </View>
       )}

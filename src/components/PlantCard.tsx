@@ -39,6 +39,7 @@ export interface Plant {
   waterFrequency: string;
   location: "interior" | "exterior";
   category: string;
+  pendingUpload?: boolean;
 }
 
 interface PlantCardProps {
@@ -180,17 +181,31 @@ export default function PlantCard({
           </View>
 
           {/* Badge categoría */}
-          <View
-            style={[
-              styles.categoryBadge,
-              { backgroundColor: colors.bgPrimary },
-            ]}
-          >
-            <Text
-              style={[styles.categoryText, { color: colors.textSecondary }]}
+          <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
+            <View
+              style={[
+                styles.categoryBadge,
+                { backgroundColor: colors.bgPrimary, marginBottom: 0 },
+              ]}
             >
-              {plant.category}
-            </Text>
+              <Text
+                style={[styles.categoryText, { color: colors.textSecondary }]}
+              >
+                {plant.category}
+              </Text>
+            </View>
+            {plant.pendingUpload && (
+              <View
+                style={[
+                  styles.categoryBadge,
+                  { backgroundColor: colors.categories.yellow.bg, marginBottom: 0 },
+                ]}
+              >
+                <Text style={[styles.categoryText, { color: colors.categories.yellow.border }]}>
+                  ⏳ foto pendiente
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Stats */}

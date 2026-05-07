@@ -70,7 +70,7 @@ interface WateringEvent {
 export function ScreenCalendar() {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
-  const { plants } = usePlants();
+  const { plants, waterPlant } = usePlants();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -121,6 +121,7 @@ export function ScreenCalendar() {
   return (
     <ScrollView
       style={[styles.container, { paddingTop: insets.top }]}
+      contentContainerStyle={{ paddingBottom: insets.bottom + 60 }}
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
@@ -367,30 +368,25 @@ export function ScreenCalendar() {
                   {plant.location}
                 </Text>
               </View>
-              <View
+              <TouchableOpacity
                 style={[
-                  styles.eventBadge,
+                  styles.waterBtn,
                   {
-                    backgroundColor:
-                      (isOverdue
-                        ? theme.colors.accentOrange
-                        : theme.colors.accentGreen) + "22",
+                    backgroundColor: theme.colors.accentGreen + "22",
                   },
                 ]}
+                onPress={() => waterPlant(plant.id)}
+                activeOpacity={0.7}
               >
                 <Text
                   style={[
-                    styles.eventBadgeText,
-                    {
-                      color: isOverdue
-                        ? theme.colors.accentOrange
-                        : theme.colors.accentGreen,
-                    },
+                    styles.waterBtnText,
+                    { color: theme.colors.accentGreen },
                   ]}
                 >
-                  {isOverdue ? "Vencido" : "Hoy"}
+                  💧 Regar
                 </Text>
-              </View>
+              </TouchableOpacity>
             </View>
           ))
         )}
@@ -523,12 +519,12 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       marginTop: theme.spacing.xxs,
     },
-    eventBadge: {
+    waterBtn: {
       borderRadius: theme.radius.sm,
       paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xxs,
+      paddingVertical: theme.spacing.xs,
     },
-    eventBadgeText: {
+    waterBtnText: {
       fontSize: theme.fontSize.sm,
       fontWeight: "600",
     },

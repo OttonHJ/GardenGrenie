@@ -115,7 +115,7 @@ export function ScreenGarden() {
               onDelete={deletePlant}
             />
           )}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 60 }]}
           showsVerticalScrollIndicator={false}
         />
       )}

@@ -1,4 +1,5 @@
 import { Plant } from "@/src/components/PlantCard";
+import { Toast } from "@/src/components/Toast";
 import { db } from "@/src/config/firebase";
 import { useAuth } from "@/src/context/AuthContext";
 import { syncPendingUploads } from "@/src/services/offlineSyncService";
@@ -17,6 +18,7 @@ import {
   query,
   setDoc,
   updateDoc,
+  waitForPendingWrites,
 } from "firebase/firestore";
 import React, {
   createContext,
@@ -90,13 +92,29 @@ export function PlantsProvider({ children }: { children: React.ReactNode }) {
   const [plants, setPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterId>("all");
+  const [syncToast, setSyncToast] = useState(false);
   const { isConnected } = useNetworkStatus();
   const prevConnectedRef = useRef(isConnected);
+  const isConnectedRef = useRef(isConnected);
+  const hadOfflineWritesRef = useRef(false);
+
+  useEffect(() => { isConnectedRef.current = isConnected; }, [isConnected]);
 
   // Sync on reconnect (offline → online during session)
   useEffect(() => {
     if (isConnected && !prevConnectedRef.current && user) {
-      syncPendingUploads(user.uid).catch(() => {});
+      const showToast = () => setSyncToast(true);
+
+      syncPendingUploads(user.uid)
+        .then((count) => { if (count > 0) showToast(); })
+        .catch(() => {});
+
+      if (hadOfflineWritesRef.current) {
+        hadOfflineWritesRef.current = false;
+        waitForPendingWrites(db)
+          .then(showToast)
+          .catch(() => {});
+      }
     }
     prevConnectedRef.current = isConnected;
   }, [isConnected, user]);
@@ -133,24 +151,28 @@ export function PlantsProvider({ children }: { children: React.ReactNode }) {
 
   const addPlant = useCallback(async (plant: Plant) => {
     if (!user) return;
+    if (!isConnectedRef.current) hadOfflineWritesRef.current = true;
     const ref = doc(db, "users", user.uid, "plants", plant.id);
     await setDoc(ref, plantToDoc(plant));
   }, [user]);
 
   const updatePlant = useCallback(async (updated: Plant) => {
     if (!user) return;
+    if (!isConnectedRef.current) hadOfflineWritesRef.current = true;
     const ref = doc(db, "users", user.uid, "plants", updated.id);
     await updateDoc(ref, plantToDoc(updated));
   }, [user]);
 
   const deletePlant = useCallback(async (plantId: string) => {
     if (!user) return;
+    if (!isConnectedRef.current) hadOfflineWritesRef.current = true;
     const ref = doc(db, "users", user.uid, "plants", plantId);
     await deleteDoc(ref);
   }, [user]);
 
   const waterPlant = useCallback(async (plantId: string) => {
     if (!user) return;
+    if (!isConnectedRef.current) hadOfflineWritesRef.current = true;
     const plant = plants.find((p) => p.id === plantId);
     if (!plant) return;
     const match = plant.waterFrequency.match(/\d+/);
@@ -176,6 +198,12 @@ export function PlantsProvider({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
+      <Toast
+        visible={syncToast}
+        message="Cambios guardados en la nube"
+        type="success"
+        onDismiss={() => setSyncToast(false)}
+      />
     </PlantsContext.Provider>
   );
 }

@@ -49,8 +49,9 @@ export async function persistImageLocally(
   return dest;
 }
 
-export async function syncPendingUploads(userId: string): Promise<void> {
+export async function syncPendingUploads(userId: string): Promise<number> {
   const queue = await getQueue();
+  let synced = 0;
   for (const item of queue) {
     if (item.userId !== userId) continue;
     try {
@@ -89,8 +90,10 @@ export async function syncPendingUploads(userId: string): Promise<void> {
       }
 
       await dequeue(item.plantId);
+      synced++;
     } catch {
       // individual failure non-fatal — retry next reconnect
     }
   }
+  return synced;
 }

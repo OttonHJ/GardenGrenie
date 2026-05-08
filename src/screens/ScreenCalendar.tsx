@@ -34,6 +34,13 @@ const MONTH_NAMES = [
 ];
 const DAY_NAMES = ["D", "L", "K", "M", "J", "V", "S"];
 
+const CATEGORY_COLORS: Record<string, string> = {
+  suculentas: "#5db89a",
+  tropicales: "#66BB6A",
+  aromaticas: "#FFCA28",
+  cactaceas:  "#EF5350",
+};
+
 function getDaysInMonth(year: number, month: number): number {
   return new Date(year, month + 1, 0).getDate();
 }
@@ -340,14 +347,20 @@ export function ScreenCalendar() {
 
             const isToday = cellKey === todayKey;
             const isSelected = cellKey === selectedDay;
-            const hasEvents = cellKey ? !!eventMap[cellKey] : false;
-            const hasOverdue = cellKey
-              ? (eventMap[cellKey] ?? []).some((e) => e.isOverdue)
-              : false;
-
-            const dotColor = hasOverdue
-              ? theme.colors.accentOrange
-              : theme.colors.accentGreen;
+            const cellEvents = cellKey ? (eventMap[cellKey] ?? []) : [];
+            const categoryDots = Array.from(
+              cellEvents.reduce<Map<string, string>>((map, e) => {
+                if (!map.has(e.plant.category)) {
+                  map.set(
+                    e.plant.category,
+                    e.isOverdue
+                      ? theme.colors.accentOrange
+                      : (CATEGORY_COLORS[e.plant.category] ?? theme.colors.accentGreen),
+                  );
+                }
+                return map;
+              }, new Map()),
+            ).map(([cat, color]) => ({ cat, color }));
 
             rows[rowIdx].push(
               <TouchableOpacity
@@ -386,10 +399,12 @@ export function ScreenCalendar() {
                 >
                   {isCurrentMonth ? dayNum : ""}
                 </Text>
-                {hasEvents && (
-                  <View
-                    style={[styles.eventDot, { backgroundColor: dotColor }]}
-                  />
+                {categoryDots.length > 0 && (
+                  <View style={styles.dotRow}>
+                    {categoryDots.map(({ cat, color }) => (
+                      <View key={cat} style={[styles.eventDot, { backgroundColor: color }]} />
+                    ))}
+                  </View>
                 )}
               </TouchableOpacity>,
             );
@@ -577,11 +592,15 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.md,
       fontWeight: "500",
     },
-    eventDot: {
-      width: theme.spacing.xs,
-      height: theme.spacing.xs,
-      borderRadius: theme.radius.xxs,
+    dotRow: {
+      flexDirection: "row",
+      gap: 2,
       marginTop: theme.spacing.xxs,
+    },
+    eventDot: {
+      width: 5,
+      height: 5,
+      borderRadius: 3,
     },
     eventsSection: {
       marginHorizontal: theme.spacing.lg,

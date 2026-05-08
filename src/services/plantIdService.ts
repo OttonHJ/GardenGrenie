@@ -52,9 +52,15 @@ function mapWateringDays(watering: { min?: number; max?: number } | string): num
 function mapCategory(family: string): string {
   const f = family.toLowerCase();
   if (f === "cactaceae") return "cactaceas";
-  if (["crassulaceae", "aizoaceae", "portulacaceae", "asphodelaceae"].includes(f))
+  if (f === "orchidaceae") return "orquideas";
+  if (f === "arecaceae") return "palmeras";
+  if (["polypodiaceae", "dryopteridaceae", "nephrolepidaceae", "aspleniaceae",
+       "pteridaceae", "blechnaceae", "thelypteridaceae", "dennstaedtiaceae"].includes(f))
+    return "helechos";
+  if (["crassulaceae", "aizoaceae", "portulacaceae", "asphodelaceae",
+       "xanthorrhoeaceae"].includes(f))
     return "suculentas";
-  if (["lamiaceae", "apiaceae", "asteraceae", "myrtaceae"].includes(f))
+  if (["lamiaceae", "apiaceae", "asteraceae", "myrtaceae", "verbenaceae"].includes(f))
     return "aromaticas";
   return "tropicales";
 }

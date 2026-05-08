@@ -37,7 +37,10 @@ export type FilterId =
   | "suculentas"
   | "tropicales"
   | "aromaticas"
-  | "cactaceas";
+  | "cactaceas"
+  | "orquideas"
+  | "helechos"
+  | "palmeras";
 
 export interface FilterOption {
   id: FilterId;
@@ -53,6 +56,9 @@ export const FILTER_OPTIONS: FilterOption[] = [
   { id: "tropicales", label: "🌴 Tropicales" },
   { id: "aromaticas", label: "🌿 Aromáticas" },
   { id: "cactaceas", label: "🌵 Cactáceas" },
+  { id: "orquideas", label: "🌸 Orquídeas" },
+  { id: "helechos", label: "🌱 Helechos" },
+  { id: "palmeras", label: "🌴 Palmeras" },
 ];
 
 export function matchesFilter(plant: Plant, filter: FilterId): boolean {

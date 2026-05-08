@@ -67,7 +67,7 @@ export const plantSchema = z.object({
     .string()
     .max(80, "El nombre científico no puede superar los 80 caracteres")
     .optional(),
-  category: z.enum(["suculentas", "tropicales", "aromaticas", "cactaceas"], {
+  category: z.enum(["suculentas", "tropicales", "aromaticas", "cactaceas", "orquideas", "helechos", "palmeras"], {
     errorMap: () => ({ message: "Selecciona una categoría válida" }),
   }),
   location: z.enum(["interior", "exterior"], {

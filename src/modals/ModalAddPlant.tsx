@@ -58,7 +58,7 @@ const EMPTY_FORM: FormState = {
   waterFrequencyDays: 7,
 };
 
-const CATEGORIES = ["suculentas", "tropicales", "aromaticas", "cactaceas"];
+const CATEGORIES = ["suculentas", "tropicales", "aromaticas", "cactaceas", "orquideas", "helechos", "palmeras"];
 const WATER_FREQUENCIES = [
   { label: "c/3 días", days: 3 },
   { label: "c/7 días", days: 7 },

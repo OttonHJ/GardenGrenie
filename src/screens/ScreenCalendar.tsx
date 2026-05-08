@@ -39,6 +39,9 @@ const CATEGORY_COLORS: Record<string, string> = {
   tropicales: "#66BB6A",
   aromaticas: "#FFCA28",
   cactaceas:  "#EF5350",
+  orquideas:  "#CE93D8",
+  helechos:   "#81C784",
+  palmeras:   "#FFA726",
 };
 
 function getDaysInMonth(year: number, month: number): number {

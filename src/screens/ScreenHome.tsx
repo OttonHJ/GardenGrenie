@@ -21,6 +21,16 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FavoritePlant } from "../components/FavoritePlant";
 
+const CATEGORY_HOME_CONFIG = [
+  { id: "suculentas" as FilterId, label: "Suculentas", style: "categoryGreen" as const },
+  { id: "tropicales" as FilterId, label: "Tropicales", style: "categoryBrown" as const },
+  { id: "aromaticas" as FilterId, label: "Aromáticas", style: "categoryPink" as const },
+  { id: "cactaceas" as FilterId, label: "Cactáceas", style: "categoryYellow" as const },
+  { id: "orquideas" as FilterId, label: "Orquídeas", style: "categoryPink" as const },
+  { id: "helechos" as FilterId, label: "Helechos", style: "categoryGreen" as const },
+  { id: "palmeras" as FilterId, label: "Palmeras", style: "categoryYellow" as const },
+];
+
 export function ScreenHome() {
   const insets = useSafeAreaInsets();
   const { styles } = useProfileTheme(stylesByMode);
@@ -35,12 +45,10 @@ export function ScreenHome() {
   );
 
   const countByCategory = useMemo(
-    () => ({
-      suculentas: plants.filter((p) => p.category === "suculentas").length,
-      tropicales: plants.filter((p) => p.category === "tropicales").length,
-      aromaticas: plants.filter((p) => p.category === "aromaticas").length,
-      cactaceas: plants.filter((p) => p.category === "cactaceas").length,
-    }),
+    () => CATEGORY_HOME_CONFIG.map((cat) => ({
+      ...cat,
+      count: plants.filter((p) => p.category === cat.id).length,
+    })),
     [plants],
   );
 
@@ -101,46 +109,17 @@ export function ScreenHome() {
               <Text style={styles.sectionTitle}>🍃 CATEGORÍAS</Text>
             </View>
             <View style={styles.categoriesGrid}>
-              <TouchableOpacity
-                style={[styles.categoryCard, styles.categoryGreen]}
-                onPress={() => handleCategoryPress("suculentas")}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.categoryNumber}>
-                  {countByCategory.suculentas}
-                </Text>
-                <Text style={styles.categoryLabel}>Suculentas</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.categoryCard, styles.categoryBrown]}
-                onPress={() => handleCategoryPress("tropicales")}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.categoryNumber}>
-                  {countByCategory.tropicales}
-                </Text>
-                <Text style={styles.categoryLabel}>Tropicales</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.categoryCard, styles.categoryPink]}
-                onPress={() => handleCategoryPress("aromaticas")}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.categoryNumber}>
-                  {countByCategory.aromaticas}
-                </Text>
-                <Text style={styles.categoryLabel}>Aromáticas</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.categoryCard, styles.categoryYellow]}
-                onPress={() => handleCategoryPress("cactaceas")}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.categoryNumber}>
-                  {countByCategory.cactaceas}
-                </Text>
-                <Text style={styles.categoryLabel}>Cactáceas</Text>
-              </TouchableOpacity>
+              {countByCategory.map(({ id, label, style, count }) => (
+                <TouchableOpacity
+                  key={id}
+                  style={[styles.categoryCard, styles[style]]}
+                  onPress={() => handleCategoryPress(id)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.categoryNumber}>{count}</Text>
+                  <Text style={styles.categoryLabel}>{label}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
           {/* Categorías en grid */}

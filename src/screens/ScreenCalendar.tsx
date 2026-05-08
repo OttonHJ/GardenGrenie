@@ -57,6 +57,14 @@ function addMonths(date: Date, n: number): Date {
   return d;
 }
 
+function getWeekStart(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 // ─── Tipos ─────────────────────────────────────────────────────────────────────
 
 interface WateringEvent {
@@ -117,11 +125,28 @@ export function ScreenCalendar() {
     [plants],
   );
 
+  // ── Resumen semanal ────────────────────────────────────────────────────────
+  const weekDays = useMemo(() => {
+    const start = getWeekStart(today);
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      return { date: d, key: toDateKey(d) };
+    });
+  }, []);
+
+  const weeklyData = useMemo(() => {
+    const weekKeys = new Set(weekDays.map((d) => d.key));
+    const wateredThisWeek = plants.filter((p) => weekKeys.has(p.lastWatered)).length;
+    const pendingToday = eventMap[todayKey]?.length ?? 0;
+    return { wateredThisWeek, pendingToday };
+  }, [plants, weekDays, eventMap, todayKey]);
+
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <ScrollView
-      style={[styles.container, { paddingTop: insets.top }]}
-      contentContainerStyle={{ paddingBottom: insets.bottom + 60 }}
+      style={styles.container}
+      contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 80 }}
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
@@ -164,6 +189,84 @@ export function ScreenCalendar() {
           </Text>
         </View>
       )}
+
+      {/* Resumen semanal */}
+      <View
+        style={[
+          styles.weeklySummary,
+          {
+            backgroundColor: theme.colors.bgSecondary,
+            borderColor: theme.colors.borderPrimary,
+          },
+        ]}
+      >
+        <Text style={[styles.weeklySummaryTitle, { color: theme.colors.textTertiary }]}>
+          ESTA SEMANA
+        </Text>
+
+        <View style={styles.weekStrip}>
+          {weekDays.map(({ date, key }) => {
+            const isToday = key === todayKey;
+            const isPast = key < todayKey;
+            const hasWatered = plants.some((p) => p.lastWatered === key);
+            const hasEvent = !!eventMap[key];
+            let icon = "";
+            if (hasWatered) icon = "✅";
+            else if (hasEvent) {
+              if (isPast) icon = "⚠️";
+              else if (isToday) icon = "💧";
+              else icon = "·";
+            }
+            return (
+              <View
+                key={key}
+                style={[
+                  styles.weekDayItem,
+                  isToday && {
+                    backgroundColor: theme.colors.accentGreen + "22",
+                    borderRadius: theme.radius.sm,
+                  },
+                ]}
+              >
+                <Text style={[styles.weekDayName, { color: isToday ? theme.colors.accentGreen : theme.colors.textTertiary }]}>
+                  {DAY_NAMES[date.getDay()]}
+                </Text>
+                <Text style={[styles.weekDayNum, { color: isToday ? theme.colors.accentGreen : theme.colors.textPrimary }]}>
+                  {date.getDate()}
+                </Text>
+                <Text style={styles.weekDayIcon}>{icon}</Text>
+              </View>
+            );
+          })}
+        </View>
+
+        <View style={styles.weekStatRow}>
+          <View style={[styles.weekStatChip, { backgroundColor: theme.colors.accentGreen + "22" }]}>
+            <Text style={[styles.weekStatNum, { color: theme.colors.accentGreen }]}>
+              {weeklyData.wateredThisWeek}
+            </Text>
+            <Text style={[styles.weekStatLabel, { color: theme.colors.accentGreen }]}>
+              Regadas
+            </Text>
+          </View>
+          <View style={[styles.weekStatChip, { backgroundColor: theme.colors.accentGreen + "15" }]}>
+            <Text style={[styles.weekStatNum, { color: theme.colors.accentGreen }]}>
+              {weeklyData.pendingToday}
+            </Text>
+            <Text style={[styles.weekStatLabel, { color: theme.colors.accentGreen }]}>
+              Hoy
+            </Text>
+          </View>
+          <View style={[styles.weekStatChip, { backgroundColor: theme.colors.accentOrange + "22" }]}>
+            <Text style={[styles.weekStatNum, { color: theme.colors.accentOrange }]}>
+              {overdueEvents.length}
+            </Text>
+            <Text style={[styles.weekStatLabel, { color: theme.colors.accentOrange }]}>
+              Vencidas
+            </Text>
+          </View>
+        </View>
+      </View>
 
       {/* Navegación de mes */}
       <View
@@ -527,6 +630,62 @@ const createStyles = (theme: AppTheme) =>
     waterBtnText: {
       fontSize: theme.fontSize.sm,
       fontWeight: "600",
+    },
+    weeklySummary: {
+      marginHorizontal: theme.spacing.lg,
+      marginTop: theme.spacing.md,
+      borderRadius: theme.radius.sm,
+      borderWidth: theme.spacing.xxs,
+      padding: theme.spacing.md,
+    },
+    weeklySummaryTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      letterSpacing: 0.8,
+      marginBottom: theme.spacing.sm,
+    },
+    weekStrip: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: theme.spacing.md,
+    },
+    weekDayItem: {
+      alignItems: "center",
+      paddingVertical: theme.spacing.xxs,
+      paddingHorizontal: theme.spacing.xs,
+      minWidth: 36,
+    },
+    weekDayName: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+    },
+    weekDayNum: {
+      fontSize: theme.fontSize.md,
+      fontWeight: "500",
+      marginTop: theme.spacing.xxs,
+    },
+    weekDayIcon: {
+      fontSize: 12,
+      marginTop: theme.spacing.xxs,
+      height: 16,
+    },
+    weekStatRow: {
+      flexDirection: "row",
+      gap: theme.spacing.sm,
+    },
+    weekStatChip: {
+      flex: 1,
+      alignItems: "center",
+      borderRadius: theme.radius.sm,
+      paddingVertical: theme.spacing.sm,
+    },
+    weekStatNum: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: "700",
+    },
+    weekStatLabel: {
+      fontSize: theme.fontSize.sm,
+      marginTop: theme.spacing.xxs,
     },
   });
 

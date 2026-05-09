@@ -1,5 +1,7 @@
 import { Plant } from "@/src/components/PlantCard";
 import { usePlants } from "@/src/context/PlantContext";
+import { ModalAddPlant } from "@/src/modals/ModalAddPlant";
+import { ModalPlantDetail } from "@/src/modals/ModalPlantDetail";
 import {
   AppTheme,
   getAppTheme,
@@ -88,7 +90,7 @@ interface WateringEvent {
 export function ScreenCalendar() {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
-  const { plants, waterPlant } = usePlants();
+  const { plants, waterPlant, addPlant, updatePlant } = usePlants();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -99,6 +101,8 @@ export function ScreenCalendar() {
     new Date(today.getFullYear(), today.getMonth(), 1),
   );
   const [selectedDay, setSelectedDay] = useState<string>(todayKey);
+  const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
+  const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
@@ -154,6 +158,7 @@ export function ScreenCalendar() {
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 80 }}
@@ -456,7 +461,7 @@ export function ScreenCalendar() {
           </View>
         ) : (
           selectedEvents.map(({ plant, isOverdue }) => (
-            <View
+            <TouchableOpacity
               key={plant.id}
               style={[
                 styles.eventRow,
@@ -468,6 +473,8 @@ export function ScreenCalendar() {
                     : theme.colors.accentGreen,
                 },
               ]}
+              onPress={() => setSelectedPlant(plant)}
+              activeOpacity={0.7}
             >
               <View style={styles.eventInfo}>
                 <Text
@@ -489,30 +496,27 @@ export function ScreenCalendar() {
                   {plant.location}
                 </Text>
               </View>
-              <TouchableOpacity
-                style={[
-                  styles.waterBtn,
-                  {
-                    backgroundColor: theme.colors.accentGreen + "22",
-                  },
-                ]}
-                onPress={() => waterPlant(plant.id)}
-                activeOpacity={0.7}
-              >
-                <Text
-                  style={[
-                    styles.waterBtnText,
-                    { color: theme.colors.accentGreen },
-                  ]}
-                >
-                  💧 Regar
-                </Text>
-              </TouchableOpacity>
-            </View>
+              <Text style={[styles.eventChevron, { color: theme.colors.textTertiary }]}>›</Text>
+            </TouchableOpacity>
           ))
         )}
       </View>
     </ScrollView>
+    <ModalPlantDetail
+      plant={selectedPlant}
+      visible={!!selectedPlant}
+      onClose={() => setSelectedPlant(null)}
+      onWater={(id) => waterPlant(id)}
+      onEdit={(plant) => { setSelectedPlant(null); setEditingPlant(plant); }}
+    />
+    <ModalAddPlant
+      visible={!!editingPlant}
+      editingPlant={editingPlant}
+      onClose={() => setEditingPlant(null)}
+      onPlantAdded={addPlant}
+      onPlantEdited={updatePlant}
+    />
+    </View>
   );
 }
 
@@ -644,14 +648,10 @@ const createStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       marginTop: theme.spacing.xxs,
     },
-    waterBtn: {
-      borderRadius: theme.radius.sm,
-      paddingHorizontal: theme.spacing.sm,
-      paddingVertical: theme.spacing.xs,
-    },
-    waterBtnText: {
-      fontSize: theme.fontSize.sm,
-      fontWeight: "600",
+    eventChevron: {
+      fontSize: theme.fontSize.xl,
+      fontWeight: "300",
+      lineHeight: theme.spacing.xxl,
     },
     weeklySummary: {
       marginHorizontal: theme.spacing.lg,

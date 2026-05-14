@@ -40,6 +40,7 @@ export interface Plant {
   location: "interior" | "exterior";
   category: string;
   pendingUpload?: boolean;
+  wateringHistory?: string[]; // últimas 60 fechas "YYYY-MM-DD" más reciente primero
 }
 
 interface PlantCardProps {

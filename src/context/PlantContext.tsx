@@ -64,6 +64,7 @@ function docToPlant(id: string, data: Record<string, any>): Plant {
     location: data.location ?? "interior",
     category: data.category ?? "",
     pendingUpload: data.pendingUpload ?? false,
+    wateringHistory: Array.isArray(data.wateringHistory) ? data.wateringHistory : [],
   };
 }
 
@@ -82,6 +83,7 @@ function plantToDoc(plant: Plant): Record<string, any> {
     location: plant.location,
     category: plant.category,
     pendingUpload: plant.pendingUpload ?? false,
+    wateringHistory: plant.wateringHistory ?? [],
   };
 }
 
@@ -177,10 +179,14 @@ export function PlantsProvider({ children }: { children: React.ReactNode }) {
     if (!plant) return;
     const match = plant.waterFrequency.match(/\d+/);
     const days = match ? parseInt(match[0]) : 7;
+    const today = todayDateString();
+    const prev = plant.wateringHistory ?? [];
+    const history = [today, ...prev.filter((d) => d !== today)].slice(0, 60);
     const ref = doc(db, "users", user.uid, "plants", plantId);
     await updateDoc(ref, {
-      lastWatered: todayDateString(),
+      lastWatered: today,
       nextWatering: calcNextWatering(days),
+      wateringHistory: history,
     });
   }, [user, plants]);
 

@@ -13,7 +13,7 @@ import {
 } from "@/src/theme/designSystem";
 import { SortId, matchesFilter, sortPlants } from "@/src/utils/plantUtils";
 import React, { useMemo, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function ScreenGarden() {
@@ -23,6 +23,7 @@ export function ScreenGarden() {
   // ── Estado global de plantas ─────────────────────────────────────────────
   const {
     plants,
+    loading,
     addPlant,
     updatePlant,
     deletePlant,
@@ -95,7 +96,14 @@ export function ScreenGarden() {
         resultCount={filteredPlants.length}
       />
 
-      {filteredPlants.length === 0 ? (
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.accentGreen} />
+          <Text style={[styles.loadingText, { color: theme.colors.textTertiary }]}>
+            Cargando plantas...
+          </Text>
+        </View>
+      ) : filteredPlants.length === 0 ? (
         <GardenEmpty
           variant={plants.length === 0 ? "no-plants" : "no-results"}
           onAddPress={() => {
@@ -150,7 +158,15 @@ const createStyles = (theme: AppTheme) =>
     listContent: {
       paddingHorizontal: theme.spacing.lg,
       paddingTop: theme.spacing.md,
-      //paddingBottom: theme.spacing.xxl,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      gap: theme.spacing.md,
+    },
+    loadingText: {
+      fontSize: theme.fontSize.sm,
     },
   });
 

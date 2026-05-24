@@ -41,6 +41,7 @@ export interface Plant {
   category: string;
   pendingUpload?: boolean;
   wateringHistory?: string[]; // últimas 60 fechas "YYYY-MM-DD" más reciente primero
+  description?: string;
 }
 
 interface PlantCardProps {

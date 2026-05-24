@@ -65,6 +65,7 @@ function docToPlant(id: string, data: Record<string, any>): Plant {
     category: data.category ?? "",
     pendingUpload: data.pendingUpload ?? false,
     wateringHistory: Array.isArray(data.wateringHistory) ? data.wateringHistory : [],
+    description: data.description ?? "",
   };
 }
 
@@ -84,6 +85,7 @@ function plantToDoc(plant: Plant): Record<string, any> {
     category: plant.category,
     pendingUpload: plant.pendingUpload ?? false,
     wateringHistory: plant.wateringHistory ?? [],
+    description: plant.description ?? "",
   };
 }
 

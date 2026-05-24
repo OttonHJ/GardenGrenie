@@ -214,6 +214,18 @@ export function ModalPlantDetail({
             </Text>
           </View>
 
+          {/* Cuidados */}
+          {!!plant.description && (
+            <View style={[styles.descriptionSection, { borderColor: theme.colors.borderPrimary }]}>
+              <Text style={[styles.sectionTitle, { color: theme.colors.textTertiary }]}>
+                CUIDADOS
+              </Text>
+              <Text style={[styles.descriptionText, { color: theme.colors.textSecondary }]}>
+                {plant.description}
+              </Text>
+            </View>
+          )}
+
           {/* Historial de riegos */}
           {(plant.wateringHistory ?? []).length > 0 && (
             <View style={[styles.historySection, { borderColor: theme.colors.borderPrimary }]}>
@@ -387,6 +399,22 @@ const createStyles = (theme: AppTheme) =>
     actionBtnText: {
       fontSize: theme.fontSize.sm,
       fontWeight: "700",
+    },
+    descriptionSection: {
+      borderWidth: 1,
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      letterSpacing: 0.8,
+      marginBottom: theme.spacing.sm,
+    },
+    descriptionText: {
+      fontSize: theme.fontSize.sm,
+      lineHeight: 20,
     },
     historySection: {
       borderWidth: 1,

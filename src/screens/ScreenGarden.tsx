@@ -5,6 +5,7 @@ import { GardenTopBar } from "@/src/components/GardenTopBar";
 import PlantCard, { Plant } from "@/src/components/PlantCard";
 import { usePlants } from "@/src/context/PlantContext";
 import { ModalAddPlant } from "@/src/modals/ModalAddPlant";
+import { ModalPlantDetail } from "@/src/modals/ModalPlantDetail";
 import {
   AppTheme,
   getAppTheme,
@@ -36,6 +37,7 @@ export function ScreenGarden() {
   const [sortBy, setSortBy] = useState<SortId>("name");
   const [modalVisible, setModal] = useState(false);
   const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
+  const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   // ── Filtrado + búsqueda + ordenamiento ───────────────────────────────────
   const filteredPlants = useMemo(() => {
@@ -109,7 +111,7 @@ export function ScreenGarden() {
           renderItem={({ item }) => (
             <PlantCard
               plant={item}
-              onPress={() => {}}
+              onPress={() => setSelectedPlant(item)}
               onEdit={handleEdit}
               onWater={waterPlant}
               onDelete={deletePlant}
@@ -126,6 +128,14 @@ export function ScreenGarden() {
         onClose={handleCloseModal}
         onPlantAdded={addPlant}
         onPlantEdited={updatePlant}
+      />
+
+      <ModalPlantDetail
+        plant={selectedPlant}
+        visible={!!selectedPlant}
+        onClose={() => setSelectedPlant(null)}
+        onWater={(id) => waterPlant(id)}
+        onEdit={(plant) => { setSelectedPlant(null); setTimeout(() => handleEdit(plant), 300); }}
       />
     </View>
   );

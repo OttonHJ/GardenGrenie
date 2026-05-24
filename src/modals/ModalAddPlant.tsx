@@ -294,6 +294,7 @@ export function ModalAddPlant({
             location: form.location,
             category: form.category,
             pendingUpload,
+            description: identification?.description ?? "",
           };
           onPlantAdded(newPlant);
         } else {
@@ -311,6 +312,7 @@ export function ModalAddPlant({
             waterFrequency: freqOption.label,
             location: form.location,
             category: form.category,
+            description: identification?.description ?? "",
           };
           onPlantAdded(newPlant);
         }

@@ -214,6 +214,39 @@ export function ModalPlantDetail({
             </Text>
           </View>
 
+          {/* Cuidados */}
+          {!!plant.description && (
+            <View style={[styles.descriptionSection, { borderColor: theme.colors.borderPrimary }]}>
+              <Text style={[styles.sectionTitle, { color: theme.colors.textTertiary }]}>
+                CUIDADOS
+              </Text>
+              <Text style={[styles.descriptionText, { color: theme.colors.textSecondary }]}>
+                {plant.description}
+              </Text>
+            </View>
+          )}
+
+          {/* Historial de riegos */}
+          {(plant.wateringHistory ?? []).length > 0 && (
+            <View style={[styles.historySection, { borderColor: theme.colors.borderPrimary }]}>
+              <Text style={[styles.historyTitle, { color: theme.colors.textTertiary }]}>
+                ÚLTIMOS RIEGOS
+              </Text>
+              <View style={styles.historyList}>
+                {(plant.wateringHistory ?? []).slice(0, 8).map((date, i) => (
+                  <View
+                    key={date + i}
+                    style={[styles.historyChip, { backgroundColor: theme.colors.accentGreen + "18" }]}
+                  >
+                    <Text style={[styles.historyChipText, { color: theme.colors.accentGreen }]}>
+                      💧 {date}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
           {/* Acciones */}
           <View style={styles.actionsRow}>
             <TouchableOpacity
@@ -366,6 +399,48 @@ const createStyles = (theme: AppTheme) =>
     actionBtnText: {
       fontSize: theme.fontSize.sm,
       fontWeight: "700",
+    },
+    descriptionSection: {
+      borderWidth: 1,
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.lg,
+    },
+    sectionTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      letterSpacing: 0.8,
+      marginBottom: theme.spacing.sm,
+    },
+    descriptionText: {
+      fontSize: theme.fontSize.sm,
+      lineHeight: 20,
+    },
+    historySection: {
+      borderWidth: 1,
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.lg,
+    },
+    historyTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      letterSpacing: 0.8,
+      marginBottom: theme.spacing.sm,
+    },
+    historyList: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: theme.spacing.xs,
+    },
+    historyChip: {
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xxs,
+      borderRadius: theme.radius.xxs * 4,
+    },
+    historyChipText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "500",
     },
   });
 

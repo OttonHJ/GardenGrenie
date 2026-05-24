@@ -20,6 +20,7 @@ export interface PlantIdentification {
   probability: number;        // confianza 0–1 (ej: 0.83 = 83%)
   waterFrequencyDays: number; // frecuencia de riego en días (3, 7, 10 o 14)
   category: string;           // categoría mapeada del formulario
+  description: string;
   allSuggestions: Array<{
     name: string;
     commonName: string;
@@ -104,17 +105,19 @@ export async function identifyPlant(uri: string): Promise<PlantIdentification> {
       probability: 0,
       waterFrequencyDays: 7,
       category: "tropicales",
+      description: "",
       allSuggestions: [],
     };
   }
 
   return {
     identified: true,
-    name: data.commonName || data.name,       // prefiere nombre común en español
+    name: data.commonName || data.name,
     scientificName: data.name,
     probability: data.probability,
     waterFrequencyDays: mapWateringDays(data.watering),
     category: mapCategory(data.taxonomy?.family ?? ""),
+    description: data.description ?? "",
     allSuggestions: data.allSuggestions ?? [],
   };
 }

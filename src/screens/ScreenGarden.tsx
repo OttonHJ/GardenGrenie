@@ -5,6 +5,7 @@ import { GardenTopBar } from "@/src/components/GardenTopBar";
 import PlantCard, { Plant } from "@/src/components/PlantCard";
 import { usePlants } from "@/src/context/PlantContext";
 import { ModalAddPlant } from "@/src/modals/ModalAddPlant";
+import { ModalPlantDetail } from "@/src/modals/ModalPlantDetail";
 import {
   AppTheme,
   getAppTheme,
@@ -12,7 +13,7 @@ import {
 } from "@/src/theme/designSystem";
 import { SortId, matchesFilter, sortPlants } from "@/src/utils/plantUtils";
 import React, { useMemo, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export function ScreenGarden() {
@@ -22,6 +23,7 @@ export function ScreenGarden() {
   // ── Estado global de plantas ─────────────────────────────────────────────
   const {
     plants,
+    loading,
     addPlant,
     updatePlant,
     deletePlant,
@@ -36,6 +38,7 @@ export function ScreenGarden() {
   const [sortBy, setSortBy] = useState<SortId>("name");
   const [modalVisible, setModal] = useState(false);
   const [editingPlant, setEditingPlant] = useState<Plant | null>(null);
+  const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
 
   // ── Filtrado + búsqueda + ordenamiento ───────────────────────────────────
   const filteredPlants = useMemo(() => {
@@ -93,7 +96,14 @@ export function ScreenGarden() {
         resultCount={filteredPlants.length}
       />
 
-      {filteredPlants.length === 0 ? (
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.accentGreen} />
+          <Text style={[styles.loadingText, { color: theme.colors.textTertiary }]}>
+            Cargando plantas...
+          </Text>
+        </View>
+      ) : filteredPlants.length === 0 ? (
         <GardenEmpty
           variant={plants.length === 0 ? "no-plants" : "no-results"}
           onAddPress={() => {
@@ -109,7 +119,7 @@ export function ScreenGarden() {
           renderItem={({ item }) => (
             <PlantCard
               plant={item}
-              onPress={() => {}}
+              onPress={() => setSelectedPlant(item)}
               onEdit={handleEdit}
               onWater={waterPlant}
               onDelete={deletePlant}
@@ -127,6 +137,14 @@ export function ScreenGarden() {
         onPlantAdded={addPlant}
         onPlantEdited={updatePlant}
       />
+
+      <ModalPlantDetail
+        plant={selectedPlant}
+        visible={!!selectedPlant}
+        onClose={() => setSelectedPlant(null)}
+        onWater={(id) => waterPlant(id)}
+        onEdit={(plant) => { setSelectedPlant(null); setTimeout(() => handleEdit(plant), 300); }}
+      />
     </View>
   );
 }
@@ -140,7 +158,15 @@ const createStyles = (theme: AppTheme) =>
     listContent: {
       paddingHorizontal: theme.spacing.lg,
       paddingTop: theme.spacing.md,
-      //paddingBottom: theme.spacing.xxl,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      gap: theme.spacing.md,
+    },
+    loadingText: {
+      fontSize: theme.fontSize.sm,
     },
   });
 

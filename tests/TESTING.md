@@ -1,4 +1,5 @@
 # Documentación de Pruebas — GardenGenie
+
 **EIF209 – Lab 4 | Testing**
 
 ---
@@ -7,12 +8,12 @@
 
 ### Herramientas utilizadas
 
-| Herramienta | Versión | Propósito |
-|---|---|---|
-| Jest | ~29.7.0 | Framework base de pruebas |
-| jest-expo | ~54.0.17 | Preset oficial de Expo para Jest |
-| React Native Testing Library | ^13.3.3 | Render y consulta de componentes |
-| Zod | ^3.25.76 | Validación de esquemas (bajo prueba) |
+| Herramienta                  | Versión  | Propósito                            |
+| ---------------------------- | -------- | ------------------------------------ |
+| Jest                         | ~29.7.0  | Framework base de pruebas            |
+| jest-expo                    | ~54.0.17 | Preset oficial de Expo para Jest     |
+| React Native Testing Library | ^13.3.3  | Render y consulta de componentes     |
+| Zod                          | ^3.25.76 | Validación de esquemas (bajo prueba) |
 
 ### Archivos de configuración
 
@@ -40,13 +41,13 @@ Verifica el correcto funcionamiento de las funciones puras del módulo `src/util
 
 ### Funciones cubiertas
 
-| Función | Descripción |
-|---|---|
-| `calcNextWatering(days)` | Calcula la fecha de próximo riego sumando `days` días a hoy |
-| `todayDateString()` | Devuelve la fecha actual en formato `YYYY-MM-DD` |
-| `isWateringDue(date)` | Retorna `true` si la fecha de riego es hoy o ha pasado |
-| `matchesFilter(plant, filter)` | Determina si una planta cumple el filtro activo |
-| `sortPlants(plants, sort)` | Ordena un arreglo de plantas por nombre, riego urgente o más reciente |
+| Función                        | Descripción                                                           |
+| ------------------------------ | --------------------------------------------------------------------- |
+| `calcNextWatering(days)`       | Calcula la fecha de próximo riego sumando `days` días a hoy           |
+| `todayDateString()`            | Devuelve la fecha actual en formato `YYYY-MM-DD`                      |
+| `isWateringDue(date)`          | Retorna `true` si la fecha de riego es hoy o ha pasado                |
+| `matchesFilter(plant, filter)` | Determina si una planta cumple el filtro activo                       |
+| `sortPlants(plants, sort)`     | Ordena un arreglo de plantas por nombre, riego urgente o más reciente |
 
 ### Fragmento de código
 
@@ -108,7 +109,9 @@ describe("matchesFilter", () => {
   });
 
   it("filtro 'tropicales' rechaza planta con categoría suculentas", () => {
-    expect(matchesFilter(makePlant({ category: "suculentas" }), "tropicales")).toBe(false);
+    expect(
+      matchesFilter(makePlant({ category: "suculentas" }), "tropicales"),
+    ).toBe(false);
   });
 });
 
@@ -121,7 +124,11 @@ describe("sortPlants", () => {
       makePlant({ name: "Menta" }),
     ];
     const sorted = sortPlants(plants, "name");
-    expect(sorted.map((p) => p.name)).toEqual(["Albahaca", "Menta", "Zanahoria"]);
+    expect(sorted.map((p) => p.name)).toEqual([
+      "Albahaca",
+      "Menta",
+      "Zanahoria",
+    ]);
   });
 
   it("no modifica el arreglo original", () => {
@@ -181,24 +188,24 @@ Las pruebas utilizan `safeParse()` de Zod directamente, sin necesidad de renderi
 
 ### Casos cubiertos
 
-| Esquema | Caso de prueba | Resultado esperado |
-|---|---|---|
-| `loginSchema` | Correo + contraseña válidos | `success: true` |
-| `loginSchema` | Correo vacío | "El correo es obligatorio" |
-| `loginSchema` | Correo sin formato | "El correo no tiene un formato válido" |
-| `loginSchema` | Contraseña < 8 chars | "La contraseña debe tener al menos 8 caracteres" |
-| `plantSchema` | Todos los campos válidos | `success: true` |
-| `plantSchema` | Nombre vacío | "El nombre de la planta es obligatorio" |
-| `plantSchema` | Nombre > 60 chars | "El nombre no puede superar los 60 caracteres" |
-| `plantSchema` | Categoría no reconocida | "Selecciona una categoría válida" |
-| `plantSchema` | Frecuencia de riego = 0 | "La frecuencia debe ser al menos 1 día" |
-| `plantSchema` | Frecuencia de riego = 61 | "La frecuencia no puede superar los 60 días" |
-| `plantSchema` | Sin nombre científico | `success: true` (campo opcional) |
-| `registerSchema` | Todos los campos válidos | `success: true` |
-| `registerSchema` | Contraseñas distintas | "Las contraseñas no coinciden" |
+| Esquema          | Caso de prueba                   | Resultado esperado                                                             |
+| ---------------- | -------------------------------- | ------------------------------------------------------------------------------ |
+| `loginSchema`    | Correo + contraseña válidos      | `success: true`                                                                |
+| `loginSchema`    | Correo vacío                     | "El correo es obligatorio"                                                     |
+| `loginSchema`    | Correo sin formato               | "El correo no tiene un formato válido"                                         |
+| `loginSchema`    | Contraseña < 8 chars             | "La contraseña debe tener al menos 8 caracteres"                               |
+| `plantSchema`    | Todos los campos válidos         | `success: true`                                                                |
+| `plantSchema`    | Nombre vacío                     | "El nombre de la planta es obligatorio"                                        |
+| `plantSchema`    | Nombre > 60 chars                | "El nombre no puede superar los 60 caracteres"                                 |
+| `plantSchema`    | Categoría no reconocida          | "Selecciona una categoría válida"                                              |
+| `plantSchema`    | Frecuencia de riego = 0          | "La frecuencia debe ser al menos 1 día"                                        |
+| `plantSchema`    | Frecuencia de riego = 61         | "La frecuencia no puede superar los 60 días"                                   |
+| `plantSchema`    | Sin nombre científico            | `success: true` (campo opcional)                                               |
+| `registerSchema` | Todos los campos válidos         | `success: true`                                                                |
+| `registerSchema` | Contraseñas distintas            | "Las contraseñas no coinciden"                                                 |
 | `registerSchema` | Username con mayúsculas/espacios | "El alias solo puede tener letras minúsculas, números, puntos y guiones bajos" |
-| `registerSchema` | Fecha en formato ISO | "La fecha debe tener el formato DD/MM/AAAA" |
-| `registerSchema` | Fecha en formato DD/MM/AAAA | `success: true` |
+| `registerSchema` | Fecha en formato ISO             | "La fecha debe tener el formato DD/MM/AAAA"                                    |
+| `registerSchema` | Fecha en formato DD/MM/AAAA      | `success: true`                                                                |
 
 ### Fragmento de código
 
@@ -216,17 +223,25 @@ describe("loginSchema", () => {
   });
 
   it("correo vacío → 'El correo es obligatorio'", () => {
-    const result = loginSchema.safeParse({ email: "", password: "contraseña123" });
+    const result = loginSchema.safeParse({
+      email: "",
+      password: "contraseña123",
+    });
     expect(result.success).toBe(false);
     const messages = result.error!.issues.map((i) => i.message);
     expect(messages).toContain("El correo es obligatorio");
   });
 
   it("contraseña menor a 8 caracteres → error de longitud mínima", () => {
-    const result = loginSchema.safeParse({ email: "usuario@gmail.com", password: "abc" });
+    const result = loginSchema.safeParse({
+      email: "usuario@gmail.com",
+      password: "abc",
+    });
     expect(result.success).toBe(false);
     const messages = result.error!.issues.map((i) => i.message);
-    expect(messages).toContain("La contraseña debe tener al menos 8 caracteres");
+    expect(messages).toContain(
+      "La contraseña debe tener al menos 8 caracteres",
+    );
   });
 });
 
@@ -242,14 +257,20 @@ describe("plantSchema", () => {
   };
 
   it("frecuencia de riego 0 → 'La frecuencia debe ser al menos 1 día'", () => {
-    const result = plantSchema.safeParse({ ...validPlant, waterFrequencyDays: 0 });
+    const result = plantSchema.safeParse({
+      ...validPlant,
+      waterFrequencyDays: 0,
+    });
     expect(result.success).toBe(false);
     const messages = result.error!.issues.map((i) => i.message);
     expect(messages).toContain("La frecuencia debe ser al menos 1 día");
   });
 
   it("categoría inválida → 'Selecciona una categoría válida'", () => {
-    const result = plantSchema.safeParse({ ...validPlant, category: "inexistente" });
+    const result = plantSchema.safeParse({
+      ...validPlant,
+      category: "inexistente",
+    });
     expect(result.success).toBe(false);
     const messages = result.error!.issues.map((i) => i.message);
     expect(messages).toContain("Selecciona una categoría válida");
@@ -304,22 +325,130 @@ Tests: 16 passed, 16 total
 
 ---
 
+## Prueba 3 — Componente ModalAddPlant (formulario de nueva planta)
+
+### Descripción
+
+Verifica el comportamiento del componente `ModalAddPlant` — el formulario principal de la aplicación para agregar plantas. Esta es una prueba de componente (integración con RNTL) que renderiza el modal en memoria, simula interacciones del usuario y comprueba que la UI responde correctamente. Se cubre el flujo completo: pantalla de opciones → formulario → validación → guardado.
+
+**Archivo:** `tests/integration/ModalAddPlant.test.tsx`  
+**Módulo bajo prueba:** `src/modals/ModalAddPlant.tsx`  
+**Tipo:** Prueba de componente con React Native Testing Library
+
+### Casos cubiertos
+
+| Caso                     | Acción                                   | Resultado esperado                                                                            |
+| ------------------------ | ---------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Apertura del modal       | `visible=true`                           | Pantalla de opciones con "Ingresar manualmente"                                               |
+| Navegación al formulario | Press "Ingresar manualmente"             | Formulario con campo "Nueva planta" y botón "Guardar planta"                                  |
+| Validación campo vacío   | Press "Guardar planta" sin nombre        | `Alert.alert("Campo requerido", "El nombre de la planta es obligatorio.")`                    |
+| Guardado exitoso         | Escribir nombre + press "Guardar planta" | `onPlantAdded` llamado con datos correctos (`name`, `location`, `category`, `waterFrequency`) |
+
+### Fragmento de código
+
+```typescript
+import React from "react";
+import { Alert } from "react-native";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react-native";
+import { ModalAddPlant } from "@/src/modals/ModalAddPlant";
+
+jest.mock("@/src/context/AuthContext", () => ({
+  useAuth: () => ({ user: { uid: "test-uid", email: "test@example.com" } }),
+}));
+jest.mock("@/src/hooks/useNetworkStatus", () => ({
+  useNetworkStatus: () => ({ isConnected: true }),
+}));
+jest.mock("@/src/modals/ModalCamera", () => ({ ModalCamera: () => null }));
+// ... mocks de expo-image-picker, permissionService, plantIdService, offlineSyncService
+
+const defaultProps = {
+  visible: true,
+  onClose: jest.fn(),
+  onPlantAdded: jest.fn(),
+};
+
+describe("ModalAddPlant — validación de formulario", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.spyOn(Alert, "alert");
+  });
+
+  it("muestra pantalla de opciones al abrir", () => {
+    render(<ModalAddPlant {...defaultProps} />);
+    expect(screen.getByText("Agregar planta")).toBeTruthy();
+    expect(screen.getByText("Ingresar manualmente")).toBeTruthy();
+  });
+
+  it("navega al formulario al presionar 'Ingresar manualmente'", () => {
+    render(<ModalAddPlant {...defaultProps} />);
+    fireEvent.press(screen.getByText("Ingresar manualmente"));
+    expect(screen.getByText("Nueva planta")).toBeTruthy();
+    expect(screen.getByText("Guardar planta")).toBeTruthy();
+  });
+
+  it("muestra alerta de error al intentar guardar sin nombre", () => {
+    render(<ModalAddPlant {...defaultProps} />);
+    fireEvent.press(screen.getByText("Ingresar manualmente"));
+    fireEvent.press(screen.getByText("Guardar planta"));
+    expect(Alert.alert).toHaveBeenCalledWith(
+      "Campo requerido",
+      "El nombre de la planta es obligatorio."
+    );
+  });
+
+  it("llama onPlantAdded con datos correctos al guardar con nombre válido", async () => {
+    const onPlantAdded = jest.fn();
+    render(<ModalAddPlant {...defaultProps} onPlantAdded={onPlantAdded} />);
+    fireEvent.press(screen.getByText("Ingresar manualmente"));
+    fireEvent.changeText(
+      screen.getByPlaceholderText("ej. Monstera Deliciosa"),
+      "Sábila"
+    );
+    fireEvent.press(screen.getByText("Guardar planta"));
+    await waitFor(() => expect(onPlantAdded).toHaveBeenCalledTimes(1));
+    const plant = onPlantAdded.mock.calls[0][0];
+    expect(plant.name).toBe("Sábila");
+    expect(plant.location).toBe("interior");
+    expect(plant.category).toBe("suculentas");
+    expect(plant.waterFrequency).toBe("c/7 días");
+  });
+});
+```
+
+### Resultado de ejecución
+
+```
+PASS tests/integration/ModalAddPlant.test.tsx
+  ModalAddPlant — validación de formulario
+    √ muestra pantalla de opciones al abrir (656 ms)
+    √ navega al formulario al presionar 'Ingresar manualmente' (38 ms)
+    √ muestra alerta de error al intentar guardar sin nombre (23 ms)
+    √ llama onPlantAdded con datos correctos al guardar con nombre válido (173 ms)
+
+Tests: 4 passed, 4 total
+```
+
+> **Nota:** Adjuntar captura de pantalla de la terminal ejecutando `npm test` con los 4 tests en verde.
+
+---
+
 ## Resultado consolidado
 
 ```
-PASS tests/unit/plantUtils.test.ts
 PASS tests/unit/schemas.test.ts
+PASS tests/unit/plantUtils.test.ts
+PASS tests/integration/ModalAddPlant.test.tsx
 
-Test Suites: 2 passed, 2 total
-Tests:       34 passed, 34 total
+Test Suites: 3 passed, 3 total
+Tests:       38 passed, 38 total
 Snapshots:   0 total
-Time:        ~3.5 s
+Time:        ~3.7 s
 ```
 
-> **Nota:** Adjuntar captura de pantalla ejecutando `npm test` para mostrar los 34 tests pasando simultáneamente.
+> **Nota:** Adjuntar captura de pantalla ejecutando `npm test` para mostrar los 38 tests pasando simultáneamente.
 
 ---
 
 ## 2.3 Reflexión
 
-Integrar pruebas en un proyecto React Native / Expo ya existente resultó más complejo de lo esperado. El mayor obstáculo no fue escribir las pruebas en sí, sino configurar el entorno: el preset `jest-expo` requiere ajuste fino del campo `transformIgnorePatterns` para que módulos como `expo-modules-core` o `firebase` (que usan ESM) sean transpilados correctamente por Babel antes de ejecutarse en el ambiente de pruebas. También hubo un conflicto de versiones entre `react-test-renderer@19.2.6` y `react@19.1.0` que requirió instalar la versión exacta con `--legacy-peer-deps`. Una vez superada la configuración inicial, escribir las pruebas fue directo y los resultados inmediatos. Lo que cambia al incorporar pruebas es la forma de pensar el código: funciones puras y esquemas de validación aislados del framework son triviales de probar, mientras que componentes con efectos secundarios o dependencias de contexto requieren mocks y una arquitectura más cuidadosa. Esta experiencia refuerza la idea de que las pruebas no son un paso final, sino una guía de diseño que incentiva escribir código más modular y predecible desde el inicio.
+Agregar pruebas a una aplicación que ya estaba construida fue más difícil de lo que parecía al principio. La parte complicada no fue escribir las pruebas en sí, sino lograr que todo el entorno funcionara correctamente: varias herramientas externas que usa la app (como Firebase o la cámara) no están diseñadas para ejecutarse en un ambiente de pruebas, por lo que fue necesario reemplazarlas con versiones falsas que simulan su comportamiento. Una vez resuelto eso, escribir las pruebas resultó bastante natural. Esta experiencia deja una lección clara sobre el diseño del código: si desde el inicio se construye la aplicación pensando en que cada parte debe poder probarse de forma independiente, el proceso se vuelve mucho más sencillo. Cuando la lógica está mezclada con la interfaz o depende directamente de servicios externos, probarla se complica. Haber separado las reglas de negocio en funciones y esquemas propios fue la decisión que más facilitó este laboratorio.

@@ -8,7 +8,9 @@ jest.mock("react-native-reanimated", () =>
 
 // Firebase mock — evita conexión real a Firestore/Auth en pruebas
 jest.mock("firebase/app", () => ({
-  initializeApp: jest.fn(),
+  initializeApp: jest.fn(() => ({})),
+  getApps: jest.fn(() => []),
+  getApp: jest.fn(() => ({})),
 }));
 
 jest.mock("firebase/auth", () => ({

@@ -1,20 +1,30 @@
+import { usePlants } from "@/src/context/PlantContext";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import React from "react";
+import { calcStreak } from "@/src/utils/plantUtils";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 export function StreakFooter() {
   const { styles } = useProfileTheme(stylesByMode);
+  const { plants } = usePlants();
+  const streak = useMemo(() => calcStreak(plants), [plants]);
+
+  const message =
+    streak === 0
+      ? "¡Empieza a regar tus plantas hoy!"
+      : streak === 1
+        ? "🔥 ¡1 día cuidando tus plantas!"
+        : `🔥 ¡${streak} días seguidos cuidando tus plantas!`;
+
   return (
     <View style={styles.footer}>
       <Text style={styles.footerHeadline}>TU PROGRESO</Text>
       <View style={styles.footerContent}>
-        <Text style={styles.footerText}>
-          🔥 ¡28 días seguidos cuidando tus plantas!
-        </Text>
+        <Text style={styles.footerText}>{message}</Text>
       </View>
     </View>
   );

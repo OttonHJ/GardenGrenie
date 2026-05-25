@@ -76,6 +76,40 @@ export function matchesFilter(plant: Plant, filter: FilterId): boolean {
   }
 }
 
+// ─── Planta favorita ───────────────────────────────────────────────────────────
+
+// Score compuesto: consistencia de riegos (normalizada por frecuencia y edad)
+// con bonus de recencia si fue regada en los últimos 30 días.
+// Esto evita el sesgo por frecuencia (cactácea c/14 días vs tropical c/3 días)
+// y por edad (planta nueva vs planta de 6 meses).
+export function calcFavoritePlant(plants: Plant[]): Plant | null {
+  if (plants.length === 0) return null;
+
+  const now = Date.now();
+
+  const scored = plants.map((plant) => {
+    const daysSinceCreation = Math.max((now - plant.createdAt) / 86_400_000, 1);
+    const freqMatch = plant.waterFrequency.match(/\d+/);
+    const freqDays = freqMatch ? parseInt(freqMatch[0]) : 7;
+
+    const actual = (plant.wateringHistory ?? []).length;
+    // Riegos esperados en la ventana medida (máx 60 slots de historial)
+    const expected = Math.min(daysSinceCreation / freqDays, 60);
+    const consistency = actual / Math.max(expected, 1);
+
+    // Bonus ×1.2 si fue regada en los últimos 30 días
+    const lastWateredDays = plant.lastWatered
+      ? (now - new Date(plant.lastWatered).getTime()) / 86_400_000
+      : Infinity;
+    const recency = lastWateredDays <= 30 ? 1.2 : 1.0;
+
+    return { plant, score: consistency * recency };
+  });
+
+  const best = scored.reduce((a, b) => (b.score > a.score ? b : a));
+  return best.plant;
+}
+
 // ─── Ordenamiento ──────────────────────────────────────────────────────────────
 
 export type SortId = "name" | "watering" | "recent";

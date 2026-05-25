@@ -110,6 +110,42 @@ export function calcFavoritePlant(plants: Plant[]): Plant | null {
   return best.plant;
 }
 
+// ─── Racha ────────────────────────────────────────────────────────────────────
+
+// Cuenta cuántos días consecutivos (hasta hoy) se regó al menos una planta.
+// Si hoy no tiene riegos aún, la racha no se rompe (gracia de un día).
+export function calcStreak(plants: Plant[]): number {
+  if (plants.length === 0) return 0;
+
+  const allDates = new Set<string>();
+  for (const plant of plants) {
+    for (const date of plant.wateringHistory ?? []) {
+      allDates.add(date);
+    }
+    if ((plant.wateringHistory ?? []).length === 0 && plant.lastWatered) {
+      allDates.add(plant.lastWatered);
+    }
+  }
+
+  if (allDates.size === 0) return 0;
+
+  const today = todayDateString();
+  let current = allDates.has(today) ? today : prevDay(today);
+
+  let streak = 0;
+  while (allDates.has(current)) {
+    streak++;
+    current = prevDay(current);
+  }
+  return streak;
+}
+
+function prevDay(dateStr: string): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d - 1);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 // ─── Ordenamiento ──────────────────────────────────────────────────────────────
 
 export type SortId = "name" | "watering" | "recent";

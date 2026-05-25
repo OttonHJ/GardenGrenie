@@ -2,13 +2,15 @@ import { PrivacyToggle } from "@/src/components/PrivacyToggle";
 import { ProfileSummary } from "@/src/components/ProfileSummary";
 import { SmallBio } from "@/src/components/SmallBio";
 import { StreakFooter } from "@/src/components/StreakFooter";
+import { Toast } from "@/src/components/Toast";
 import { usePlants } from "@/src/context/PlantContext";
+import { useStreakBreak } from "@/src/hooks/useStreakBreak";
 import {
   AppTheme,
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
-import { FilterId, isWateringDue } from "@/src/utils/plantUtils";
+import { FilterId, calcStreak, isWateringDue } from "@/src/utils/plantUtils";
 import { router } from "expo-router";
 import React, { useMemo } from "react";
 import {
@@ -34,7 +36,8 @@ const CATEGORY_HOME_CONFIG = [
 export function ScreenHome() {
   const insets = useSafeAreaInsets();
   const { styles } = useProfileTheme(stylesByMode);
-  const { plants, setActiveFilter } = usePlants();
+  const { plants, loading, setActiveFilter } = usePlants();
+  const { brokenStreak, dismiss } = useStreakBreak(plants, loading);
 
   // ── Estadísticas derivadas del contexto ──────────────────────────────────
   const totalPlants = plants.length;
@@ -43,6 +46,8 @@ export function ScreenHome() {
     () => plants.filter((p) => isWateringDue(p.nextWatering)).length,
     [plants],
   );
+
+  const streak = useMemo(() => calcStreak(plants), [plants]);
 
   const countByCategory = useMemo(
     () => CATEGORY_HOME_CONFIG.map((cat) => ({
@@ -96,7 +101,7 @@ export function ScreenHome() {
               <Text style={styles.statLabel}>{"Regar\nhoy"}</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statNumberOrange}>28</Text>
+              <Text style={streak > 0 ? styles.statNumberOrange : styles.statNumber}>{streak}</Text>
               <Text style={styles.statLabel}>{"Días\nde racha"}</Text>
             </View>
           </View>
@@ -126,6 +131,13 @@ export function ScreenHome() {
           <StreakFooter />
         </View>
       </ScrollView>
+      <Toast
+        visible={brokenStreak > 0}
+        message={`🔥 Perdiste tu racha de ${brokenStreak} día${brokenStreak !== 1 ? "s" : ""}`}
+        type="error"
+        onDismiss={dismiss}
+        duration={5000}
+      />
     </View>
   );
 }

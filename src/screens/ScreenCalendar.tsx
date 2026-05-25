@@ -83,6 +83,7 @@ interface WateringEvent {
   plant: Plant;
   date: string; // "YYYY-MM-DD"
   isOverdue: boolean;
+  wasWatered: boolean;
 }
 
 // ─── Componente ────────────────────────────────────────────────────────────────
@@ -110,6 +111,8 @@ export function ScreenCalendar() {
   // ── Mapa de eventos: fecha → plantas ──────────────────────────────────────
   const eventMap = useMemo(() => {
     const map: Record<string, WateringEvent[]> = {};
+
+    // Riegos programados (nextWatering)
     for (const plant of plants) {
       const key = plant.nextWatering;
       if (!map[key]) map[key] = [];
@@ -117,10 +120,23 @@ export function ScreenCalendar() {
         plant,
         date: key,
         isOverdue: isWateringDue(plant.nextWatering) && key !== todayKey,
+        wasWatered: false,
       });
     }
+
+    // Historial de riegos pasados (wateringHistory)
+    for (const plant of plants) {
+      for (const date of plant.wateringHistory ?? []) {
+        if (date >= todayKey) continue;
+        if (!map[date]) map[date] = [];
+        if (!map[date].some((e) => e.plant.id === plant.id && e.wasWatered)) {
+          map[date].push({ plant, date, isOverdue: false, wasWatered: true });
+        }
+      }
+    }
+
     return map;
-  }, [plants]);
+  }, [plants, todayKey]);
 
   // ── Días del mes visible ───────────────────────────────────────────────────
   const daysInMonth = getDaysInMonth(year, month);
@@ -358,7 +374,7 @@ export function ScreenCalendar() {
             const cellEvents = cellKey ? (eventMap[cellKey] ?? []) : [];
             const categoryDots = Array.from(
               cellEvents.reduce<Map<string, string>>((map, e) => {
-                if (!map.has(e.plant.category)) {
+                if (!map.has(e.plant.category) || e.isOverdue) {
                   map.set(
                     e.plant.category,
                     e.isOverdue
@@ -436,7 +452,7 @@ export function ScreenCalendar() {
           {selectedDay === todayKey
             ? "HOY"
             : selectedDay < todayKey
-              ? "VENCIDO — " + selectedDay
+              ? "HISTORIAL — " + selectedDay
               : selectedDay}
         </Text>
 
@@ -456,21 +472,23 @@ export function ScreenCalendar() {
                 { color: theme.colors.textTertiary },
               ]}
             >
-              Sin riegos programados
+              {selectedDay < todayKey ? "Sin riegos registrados" : "Sin riegos programados"}
             </Text>
           </View>
         ) : (
-          selectedEvents.map(({ plant, isOverdue }) => (
+          selectedEvents.map(({ plant, isOverdue, wasWatered }) => (
             <TouchableOpacity
-              key={plant.id}
+              key={plant.id + wasWatered}
               style={[
                 styles.eventRow,
                 {
                   backgroundColor: theme.colors.bgSecondary,
                   borderColor: theme.colors.borderPrimary,
-                  borderLeftColor: isOverdue
-                    ? theme.colors.accentOrange
-                    : theme.colors.accentGreen,
+                  borderLeftColor: wasWatered
+                    ? theme.colors.accentGreen
+                    : isOverdue
+                      ? theme.colors.accentOrange
+                      : theme.colors.accentGreen,
                 },
               ]}
               onPress={() => setSelectedPlant(plant)}
@@ -483,7 +501,7 @@ export function ScreenCalendar() {
                     { color: theme.colors.textPrimary },
                   ]}
                 >
-                  {isOverdue ? "⚠️ " : "💧 "}
+                  {wasWatered ? "✅ " : isOverdue ? "⚠️ " : "💧 "}
                   {plant.name}
                 </Text>
                 <Text

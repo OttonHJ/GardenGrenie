@@ -227,25 +227,30 @@ export function ModalPlantDetail({
           )}
 
           {/* Historial de riegos */}
-          {(plant.wateringHistory ?? []).length > 0 && (
-            <View style={[styles.historySection, { borderColor: theme.colors.borderPrimary }]}>
-              <Text style={[styles.historyTitle, { color: theme.colors.textTertiary }]}>
-                ÚLTIMOS RIEGOS
-              </Text>
-              <View style={styles.historyList}>
-                {(plant.wateringHistory ?? []).slice(0, 8).map((date, i) => (
-                  <View
-                    key={date + i}
-                    style={[styles.historyChip, { backgroundColor: theme.colors.accentGreen + "18" }]}
-                  >
-                    <Text style={[styles.historyChipText, { color: theme.colors.accentGreen }]}>
-                      💧 {date}
-                    </Text>
-                  </View>
-                ))}
+          {(() => {
+            const history = (plant.wateringHistory ?? []).length > 0
+              ? plant.wateringHistory!
+              : plant.lastWatered ? [plant.lastWatered] : [];
+            return history.length > 0 ? (
+              <View style={[styles.historySection, { borderColor: theme.colors.borderPrimary }]}>
+                <Text style={[styles.historyTitle, { color: theme.colors.textTertiary }]}>
+                  ÚLTIMOS RIEGOS
+                </Text>
+                <View style={styles.historyList}>
+                  {history.slice(0, 8).map((date, i) => (
+                    <View
+                      key={date + i}
+                      style={[styles.historyChip, { backgroundColor: theme.colors.accentGreen + "18" }]}
+                    >
+                      <Text style={[styles.historyChipText, { color: theme.colors.accentGreen }]}>
+                        💧 {date}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
               </View>
-            </View>
-          )}
+            ) : null;
+          })()}
 
           {/* Acciones */}
           <View style={styles.actionsRow}>

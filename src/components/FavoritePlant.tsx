@@ -1,28 +1,51 @@
+import { usePlants } from "@/src/context/PlantContext";
 import {
     AppTheme,
     getAppTheme,
     useProfileTheme,
 } from "@/src/theme/designSystem";
-import React from "react";
+import { calcFavoritePlant } from "@/src/utils/plantUtils";
+import React, { useMemo } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export function FavoritePlant() {
-  const { styles } = useProfileTheme(stylesByMode);
+  const { styles, theme } = useProfileTheme(stylesByMode);
+  const { plants } = usePlants();
+
+  const favorite = useMemo(() => calcFavoritePlant(plants), [plants]);
+
+  if (!favorite) return null;
+
+  const waterings = (favorite.wateringHistory ?? []).length;
+  const freqMatch = favorite.waterFrequency.match(/\d+/);
+  const freqDays = freqMatch ? parseInt(freqMatch[0]) : 7;
+  const daysSince = Math.max((Date.now() - favorite.createdAt) / 86_400_000, 1);
+  const expected = Math.min(daysSince / freqDays, 60);
+  const consistencyPct = Math.min(Math.round((waterings / Math.max(expected, 1)) * 100), 100);
+
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>PLANTA FAVORITA</Text>
-      <View style={styles.favoritePlant}>
-        <Image
-          source={{
-            uri: "https://images.unsplash.com/photo-1648528203163-8604bf696e7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb25zdGVyYSUyMGRlbGljaW9zYSUyMHBsYW50fGVufDF8fHx8MTc3Mjk0Nzk5NXww&ixlib=rb-4.1.0&q=80&w=400",
-          }}
-          style={styles.plantImage}
-        />
+      <Text style={styles.sectionTitle}>⭐ PLANTA FAVORITA</Text>
+      <View style={[styles.favoritePlant, { backgroundColor: theme.colors.bgSecondary, borderColor: theme.colors.borderPrimary }]}>
+        {favorite.image ? (
+          <Image source={{ uri: favorite.image }} style={styles.plantImage} />
+        ) : (
+          <View style={[styles.plantImage, styles.plantImageFallback, { backgroundColor: theme.colors.categories.green.bg }]}>
+            <Text style={styles.plantEmoji}>🌱</Text>
+          </View>
+        )}
         <View style={styles.plantInfo}>
-          <Text style={styles.plantName}>Monstera Deliciosa</Text>
-          <Text style={styles.plantStats}>86 consultas realizadas</Text>
-          <View style={styles.plantBadge}>
-            <Text style={styles.plantBadgeText}>📈 Más consultada del mes</Text>
+          <Text style={styles.plantName}>{favorite.name}</Text>
+          {favorite.scientificName ? (
+            <Text style={[styles.plantScientific, { color: theme.colors.textTertiary }]}>{favorite.scientificName}</Text>
+          ) : null}
+          <Text style={styles.plantStats}>
+            💧 {waterings} riego{waterings !== 1 ? "s" : ""} · {favorite.waterFrequency}
+          </Text>
+          <View style={[styles.plantBadge, { backgroundColor: theme.colors.accentGreen + "18" }]}>
+            <Text style={[styles.plantBadgeText, { color: theme.colors.accentGreen }]}>
+              📈 {consistencyPct}% de consistencia
+            </Text>
           </View>
         </View>
       </View>
@@ -50,11 +73,21 @@ export const createUserStyles = (theme: AppTheme) =>
     favoritePlant: {
       flexDirection: "row",
       gap: theme.spacing.lg,
+      borderWidth: 1,
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
     },
     plantImage: {
       width: theme.imageSize.plants,
       height: theme.imageSize.plants,
       borderRadius: theme.radius.sm,
+    },
+    plantImageFallback: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    plantEmoji: {
+      fontSize: 28,
     },
     plantInfo: {
       flex: 1,
@@ -65,20 +98,26 @@ export const createUserStyles = (theme: AppTheme) =>
       fontWeight: "600",
       color: theme.colors.textPrimary,
     },
+    plantScientific: {
+      fontSize: theme.fontSize.sm,
+      fontStyle: "italic",
+      marginTop: theme.spacing.xxs,
+    },
     plantStats: {
       fontSize: theme.fontSize.sm,
       color: theme.colors.textTertiary,
       marginTop: theme.spacing.xs,
     },
     plantBadge: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: theme.spacing.xs,
+      alignSelf: "flex-start",
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: theme.spacing.xxs,
+      borderRadius: theme.radius.xxs * 4,
       marginTop: theme.spacing.sm,
     },
     plantBadgeText: {
       fontSize: theme.fontSize.sm,
-      color: theme.colors.textInactive,
+      fontWeight: "600",
     },
   });
 

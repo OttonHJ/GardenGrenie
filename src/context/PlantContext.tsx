@@ -182,7 +182,9 @@ export function PlantsProvider({ children }: { children: React.ReactNode }) {
     const match = plant.waterFrequency.match(/\d+/);
     const days = match ? parseInt(match[0]) : 7;
     const today = todayDateString();
-    const prev = plant.wateringHistory ?? [];
+    const prev = (plant.wateringHistory ?? []).length > 0
+      ? plant.wateringHistory!
+      : (plant.lastWatered ? [plant.lastWatered] : []);
     const history = [today, ...prev.filter((d) => d !== today)].slice(0, 60);
     const ref = doc(db, "users", user.uid, "plants", plantId);
     await updateDoc(ref, {

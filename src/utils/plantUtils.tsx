@@ -6,8 +6,8 @@ import { Plant } from "@/src/components/PlantCard";
 export function isWateringDue(nextWatering: string): boolean {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const waterDate = new Date(nextWatering);
-  waterDate.setHours(0, 0, 0, 0);
+  const [y, m, d] = nextWatering.split("-").map(Number);
+  const waterDate = new Date(y, m - 1, d); // local midnight, evita desfase UTC
   return waterDate <= today;
 }
 

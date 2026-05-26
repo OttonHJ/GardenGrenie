@@ -68,9 +68,13 @@
           "photosPermission": "GardenGrenie necesita acceso a tus fotos para agregar plantas",
           "savePhotosPermission": "GardenGrenie necesita permiso para guardar fotos",
           "isAccessMediaLocationEnabled": true,
-          "granularPermissions": ["audio", "photo"]
+          "granularPermissions": [
+            "audio",
+            "photo"
+          ]
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

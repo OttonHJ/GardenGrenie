@@ -5,6 +5,8 @@ import { StreakFooter } from "@/src/components/StreakFooter";
 import { Toast } from "@/src/components/Toast";
 import { usePlants } from "@/src/context/PlantContext";
 import { useStreakBreak } from "@/src/hooks/useStreakBreak";
+import { useVacationMode } from "@/src/hooks/useVacationMode";
+import { ModalVacationMode } from "@/src/modals/ModalVacationMode";
 import {
   AppTheme,
   getAppTheme,
@@ -12,7 +14,7 @@ import {
 } from "@/src/theme/designSystem";
 import { FilterId, calcStreak, isWateringDue } from "@/src/utils/plantUtils";
 import { router } from "expo-router";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -38,6 +40,8 @@ export function ScreenHome() {
   const { styles } = useProfileTheme(stylesByMode);
   const { plants, loading, setActiveFilter } = usePlants();
   const { brokenStreak, dismiss } = useStreakBreak(plants, loading);
+  const { vacation, activate, deactivate } = useVacationMode();
+  const [vacationModalVisible, setVacationModalVisible] = useState(false);
 
   // ── Estadísticas derivadas del contexto ──────────────────────────────────
   const totalPlants = plants.length;
@@ -108,6 +112,34 @@ export function ScreenHome() {
           {/* Stats horizontales con líneas divisorias */}
           <SmallBio />
           <FavoritePlant />
+          {/* Modo Vacaciones */}
+          {vacation?.active ? (
+            <TouchableOpacity
+              style={styles.vacationBanner}
+              onPress={() => setVacationModalVisible(true)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.vacationBannerLeft}>
+                <Text style={styles.vacationBannerTitle}>🌴 Modo Vacaciones activo</Text>
+                <Text style={styles.vacationBannerDates}>
+                  {vacation.startDate.split("-").reverse().join("/")} → {vacation.endDate.split("-").reverse().join("/")}
+                </Text>
+              </View>
+              <Text style={styles.vacationBannerEdit}>Editar</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.vacationButton}
+              onPress={() => setVacationModalVisible(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.vacationButtonIcon}>🌴</Text>
+              <View>
+                <Text style={styles.vacationButtonTitle}>Modo Vacaciones</Text>
+                <Text style={styles.vacationButtonSub}>Revisá qué plantas necesitan atención</Text>
+              </View>
+            </TouchableOpacity>
+          )}
           {/* Categorías en grid */}
           <View style={styles.sectionLast}>
             <View style={styles.categoriesHeader}>
@@ -137,6 +169,16 @@ export function ScreenHome() {
         type="error"
         onDismiss={dismiss}
         duration={5000}
+      />
+      <ModalVacationMode
+        visible={vacationModalVisible}
+        plants={plants}
+        isActive={vacation?.active ?? false}
+        initialStartDate={vacation?.startDate}
+        initialEndDate={vacation?.endDate}
+        onClose={() => setVacationModalVisible(false)}
+        onActivate={activate}
+        onDeactivate={deactivate}
       />
     </View>
   );
@@ -265,6 +307,60 @@ export const createUserStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       color: theme.colors.textSecondary,
       marginTop: theme.spacing.xxs,
+    },
+
+    // Vacation mode
+    vacationBanner: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: theme.colors.bgFooter,
+      borderLeftWidth: theme.spacing.xs,
+      borderLeftColor: theme.colors.accentGreen,
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.xxl,
+    },
+    vacationBannerLeft: {
+      flex: 1,
+    },
+    vacationBannerTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "700",
+      color: theme.colors.textPrimary,
+    },
+    vacationBannerDates: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textTertiary,
+      marginTop: 2,
+    },
+    vacationBannerEdit: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.accentGreen,
+      fontWeight: "600",
+    },
+    vacationButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: theme.colors.borderPrimary,
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.xxl,
+    },
+    vacationButtonIcon: {
+      fontSize: theme.fontSize.xl,
+    },
+    vacationButtonTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      color: theme.colors.textPrimary,
+    },
+    vacationButtonSub: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textTertiary,
+      marginTop: 2,
     },
   });
 

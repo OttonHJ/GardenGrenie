@@ -96,37 +96,48 @@ export function ScreenHome() {
             </TouchableOpacity>
             <PrivacyToggle />
           </View>
-          {/* Stats horizontales con líneas divisorias */}
-          <View style={[styles.section, styles.statsContainer]}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{totalPlants}</Text>
-              <Text style={styles.statLabel}>{"Plantas\nregistradas"}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text
-                style={
-                  waterToday > 0 ? styles.statNumberOrange : styles.statNumber
-                }
+          {/* Stats / Empty state */}
+          {plants.length === 0 && !loading ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>🌱</Text>
+              <Text style={styles.emptyTitle}>Tu jardín está vacío</Text>
+              <Text style={styles.emptySubtitle}>
+                Agregá tu primera planta y empezá a registrar sus riegos
+              </Text>
+              <TouchableOpacity
+                style={styles.emptyButton}
+                onPress={() => router.navigate("/tabGarden")}
+                activeOpacity={0.8}
               >
-                {waterToday}
-              </Text>
-              <Text style={styles.statLabel}>{"Regar\nhoy"}</Text>
+                <Text style={styles.emptyButtonText}>📷 Agregar primera planta</Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.statItem}>
-              <Text style={streak > 0 ? styles.statNumberOrange : styles.statNumber}>{streak}</Text>
-              <Text style={styles.statLabel}>{"Días\nde racha"}</Text>
-            </View>
-          </View>
-          {/* Stats horizontales con líneas divisorias */}
-          {/* Salud del jardín — comparación de opciones */}
-          {plants.length > 0 && (
-            <View style={styles.healthSection}>
-              <Text style={styles.healthTitle}>🌡️ SALUD GENERAL DEL JARDÍN</Text>
-              <Text style={styles.healthSubtitle}>
-                Basado en consistencia de riegos y días de atraso
-              </Text>
-              <GardenHealthBar plants={plants} healthCounts={healthCounts} />
-            </View>
+          ) : (
+            <>
+              <View style={[styles.section, styles.statsContainer]}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statNumber}>{totalPlants}</Text>
+                  <Text style={styles.statLabel}>{"Plantas\nregistradas"}</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={waterToday > 0 ? styles.statNumberOrange : styles.statNumber}>
+                    {waterToday}
+                  </Text>
+                  <Text style={styles.statLabel}>{"Regar\nhoy"}</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={streak > 0 ? styles.statNumberOrange : styles.statNumber}>{streak}</Text>
+                  <Text style={styles.statLabel}>{"Días\nde racha"}</Text>
+                </View>
+              </View>
+              <View style={styles.healthSection}>
+                <Text style={styles.healthTitle}>🌡️ SALUD GENERAL DEL JARDÍN</Text>
+                <Text style={styles.healthSubtitle}>
+                  Basado en consistencia de riegos y días de atraso
+                </Text>
+                <GardenHealthBar plants={plants} healthCounts={healthCounts} />
+              </View>
+            </>
           )}
           <SmallBio />
           <FavoritePlant />
@@ -379,6 +390,45 @@ export const createUserStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       color: theme.colors.textTertiary,
       marginTop: 2,
+    },
+
+    // Empty state
+    emptyState: {
+      alignItems: "center",
+      paddingVertical: theme.spacing.xxl,
+      marginBottom: theme.spacing.xxl,
+      paddingBottom: theme.spacing.xxl,
+      borderBottomWidth: theme.spacing.xs,
+      borderBottomColor: theme.colors.separator,
+      gap: theme.spacing.sm,
+    },
+    emptyIcon: {
+      fontSize: 52,
+      marginBottom: theme.spacing.sm,
+    },
+    emptyTitle: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: "700",
+      color: theme.colors.textPrimary,
+      textAlign: "center",
+    },
+    emptySubtitle: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textTertiary,
+      textAlign: "center",
+      lineHeight: 20,
+    },
+    emptyButton: {
+      backgroundColor: theme.colors.accentOrange,
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.xxl,
+      paddingVertical: theme.spacing.md,
+      marginTop: theme.spacing.sm,
+    },
+    emptyButtonText: {
+      color: "#ffffff",
+      fontSize: theme.fontSize.sm,
+      fontWeight: "700",
     },
 
     // Garden health

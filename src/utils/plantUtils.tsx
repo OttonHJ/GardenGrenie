@@ -146,6 +146,14 @@ function prevDay(dateStr: string): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
+// ─── Frecuencia ───────────────────────────────────────────────────────────────
+
+// Extrae el número de días de un string de frecuencia como "c/7 días" → 7
+export function parseWaterFrequencyDays(waterFrequency: string): number {
+  const match = waterFrequency.match(/\d+/);
+  return match ? parseInt(match[0]) : 7;
+}
+
 // ─── Ordenamiento ──────────────────────────────────────────────────────────────
 
 export type SortId = "name" | "watering" | "recent";

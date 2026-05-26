@@ -61,8 +61,14 @@ export async function syncPendingUploads(userId: string): Promise<number> {
         continue;
       }
 
-      const response = await fetch(item.imagePath);
-      const blob = await response.blob();
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => resolve(xhr.response as Blob);
+        xhr.onerror = () => reject(new Error("No se pudo leer imagen local"));
+        xhr.responseType = "blob";
+        xhr.open("GET", item.imagePath, true);
+        xhr.send(null);
+      });
       const storageRef = ref(storage, `users/${userId}/plants/${item.plantId}`);
       await uploadBytes(storageRef, blob, { contentType: "image/jpeg" });
       const url = await getDownloadURL(storageRef);

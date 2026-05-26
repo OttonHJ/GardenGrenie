@@ -1,4 +1,3 @@
-import { PrivacyToggle } from "@/src/components/PrivacyToggle";
 import { ProfileSummary } from "@/src/components/ProfileSummary";
 import { SmallBio } from "@/src/components/SmallBio";
 import { StreakFooter } from "@/src/components/StreakFooter";
@@ -94,7 +93,6 @@ export function ScreenHome() {
             <TouchableOpacity style={styles.flex}>
               <ProfileSummary />
             </TouchableOpacity>
-            <PrivacyToggle />
           </View>
           {/* Stats / Empty state */}
           {plants.length === 0 && !loading ? (
@@ -170,24 +168,26 @@ export function ScreenHome() {
             </TouchableOpacity>
           )}
           {/* Categorías en grid */}
-          <View style={styles.sectionLast}>
-            <View style={styles.categoriesHeader}>
-              <Text style={styles.sectionTitle}>🍃 CATEGORÍAS</Text>
+          {plants.length > 0 && (
+            <View style={styles.sectionLast}>
+              <View style={styles.categoriesHeader}>
+                <Text style={styles.sectionTitle}>🍃 CATEGORÍAS</Text>
+              </View>
+              <View style={styles.categoriesGrid}>
+                {countByCategory.filter(({ count }) => count > 0).map(({ id, label, style, count }) => (
+                  <TouchableOpacity
+                    key={id}
+                    style={[styles.categoryCard, styles[style]]}
+                    onPress={() => handleCategoryPress(id)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.categoryNumber}>{count}</Text>
+                    <Text style={styles.categoryLabel}>{label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-            <View style={styles.categoriesGrid}>
-              {countByCategory.map(({ id, label, style, count }) => (
-                <TouchableOpacity
-                  key={id}
-                  style={[styles.categoryCard, styles[style]]}
-                  onPress={() => handleCategoryPress(id)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.categoryNumber}>{count}</Text>
-                  <Text style={styles.categoryLabel}>{label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+          )}
           {/* Categorías en grid */}
           <StreakFooter />
         </View>

@@ -158,7 +158,7 @@ export function ModalAddPlant({
       const result = await identifyPlant(uri);
       applyIdentification(result);
     } catch {
-      setIdentification({ identified: false, name: "", scientificName: "", probability: 0, waterFrequencyDays: 7, category: "tropicales", allSuggestions: [] });
+      setIdentification({ identified: false, name: "", scientificName: "", probability: 0, waterFrequencyDays: 7, category: "tropicales", description: "", allSuggestions: [] });
     } finally {
       setIsIdentifying(false);
     }
@@ -178,8 +178,6 @@ export function ModalAddPlant({
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: "images",
         quality: 0.7,
-        allowsEditing: true,
-        aspect: [1, 1],
       });
       if (!result.canceled) {
         const uri = result.assets[0].uri;
@@ -191,7 +189,7 @@ export function ModalAddPlant({
           const identified = await identifyPlant(uri);
           applyIdentification(identified);
         } catch {
-          setIdentification({ identified: false, name: "", scientificName: "", probability: 0, waterFrequencyDays: 7, category: "tropicales", allSuggestions: [] });
+          setIdentification({ identified: false, name: "", scientificName: "", probability: 0, waterFrequencyDays: 7, category: "tropicales", description: "", allSuggestions: [] });
         } finally {
           setIsIdentifying(false);
         }
@@ -212,14 +210,6 @@ export function ModalAddPlant({
 
   const uploadImage = async (uri: string, plantId: string): Promise<string> => {
     if (!uri || !user) return "";
-    const response = await fetch(uri);
-    if (!response.ok) throw new Error(`fetch error ${response.status}`);
-    const blob = await response.blob();
-
-    const maxBytes = 5 * 1024 * 1024;
-    if (blob.size > maxBytes) {
-      throw new Error("La imagen no puede superar los 5 MB.");
-    }
 
     const ext = uri.split("?")[0].split(".").pop()?.toLowerCase() ?? "jpg";
     const mimeMap: Record<string, string> = {
@@ -230,6 +220,19 @@ export function ModalAddPlant({
       heic: "image/heic",
     };
     const contentType = mimeMap[ext] ?? "image/jpeg";
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = () => resolve(xhr.response);
+      xhr.onerror = () => reject(new Error("No se pudo leer la imagen"));
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+
+    if (blob.size > 5 * 1024 * 1024) {
+      throw new Error("La imagen no puede superar los 5 MB.");
+    }
 
     const storageRef = ref(storage, `users/${user.uid}/plants/${plantId}`);
     await uploadBytes(storageRef, blob, { contentType });

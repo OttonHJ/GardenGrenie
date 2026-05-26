@@ -3,6 +3,7 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { calcHealth } from "@/src/utils/healthUtils";
 import { isWateringDue } from "@/src/utils/plantUtils";
 import {
   Calendar,
@@ -65,6 +66,7 @@ export default function PlantCard({
   const colors = theme.colors;
   const [menuVisible, setMenuVisible] = useState(false);
   const isUrgent = isWateringDue(plant.nextWatering);
+  const health = calcHealth(plant);
 
   // ── Handlers del menú ───────────────────────────────────────────────────────
 
@@ -194,6 +196,16 @@ export default function PlantCard({
                 style={[styles.categoryText, { color: colors.textSecondary }]}
               >
                 {plant.category}
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.categoryBadge,
+                { backgroundColor: health.color + "22", marginBottom: 0 },
+              ]}
+            >
+              <Text style={[styles.categoryText, { color: health.color }]}>
+                {health.emoji} {health.label}
               </Text>
             </View>
             {plant.pendingUpload && (

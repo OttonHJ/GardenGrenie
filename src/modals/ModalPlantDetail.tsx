@@ -4,6 +4,7 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { calcHealth } from "@/src/utils/healthUtils";
 import { isWateringDue } from "@/src/utils/plantUtils";
 import React from "react";
 import {
@@ -54,6 +55,7 @@ export function ModalPlantDetail({
 
   const isUrgent = isWateringDue(plant.nextWatering);
   const catColor = CATEGORY_COLORS[plant.category] ?? theme.colors.accentGreen;
+  const health = calcHealth(plant);
 
   const sunlightLabel =
     plant.sunlight === "low"
@@ -212,6 +214,36 @@ export function ModalPlantDetail({
               {isUrgent ? "⚠️ Riego vencido · " : "📅 Próximo riego · "}
               {plant.nextWatering}
             </Text>
+          </View>
+
+          {/* Salud */}
+          <View style={[styles.healthSection, { borderColor: theme.colors.borderPrimary }]}>
+            <View style={styles.healthHeader}>
+              <Text style={[styles.healthStateText, { color: health.color }]}>
+                {health.emoji} {health.label}
+              </Text>
+              <Text style={[styles.healthScore, { color: health.color }]}>
+                {health.score}/100
+              </Text>
+            </View>
+            <View style={[styles.healthBarTrack, { backgroundColor: theme.colors.bgPrimary }]}>
+              <View
+                style={[
+                  styles.healthBarFill,
+                  { width: `${health.score}%` as any, backgroundColor: health.color },
+                ]}
+              />
+            </View>
+            <View style={styles.healthMeta}>
+              <Text style={[styles.healthMetaText, { color: theme.colors.textTertiary }]}>
+                Consistencia de riegos: {health.consistencyPct}%
+              </Text>
+              {health.daysOverdue > 0 && (
+                <Text style={[styles.healthMetaText, { color: health.color }]}>
+                  ⚠️ {health.daysOverdue} día{health.daysOverdue !== 1 ? "s" : ""} sin regar
+                </Text>
+              )}
+            </View>
           </View>
 
           {/* Cuidados */}
@@ -446,6 +478,43 @@ const createStyles = (theme: AppTheme) =>
     historyChipText: {
       fontSize: theme.fontSize.sm,
       fontWeight: "500",
+    },
+
+    // Health section
+    healthSection: {
+      borderWidth: 1,
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.lg,
+      gap: theme.spacing.sm,
+    },
+    healthHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    healthStateText: {
+      fontSize: theme.fontSize.md,
+      fontWeight: "700",
+    },
+    healthScore: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+    },
+    healthBarTrack: {
+      height: 6,
+      borderRadius: 3,
+      overflow: "hidden",
+    },
+    healthBarFill: {
+      height: 6,
+      borderRadius: 3,
+    },
+    healthMeta: {
+      gap: theme.spacing.xxs,
+    },
+    healthMetaText: {
+      fontSize: theme.fontSize.sm,
     },
   });
 

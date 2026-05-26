@@ -12,6 +12,8 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { GardenHealthBar } from "@/src/components/GardenHealthWidgets";
+import { calcHealth, HealthState } from "@/src/utils/healthUtils";
 import { FilterId, calcStreak, isWateringDue } from "@/src/utils/plantUtils";
 import { router } from "expo-router";
 import React, { useMemo, useState } from "react";
@@ -52,6 +54,12 @@ export function ScreenHome() {
   );
 
   const streak = useMemo(() => calcStreak(plants), [plants]);
+
+  const healthCounts = useMemo(() => {
+    const counts: Record<HealthState, number> = { healthy: 0, ok: 0, stressed: 0, critical: 0 };
+    plants.forEach((p) => { counts[calcHealth(p).state]++; });
+    return counts;
+  }, [plants]);
 
   const countByCategory = useMemo(
     () => CATEGORY_HOME_CONFIG.map((cat) => ({
@@ -110,6 +118,16 @@ export function ScreenHome() {
             </View>
           </View>
           {/* Stats horizontales con líneas divisorias */}
+          {/* Salud del jardín — comparación de opciones */}
+          {plants.length > 0 && (
+            <View style={styles.healthSection}>
+              <Text style={styles.healthTitle}>🌡️ SALUD GENERAL DEL JARDÍN</Text>
+              <Text style={styles.healthSubtitle}>
+                Basado en consistencia de riegos y días de atraso
+              </Text>
+              <GardenHealthBar plants={plants} healthCounts={healthCounts} />
+            </View>
+          )}
           <SmallBio />
           <FavoritePlant />
           {/* Modo Vacaciones */}
@@ -361,6 +379,36 @@ export const createUserStyles = (theme: AppTheme) =>
       fontSize: theme.fontSize.sm,
       color: theme.colors.textTertiary,
       marginTop: 2,
+    },
+
+    // Garden health
+    healthSection: {
+      marginBottom: theme.spacing.xxl,
+      paddingBottom: theme.spacing.xxl,
+      borderBottomWidth: theme.spacing.xs,
+      borderBottomColor: theme.colors.separator,
+    },
+    healthTitle: {
+      fontSize: theme.fontSize.md,
+      color: theme.colors.textPrimary,
+      marginBottom: theme.spacing.xs,
+      letterSpacing: 1,
+      fontWeight: "600",
+    },
+    healthSubtitle: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textTertiary,
+      marginBottom: theme.spacing.md,
+    },
+    optionLabel: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      color: theme.colors.textTertiary,
+      letterSpacing: 0.8,
+      marginBottom: theme.spacing.sm,
+    },
+    optionLabelSpaced: {
+      marginTop: theme.spacing.lg,
     },
   });
 

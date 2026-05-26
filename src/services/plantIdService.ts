@@ -6,8 +6,6 @@
  * y transforma la respuesta en datos listos para llenar el formulario.
  */
 
-import * as FileSystem from "expo-file-system/legacy";
-
 // URL del backend desplegado en Render
 const BACKEND_URL = "https://gardengrenie-backend.onrender.com";
 
@@ -76,12 +74,27 @@ function mapCategory(family: string): string {
  *
  * Lanza un Error si el servidor no responde o si ocurre un problema de red.
  */
-export async function identifyPlant(uri: string): Promise<PlantIdentification> {
-  // Convierte la imagen local a base64.
-  // expo-file-system lee el archivo directamente desde el dispositivo.
-  const base64 = await FileSystem.readAsStringAsync(uri, {
-    encoding: "base64",
+function readUriAsBase64(uri: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        resolve(dataUrl.slice(dataUrl.indexOf(",") + 1));
+      };
+      reader.onerror = () => reject(new Error("Error al leer imagen"));
+      reader.readAsDataURL(xhr.response as Blob);
+    };
+    xhr.onerror = () => reject(new Error("No se pudo leer la imagen"));
+    xhr.responseType = "blob";
+    xhr.open("GET", uri, true);
+    xhr.send(null);
   });
+}
+
+export async function identifyPlant(uri: string): Promise<PlantIdentification> {
+  const base64 = await readUriAsBase64(uri);
 
   // Envía la imagen al backend — el backend agrega la API key y llama a plant.id
   const response = await fetch(`${BACKEND_URL}/identify`, {

@@ -41,6 +41,13 @@ interface ThemeColors {
     pink: { bg: string; border: string };
     yellow: { bg: string; border: string };
   };
+
+  //Colores de fondo según el momento del día
+  timeOfDay: {
+    morning: string;
+    afternoon: string;
+    night: string;
+  };
 }
 
 //Como manejar lo espacios en la app
@@ -170,6 +177,12 @@ const lightColors: ThemeColors = {
     pink: { bg: "#f9f0f5", border: "#9e6b8b" },
     yellow: { bg: "#f5f9f0", border: "#8b9e6b" },
   },
+
+  timeOfDay: {
+    morning: "#fef6e4",
+    afternoon: "#edf7f1",
+    night: "#eef2f8",
+  },
 };
 
 //Aqui definimos colores para el modo obscuro
@@ -208,6 +221,12 @@ const darkColors: ThemeColors = {
     brown: { bg: "#3a2e1e", border: "#b89a6d" },
     pink: { bg: "#3a1e32", border: "#b86d9a" },
     yellow: { bg: "#2e3a1e", border: "#9ab86d" },
+  },
+
+  timeOfDay: {
+    morning: "#231c10",
+    afternoon: "#0e2018",
+    night: "#0e1220",
   },
 };
 

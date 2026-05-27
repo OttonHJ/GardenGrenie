@@ -9,18 +9,19 @@ import {
   HealthState,
 } from "@/src/utils/healthUtils";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export interface HealthWidgetProps {
   plants: Plant[];
   healthCounts: Record<HealthState, number>;
+  onSegmentPress?: (state: HealthState) => void;
 }
 
 const HEALTH_STATES: HealthState[] = ["healthy", "ok", "stressed", "critical"];
 
 // ─── Opción 1: Barra segmentada ────────────────────────────────────────────────
 
-export function GardenHealthBar({ plants, healthCounts }: HealthWidgetProps) {
+export function GardenHealthBar({ plants, healthCounts, onSegmentPress }: HealthWidgetProps) {
   const { styles, theme } = useProfileTheme(stylesByMode);
   const total = plants.length;
   if (total === 0) return null;
@@ -33,8 +34,10 @@ export function GardenHealthBar({ plants, healthCounts }: HealthWidgetProps) {
           if (count === 0) return null;
           const pct = (count / total) * 100;
           return (
-            <View
+            <TouchableOpacity
               key={state}
+              activeOpacity={onSegmentPress ? 0.7 : 1}
+              onPress={onSegmentPress ? () => onSegmentPress(state) : undefined}
               style={[
                 styles.barSegment,
                 {
@@ -52,7 +55,12 @@ export function GardenHealthBar({ plants, healthCounts }: HealthWidgetProps) {
           if (count === 0) return null;
           const cfg = HEALTH_STATE_CONFIG[state];
           return (
-            <View key={state} style={styles.legendItem}>
+            <TouchableOpacity
+              key={state}
+              activeOpacity={onSegmentPress ? 0.7 : 1}
+              onPress={onSegmentPress ? () => onSegmentPress(state) : undefined}
+              style={styles.legendItem}
+            >
               <View
                 style={[styles.legendDot, { backgroundColor: cfg.color }]}
               />
@@ -61,7 +69,7 @@ export function GardenHealthBar({ plants, healthCounts }: HealthWidgetProps) {
               >
                 {cfg.emoji} {count}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
         })}
       </View>

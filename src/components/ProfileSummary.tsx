@@ -7,16 +7,27 @@ import {
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
+type DayPeriod = "morning" | "afternoon" | "night";
+
+function getGreeting(): { icon: string; text: string; period: DayPeriod } {
+  const hour = new Date().getHours();
+  if (hour >= 6 && hour < 12) return { icon: "🌅", text: "Buenos días", period: "morning" };
+  if (hour >= 12 && hour < 18) return { icon: "☀️", text: "Buenas tardes", period: "afternoon" };
+  return { icon: "🌙", text: "Buenas noches", period: "night" };
+}
+
 export function ProfileSummary() {
-  const { styles } = useProfileTheme(stylesByMode);
+  const { styles, theme } = useProfileTheme(stylesByMode);
   const { user, profile } = useAuth();
 
   const displayName = profile?.displayName || user?.displayName || user?.email?.split("@")[0] || "Usuario";
   const username = profile?.username ? `@${profile.username}` : user?.email ?? "";
   const birthday = profile?.birthday ?? "";
+  const bio = profile?.bio?.trim() ?? "";
+  const greeting = getGreeting();
 
   return (
-    <View style={styles.containerHeader}>
+    <View style={[styles.containerHeader, { backgroundColor: theme.colors.timeOfDay[greeting.period] }]}>
       <View style={styles.containerHeaderStack}>
         <Image
           source={
@@ -27,6 +38,7 @@ export function ProfileSummary() {
           style={styles.profileImage}
         />
         <View style={styles.personalInfoStack}>
+          <Text style={styles.greetingText}>{greeting.icon} {greeting.text}</Text>
           <Text style={styles.name}>{displayName}</Text>
           <Text style={styles.username}>{username}</Text>
           {!!birthday && (
@@ -34,6 +46,9 @@ export function ProfileSummary() {
           )}
         </View>
       </View>
+      {!!bio && (
+        <Text style={styles.bioText}>{bio}</Text>
+      )}
     </View>
   );
 }
@@ -43,15 +58,14 @@ export function ProfileSummary() {
 export const createUserStyles = (theme: AppTheme) =>
   StyleSheet.create({
     containerHeader: {
-      alignItems: "baseline",
-      marginBottom: theme.spacing.lg,
-      flex: 1,
+      paddingHorizontal: theme.spacing.lg,
+      paddingTop: theme.spacing.lg,
+      paddingBottom: theme.spacing.md,
     },
     containerHeaderStack: {
-      alignItems: "center",
-      paddingTop: theme.spacing.xxl,
-      flex: 2,
       flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.lg,
     },
     alignContainer: {
       flex: 1,
@@ -61,30 +75,36 @@ export const createUserStyles = (theme: AppTheme) =>
       gap: theme.spacing.md,
     },
     personalInfoStack: {
-      marginLeft: theme.spacing.xl,
-      marginTop: theme.spacing.md,
-      textAlign: "center",
-      alignContent: "center",
+      flex: 1,
       justifyContent: "center",
     },
     profileImage: {
       width: theme.imageSize.profile,
       height: theme.imageSize.profile,
       borderRadius: theme.radius.full,
-      borderWidth: theme.radius.xxs,
-      borderColor: theme.colors.borderPrivacy,
+      borderWidth: 2,
+      borderColor: theme.colors.accentGreen,
+    },
+    greetingText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+      marginBottom: theme.spacing.xs,
     },
     name: {
       fontSize: theme.fontSize.lg,
-      fontWeight: "600",
+      fontWeight: "700",
       color: theme.colors.textPrimary,
-      marginBottom: theme.spacing.xs,
     },
     username: {
-      fontSize: theme.fontSize.md,
+      fontSize: theme.fontSize.sm,
       color: theme.colors.textSecondary,
-      marginTop: theme.spacing.xs,
-      marginBottom: theme.spacing.sm,
+      marginTop: 2,
+    },
+    bioText: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textTertiary,
+      lineHeight: 20,
+      marginTop: theme.spacing.md,
     },
     rowAlign: {
       flexDirection: "row",

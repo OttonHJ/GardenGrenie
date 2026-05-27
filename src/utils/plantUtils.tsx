@@ -40,7 +40,11 @@ export type FilterId =
   | "cactaceas"
   | "orquideas"
   | "helechos"
-  | "palmeras";
+  | "palmeras"
+  | "health-healthy"
+  | "health-ok"
+  | "health-stressed"
+  | "health-critical";
 
 export interface FilterOption {
   id: FilterId;

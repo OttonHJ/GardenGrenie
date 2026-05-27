@@ -11,6 +11,7 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { calcHealth, HealthState } from "@/src/utils/healthUtils";
 import { SortId, matchesFilter, sortPlants } from "@/src/utils/plantUtils";
 import React, { useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
@@ -42,7 +43,9 @@ export function ScreenGarden() {
 
   // ── Filtrado + búsqueda + ordenamiento ───────────────────────────────────
   const filteredPlants = useMemo(() => {
-    let result = plants.filter((p) => matchesFilter(p, activeFilter));
+    let result = (activeFilter as string).startsWith("health-")
+      ? plants.filter((p) => calcHealth(p).state === (activeFilter as string).replace("health-", "") as HealthState)
+      : plants.filter((p) => matchesFilter(p, activeFilter));
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(

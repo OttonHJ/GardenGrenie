@@ -1,6 +1,4 @@
 import { ProfileSummary } from "@/src/components/ProfileSummary";
-import { SmallBio } from "@/src/components/SmallBio";
-import { StreakFooter } from "@/src/components/StreakFooter";
 import { Toast } from "@/src/components/Toast";
 import { usePlants } from "@/src/context/PlantContext";
 import { useStreakBreak } from "@/src/hooks/useStreakBreak";
@@ -13,7 +11,7 @@ import {
 } from "@/src/theme/designSystem";
 import { GardenHealthBar } from "@/src/components/GardenHealthWidgets";
 import { calcHealth, HealthState } from "@/src/utils/healthUtils";
-import { FilterId, calcStreak, isWateringDue } from "@/src/utils/plantUtils";
+import { FilterId, calcStreak, isWateringDue, todayDateString } from "@/src/utils/plantUtils";
 import { router } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
@@ -25,6 +23,29 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FavoritePlant } from "../components/FavoritePlant";
+
+function getMotivationalMessage(
+  streak: number,
+  waterToday: number,
+  healthCounts: Record<HealthState, number>,
+  totalPlants: number,
+  vacation: { active: boolean; endDate: string } | null | undefined,
+): { icon: string; text: string } | null {
+  if (totalPlants === 0) return null;
+  if (healthCounts.critical > 0)
+    return { icon: "⚠️", text: `${healthCounts.critical} planta${healthCounts.critical > 1 ? "s" : ""} en estado crítico, revisalas.` };
+  if (waterToday > 0)
+    return { icon: "💧", text: `Hoy toca regar ${waterToday} planta${waterToday > 1 ? "s" : ""}.` };
+  if (vacation?.active)
+    return { icon: "🌴", text: `Modo vacaciones activo hasta el ${vacation.endDate.split("-").reverse().join("/")}.` };
+  if (streak >= 7)
+    return { icon: "🔥", text: `¡${streak} días de racha! Tu jardín te lo agradece.` };
+  if (healthCounts.healthy === totalPlants)
+    return { icon: "🌱", text: "Jardín 100% sano, ¡seguí así!" };
+  if (streak === 0)
+    return { icon: "💧", text: "Regá hoy para arrancar una nueva racha." };
+  return { icon: "✅", text: "Todo al día, buen trabajo." };
+}
 
 const CATEGORY_HOME_CONFIG = [
   { id: "suculentas" as FilterId, label: "Suculentas", style: "categoryGreen" as const },
@@ -39,7 +60,7 @@ const CATEGORY_HOME_CONFIG = [
 export function ScreenHome() {
   const insets = useSafeAreaInsets();
   const { styles } = useProfileTheme(stylesByMode);
-  const { plants, loading, setActiveFilter } = usePlants();
+  const { plants, loading, setActiveFilter, waterPlant } = usePlants();
   const { brokenStreak, dismiss } = useStreakBreak(plants, loading);
   const { vacation, activate, deactivate } = useVacationMode();
   const [vacationModalVisible, setVacationModalVisible] = useState(false);
@@ -47,10 +68,11 @@ export function ScreenHome() {
   // ── Estadísticas derivadas del contexto ──────────────────────────────────
   const totalPlants = plants.length;
 
-  const waterToday = useMemo(
-    () => plants.filter((p) => isWateringDue(p.nextWatering)).length,
+  const plantsToWater = useMemo(
+    () => plants.filter((p) => isWateringDue(p.nextWatering)),
     [plants],
   );
+  const waterToday = plantsToWater.length;
 
   const streak = useMemo(() => calcStreak(plants), [plants]);
 
@@ -68,8 +90,32 @@ export function ScreenHome() {
     [plants],
   );
 
+  const newThisWeek = useMemo(
+    () => plants.filter((p) => p.createdAt > Date.now() - 7 * 24 * 3600 * 1000).length,
+    [plants],
+  );
+
+  const overdueCount = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return plants.filter((p) => {
+      const [y, m, d] = p.nextWatering.split("-").map(Number);
+      return new Date(y, m - 1, d) < today;
+    }).length;
+  }, [plants]);
+
+  const wateredToday = useMemo(() => {
+    const today = todayDateString();
+    return plants.some((p) => p.wateringHistory?.[0] === today || p.lastWatered === today);
+  }, [plants]);
+
   const handleCategoryPress = (filter: FilterId) => {
     setActiveFilter(filter);
+    router.navigate("/tabGarden");
+  };
+
+  const handleHealthPress = (state: HealthState) => {
+    setActiveFilter(`health-${state}` as FilterId);
     router.navigate("/tabGarden");
   };
 
@@ -116,16 +162,29 @@ export function ScreenHome() {
                 <View style={styles.statItem}>
                   <Text style={styles.statNumber}>{totalPlants}</Text>
                   <Text style={styles.statLabel}>{"Plantas\nregistradas"}</Text>
+                  {newThisWeek > 0 && (
+                    <Text style={styles.statSublabel}>+{newThisWeek} esta sem.</Text>
+                  )}
                 </View>
                 <View style={styles.statItem}>
                   <Text style={waterToday > 0 ? styles.statNumberOrange : styles.statNumber}>
                     {waterToday}
                   </Text>
                   <Text style={styles.statLabel}>{"Regar\nhoy"}</Text>
+                  {waterToday === 0 && totalPlants > 0 ? (
+                    <Text style={styles.statSublabel}>✓ al día</Text>
+                  ) : overdueCount > 0 ? (
+                    <Text style={styles.statSublabelOrange}>{overdueCount} atrasada{overdueCount > 1 ? "s" : ""}</Text>
+                  ) : null}
                 </View>
                 <View style={styles.statItem}>
                   <Text style={streak > 0 ? styles.statNumberOrange : styles.statNumber}>{streak}</Text>
                   <Text style={styles.statLabel}>{"Días\nde racha"}</Text>
+                  {streak > 0 && wateredToday ? (
+                    <Text style={styles.statSublabel}>↑ activa</Text>
+                  ) : streak > 0 && waterToday > 0 && !wateredToday ? (
+                    <Text style={styles.statSublabelOrange}>en riesgo</Text>
+                  ) : null}
                 </View>
               </View>
               <View style={styles.healthSection}>
@@ -133,11 +192,30 @@ export function ScreenHome() {
                 <Text style={styles.healthSubtitle}>
                   Basado en consistencia de riegos y días de atraso
                 </Text>
-                <GardenHealthBar plants={plants} healthCounts={healthCounts} />
+                <GardenHealthBar plants={plants} healthCounts={healthCounts} onSegmentPress={handleHealthPress} />
               </View>
+              {plantsToWater.length > 0 && (
+                <View style={styles.wateringSection}>
+                  <Text style={styles.sectionTitle}>💧 REGAR HOY</Text>
+                  {plantsToWater.map((plant) => (
+                    <View key={plant.id} style={styles.wateringRow}>
+                      <View style={styles.flex}>
+                        <Text style={styles.wateringPlantName}>{plant.name}</Text>
+                        <Text style={styles.wateringPlantSub}>{plant.waterFrequency}</Text>
+                      </View>
+                      <TouchableOpacity
+                        style={styles.wateringButton}
+                        onPress={() => waterPlant(plant.id)}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={styles.wateringButtonText}>💧 Regar</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              )}
             </>
           )}
-          <SmallBio />
           <FavoritePlant />
           {/* Modo Vacaciones */}
           {vacation?.active ? (
@@ -188,8 +266,16 @@ export function ScreenHome() {
               </View>
             </View>
           )}
-          {/* Categorías en grid */}
-          <StreakFooter />
+          {(() => {
+            const msg = getMotivationalMessage(streak, waterToday, healthCounts, totalPlants, vacation);
+            if (!msg) return null;
+            return (
+              <View style={styles.motivationalCard}>
+                <Text style={styles.motivationalIcon}>{msg.icon}</Text>
+                <Text style={styles.motivationalText}>{msg.text}</Text>
+              </View>
+            );
+          })()}
         </View>
       </ScrollView>
       <Toast
@@ -224,14 +310,13 @@ export const createUserStyles = (theme: AppTheme) =>
       paddingHorizontal: theme.spacing.lg,
     },
     profileCard: {
-      alignItems: "center",
       backgroundColor: theme.colors.bgSecondary,
       borderWidth: 1,
       borderColor: theme.colors.borderPrimary,
-      color: "black",
       borderRadius: theme.radius.xl,
       marginTop: theme.spacing.xl,
       marginBottom: theme.spacing.xl,
+      overflow: "hidden",
     },
 
     // Stats
@@ -265,7 +350,8 @@ export const createUserStyles = (theme: AppTheme) =>
     },
     statSublabel: {
       fontSize: theme.fontSize.sm,
-      color: theme.colors.textInactive,
+      fontWeight: "600",
+      color: theme.colors.accentGreen,
     },
     statSublabelOrange: {
       fontSize: theme.fontSize.sm,
@@ -459,6 +545,62 @@ export const createUserStyles = (theme: AppTheme) =>
     },
     optionLabelSpaced: {
       marginTop: theme.spacing.lg,
+    },
+
+    // Motivational message
+    motivationalCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+      backgroundColor: theme.colors.bgSecondary,
+      borderRadius: theme.radius.sm,
+      padding: theme.spacing.md,
+      marginBottom: theme.spacing.xxl,
+    },
+    motivationalIcon: {
+      fontSize: theme.fontSize.xl,
+    },
+    motivationalText: {
+      flex: 1,
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textSecondary,
+      lineHeight: 20,
+    },
+
+    // Watering today list
+    wateringSection: {
+      marginBottom: theme.spacing.xxl,
+      paddingBottom: theme.spacing.xxl,
+      borderBottomWidth: theme.spacing.xs,
+      borderBottomColor: theme.colors.separator,
+    },
+    wateringRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: theme.spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.separator,
+    },
+    wateringPlantName: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      color: theme.colors.textPrimary,
+    },
+    wateringPlantSub: {
+      fontSize: theme.fontSize.sm,
+      color: theme.colors.textTertiary,
+      marginTop: 2,
+    },
+    wateringButton: {
+      backgroundColor: theme.colors.accentGreen,
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.xs,
+    },
+    wateringButtonText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
+      color: "#ffffff",
     },
   });
 

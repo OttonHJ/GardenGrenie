@@ -348,9 +348,13 @@ export function ScreenEditProfile({
 
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    // Raíz con flex:1 para ocupar toda la pantalla
+    // Raíz con position absolute para overlay completo sobre ScreenProfile
     root: {
-      flex: 1,
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       backgroundColor: theme.colors.bgPrimary,
     },
     flex: {

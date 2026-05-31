@@ -40,7 +40,7 @@ export function ScreenChat() {
   useEffect(() => {
     if (!isLoadingSession && !currentUser && user && !joining) {
       const nickname =
-        profile?.username ?? user.email?.split("@")[0] ?? "usuario";
+        profile?.username?.trim() || user.email?.split("@")[0] || "usuario";
       setJoining(true);
       joinChat(nickname)
         .catch(console.error)
@@ -115,9 +115,9 @@ export function ScreenChat() {
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+        <View style={styles.flex}>
         <ScrollView
           ref={scrollRef}
-          style={styles.flex}
           contentContainerStyle={[
             styles.messagesContent,
             { paddingBottom: insets.bottom + 16 },
@@ -165,6 +165,7 @@ export function ScreenChat() {
             </View>
           ))}
         </ScrollView>
+        </View>
 
         <View
           style={[

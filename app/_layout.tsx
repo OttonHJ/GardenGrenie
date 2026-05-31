@@ -73,7 +73,7 @@ function AppContent() {
           </NativeTabs.Trigger>
           <NativeTabs.Trigger name="tabChat">
             <Label>Chat</Label>
-            <Icon sf={"bubble.left.and.bubble.right.fill"} drawable="tab_chat" />
+            <Icon sf={"message.fill"} drawable="tab_chat" />
           </NativeTabs.Trigger>
           <NativeTabs.Trigger name="tabSettings">
             <Label>Perfil</Label>

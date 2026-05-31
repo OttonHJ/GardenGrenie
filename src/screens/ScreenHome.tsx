@@ -1,5 +1,7 @@
+import { AchievementToast } from "@/src/components/AchievementToast";
 import { ProfileSummary } from "@/src/components/ProfileSummary";
 import { Toast } from "@/src/components/Toast";
+import { useAchievementsContext } from "@/src/context/AchievementsContext";
 import { usePlants } from "@/src/context/PlantContext";
 import { useStreakBreak } from "@/src/hooks/useStreakBreak";
 import { useVacationMode } from "@/src/hooks/useVacationMode";
@@ -63,6 +65,7 @@ export function ScreenHome() {
   const { plants, loading, setActiveFilter, waterPlant } = usePlants();
   const { brokenStreak, dismiss } = useStreakBreak(plants, loading);
   const { vacation, activate, deactivate } = useVacationMode();
+  const { newAchievements, markSeen } = useAchievementsContext();
   const [vacationModalVisible, setVacationModalVisible] = useState(false);
 
   // ── Estadísticas derivadas del contexto ──────────────────────────────────
@@ -285,6 +288,16 @@ export function ScreenHome() {
         onDismiss={dismiss}
         duration={5000}
       />
+      {(() => {
+        const toastAchievement = newAchievements[0] ?? null;
+        return (
+          <AchievementToast
+            achievement={toastAchievement}
+            visible={toastAchievement !== null}
+            onDismiss={() => toastAchievement && markSeen(toastAchievement.id)}
+          />
+        );
+      })()}
       <ModalVacationMode
         visible={vacationModalVisible}
         plants={plants}

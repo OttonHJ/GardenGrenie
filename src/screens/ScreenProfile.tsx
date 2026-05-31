@@ -1,11 +1,18 @@
 import { SettingsProfileRow } from "@/src/components/SettingsProfileRow";
 import { SettingsProfileSummary } from "@/src/components/SettingsProfileSummary";
 import { useAuth } from "@/src/context/AuthContext";
+import { useAchievementsContext } from "@/src/context/AchievementsContext";
 import { ModalAbout } from "@/src/modals/ModalAbout";
+import { ModalAchievements } from "@/src/modals/ModalAchievements";
 import { ModalContact } from "@/src/modals/ModalContact";
 import { ModalPrivacy } from "@/src/modals/ModalPrivacy";
 import { ModalTerms } from "@/src/modals/ModalTerms";
 import { ScreenEditProfile } from "@/src/screens/ScreenEditProfile";
+import {
+  Achievement,
+  ACHIEVEMENTS_TOTAL,
+  RARITY_LABELS,
+} from "@/src/utils/achievementUtils";
 import {
   AppTheme,
   getAppTheme,
@@ -23,9 +30,32 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+function buildRaritySummary(unlocked: Achievement[]): string {
+  if (unlocked.length === 0) return "Sin logros desbloqueados aún";
+  const counts: Record<string, number> = {};
+  unlocked.forEach((a) => {
+    counts[a.rarity] = (counts[a.rarity] ?? 0) + 1;
+  });
+  return (["legendario", "epico", "raro", "comun"] as const)
+    .filter((r) => counts[r])
+    .map((r) => `${RARITY_LABELS[r]}: ${counts[r]}`)
+    .join("  ·  ");
+}
+
 export function ScreenProfile() {
   const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
+
+  // ── Logros ───────────────────────────────────────────────────────────────────
+  const { unlockedAchievements, newAchievements, totalUnlocked, markSeen } =
+    useAchievementsContext();
+  const [achievementsVisible, setAchievementsVisible] = React.useState(false);
+
+  const handleOpenAchievements = () => {
+    // Marcar nuevos logros como vistos al abrir el modal
+    newAchievements.forEach((a) => markSeen(a.id));
+    setAchievementsVisible(true);
+  };
 
   // ── Estado de modales ────────────────────────────────────────────────────────
   const [contactVisible, setContactVisible] = React.useState(false);
@@ -85,6 +115,71 @@ export function ScreenProfile() {
       >
         {/* Cabecera: avatar + nombre + editar */}
         <SettingsProfileSummary onEditPress={handleEditProfile} />
+
+        {/* Sección: Logros */}
+        <View style={styles.sectionLabel}>
+          <Text
+            style={[
+              styles.sectionLabelText,
+              { color: theme.colors.textTertiary },
+            ]}
+          >
+            LOGROS
+          </Text>
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.group,
+            styles.achievementsCard,
+            {
+              backgroundColor: theme.colors.bgSecondary,
+              borderColor: theme.colors.borderPrimary,
+            },
+          ]}
+          onPress={handleOpenAchievements}
+          activeOpacity={0.8}
+        >
+          <View style={styles.achievementsRow}>
+            <Text style={[styles.achievementsTitle, { color: theme.colors.textPrimary }]}>
+              🏆 Mis Logros
+            </Text>
+            <View style={styles.achievementsRight}>
+              {newAchievements.length > 0 && (
+                <View
+                  style={[
+                    styles.newBadge,
+                    { backgroundColor: theme.colors.accentOrange },
+                  ]}
+                >
+                  <Text style={styles.newBadgeText}>{newAchievements.length}</Text>
+                </View>
+              )}
+              <Text style={[styles.achievementsCount, { color: theme.colors.accentGreen }]}>
+                {totalUnlocked} / {ACHIEVEMENTS_TOTAL}
+              </Text>
+              <Text style={[styles.chevron, { color: theme.colors.textTertiary }]}>›</Text>
+            </View>
+          </View>
+          <View
+            style={[
+              styles.progressBar,
+              { backgroundColor: theme.colors.borderPrimary },
+            ]}
+          >
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  backgroundColor: theme.colors.accentGreen,
+                  width: `${(totalUnlocked / ACHIEVEMENTS_TOTAL) * 100}%`,
+                },
+              ]}
+            />
+          </View>
+          <Text style={[styles.rarityRow, { color: theme.colors.textTertiary }]}>
+            {buildRaritySummary(unlockedAchievements)}
+          </Text>
+        </TouchableOpacity>
 
         {/* Sección: Cuenta */}
         <View style={styles.sectionLabel}>
@@ -238,6 +333,11 @@ export function ScreenProfile() {
         onClose={() => setEditProfileVisible(false)}
       />
 
+      <ModalAchievements
+        visible={achievementsVisible}
+        onClose={() => setAchievementsVisible(false)}
+        unlockedIds={unlockedAchievements.map((a) => a.id)}
+      />
       <ModalContact
         visible={contactVisible}
         onClose={() => setContactVisible(false)}
@@ -314,6 +414,58 @@ const createStyles = (theme: AppTheme) =>
     logoutText: {
       fontSize: theme.fontSize.sm,
       fontWeight: "700",
+    },
+    achievementsCard: {
+      padding: theme.spacing.md,
+    },
+    achievementsRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: theme.spacing.sm,
+    },
+    achievementsTitle: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "700",
+    },
+    achievementsRight: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.xs,
+    },
+    achievementsCount: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "700",
+    },
+    chevron: {
+      fontSize: theme.fontSize.lg,
+      fontWeight: "300",
+    },
+    newBadge: {
+      minWidth: 18,
+      height: 18,
+      borderRadius: 9,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 4,
+    },
+    newBadgeText: {
+      color: "#ffffff",
+      fontSize: 10,
+      fontWeight: "700",
+    },
+    progressBar: {
+      height: 6,
+      borderRadius: theme.radius.full,
+      marginBottom: theme.spacing.xs,
+      overflow: "hidden",
+    },
+    progressFill: {
+      height: "100%",
+      borderRadius: theme.radius.full,
+    },
+    rarityRow: {
+      fontSize: 11,
     },
   });
 

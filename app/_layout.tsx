@@ -1,5 +1,6 @@
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
 import { ChatProvider } from "@/src/context/ChatContext";
+import { AchievementsProvider } from "@/src/context/AchievementsContext";
 import { PlantsProvider } from "@/src/context/PlantContext";
 import { OfflineBanner } from "@/src/components/OfflineBanner";
 import { ScreenForgotPassword } from "@/src/screens/ScreenForgotPassword";
@@ -57,29 +58,31 @@ function AppContent() {
   return (
     <ChatProvider>
       <PlantsProvider>
-        <OfflineBanner />
-        <NativeTabs>
-          <NativeTabs.Trigger name="tabHome">
-            <Label>Home</Label>
-            <Icon sf={"house.fill"} drawable="tab_home" />
-          </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="tabGarden">
-            <Label>Jardín</Label>
-            <Icon sf={"leaf.fill"} drawable="tab_garden" />
-          </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="tabCalendar">
-            <Label>Calendario</Label>
-            <Icon sf={"calendar"} drawable="tab_calendar" />
-          </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="tabChat">
-            <Label>Chat</Label>
-            <Icon sf={"message.fill"} drawable="tab_chat" />
-          </NativeTabs.Trigger>
-          <NativeTabs.Trigger name="tabSettings">
-            <Label>Perfil</Label>
-            <Icon sf={"person.fill"} drawable="tab_profile" />
-          </NativeTabs.Trigger>
-        </NativeTabs>
+        <AchievementsProvider>
+          <OfflineBanner />
+          <NativeTabs>
+            <NativeTabs.Trigger name="tabHome">
+              <Label>Home</Label>
+              <Icon sf={"house.fill"} drawable="tab_home" />
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="tabGarden">
+              <Label>Jardín</Label>
+              <Icon sf={"leaf.fill"} drawable="tab_garden" />
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="tabCalendar">
+              <Label>Calendario</Label>
+              <Icon sf={"calendar"} drawable="tab_calendar" />
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="tabChat">
+              <Label>Chat</Label>
+              <Icon sf={"message.fill"} drawable="tab_chat" />
+            </NativeTabs.Trigger>
+            <NativeTabs.Trigger name="tabSettings">
+              <Label>Perfil</Label>
+              <Icon sf={"person.fill"} drawable="tab_profile" />
+            </NativeTabs.Trigger>
+          </NativeTabs>
+        </AchievementsProvider>
       </PlantsProvider>
     </ChatProvider>
   );

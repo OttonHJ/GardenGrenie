@@ -1,4 +1,5 @@
 import { auth, db } from "@/src/config/firebase";
+import { ACHIEVEMENTS_DEFAULT } from "@/src/utils/achievementUtils";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import {
   GoogleAuthProvider,
@@ -132,6 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             username: extra.username ?? "",
             birthday: extra.birthday ?? "",
             bio: "",
+            achievements: ACHIEVEMENTS_DEFAULT,
           },
           { merge: true },
         );

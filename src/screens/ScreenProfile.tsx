@@ -101,7 +101,6 @@ export function ScreenProfile() {
     <View
       style={{
         flex: 1,
-        paddingBottom: insets.bottom,
         paddingTop: insets.top,
       }}
     >
@@ -109,9 +108,8 @@ export function ScreenProfile() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom },
+          { paddingBottom: insets.bottom + 80 },
         ]}
-        showsVerticalScrollIndicator={false}
       >
         {/* Cabecera: avatar + nombre + editar */}
         <SettingsProfileSummary onEditPress={handleEditProfile} />
@@ -322,7 +320,6 @@ export function ScreenProfile() {
           </Text>
         </TouchableOpacity>
 
-        <View style={{ height: insets.bottom }} />
       </ScrollView>
 
       {/* ── Modales ── Se utliza visible para controlar la visibilidad

@@ -153,14 +153,21 @@ function MiniCalendar({ selected, minDate, onSelect, theme }: MiniCalendarProps)
                 aspectRatio: 1,
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: isSelected ? c.accentGreen : "transparent",
-                borderRadius: r.full,
                 opacity: isDisabled ? 0.3 : 1,
               }}
             >
-              <Text style={{ fontSize: 12, color: isSelected ? "#fff" : c.textPrimary }}>
-                {day}
-              </Text>
+              <View style={{
+                width: 30,
+                height: 30,
+                borderRadius: 15,
+                backgroundColor: isSelected ? c.accentGreen : "transparent",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+                <Text style={{ fontSize: 12, color: isSelected ? "#fff" : c.textPrimary }}>
+                  {day}
+                </Text>
+              </View>
             </TouchableOpacity>
           );
         })}

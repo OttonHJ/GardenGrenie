@@ -6,8 +6,6 @@ import { DateUtil } from "@/src/utils/dateUtil";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -111,12 +109,10 @@ export function ScreenChat() {
         </View>
       </View>
 
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <View style={styles.flex}>
+      {/* adjustResize en AndroidManifest maneja el teclado en Android — KAV solo necesario en iOS */}
+      <View style={styles.flex}>
         <ScrollView
+          style={styles.flex}
           ref={scrollRef}
           contentContainerStyle={[
             styles.messagesContent,
@@ -165,7 +161,6 @@ export function ScreenChat() {
             </View>
           ))}
         </ScrollView>
-        </View>
 
         <View
           style={[
@@ -200,7 +195,7 @@ export function ScreenChat() {
             </Pressable>
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 }

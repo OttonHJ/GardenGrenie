@@ -20,10 +20,14 @@ class ChatWebSocket {
   private connectedStatusWs: StatusHandlerWs[] = [];
   private disconnectHandlers: StatusHandlerWs[] = [];
 
+  /** Shared symmetric key received from server on connect (base64, 32 bytes) */
+  groupKey: string | null = null;
+
   connect(token: string): void {
     this.token = token;
     this.shouldReconnect = true;
     this.reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
+    this.groupKey = null;
     this._closeExistingSocket();
     this._openConnection();
   }
@@ -43,6 +47,7 @@ class ChatWebSocket {
 
   disconnect(): void {
     this.shouldReconnect = false;
+    this.groupKey = null;
     this._closeExistingSocket();
   }
 
@@ -63,6 +68,9 @@ class ChatWebSocket {
     this.ws.onmessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data) as WsEvent;
+        if (data.type === "group_key") {
+          this.groupKey = data.key;
+        }
         this.eventHandlers.forEach((handler) => handler(data));
       } catch (e) {
         console.error("Error al parsear mensaje WS:", e);
@@ -119,6 +127,18 @@ class ChatWebSocket {
 
   sendDM(toUserId: string, content: string): void {
     this._send({ type: "dm", to: toUserId, content });
+  }
+
+  sendTyping(toUserId?: string): void {
+    this._send(toUserId ? { type: "typing", to: toUserId } : { type: "typing" });
+  }
+
+  stopTyping(): void {
+    this._send({ type: "stop_typing" });
+  }
+
+  markRead(messageId: string): void {
+    this._send({ type: "mark_read", message_id: messageId });
   }
 
   private _send(event: WsClientEvent): void {

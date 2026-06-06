@@ -14,7 +14,7 @@ class ChatService {
     };
 
     if (token) {
-      headers["X-User-Token"] = token;
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     if (!BASE_URL) {
@@ -46,6 +46,10 @@ class ChatService {
       method: "POST",
       body: JSON.stringify({ nickname }),
     });
+  }
+
+  async logout(token: string): Promise<void> {
+    await this.request<{ status: string }>("/api/chat/logout", { method: "POST" }, token);
   }
 
   async getOnlineUsers(): Promise<ChatUser[]> {

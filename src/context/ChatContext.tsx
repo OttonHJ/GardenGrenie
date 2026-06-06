@@ -27,12 +27,12 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
   const [onlineUsers, setOnlineUsers] = useState<ChatUser[]>([]);
   const [groupMessages, setGroupMessages] = useState<ChatMessage[]>([]);
   const [directMessages, setDirectMessages] = useState<Record<string, ChatMessage[]>>({});
+  const [typingUsers, setTypingUsers] = useState<Record<string, string>>({});
 
   const currentUserRef = useRef<ChatUser | null>(null);
   const tokenRef = useRef<string | null>(null);
   const cleanupWsRef = useRef<(() => void) | null>(null);
 
-  // Restaurar sesión guardada
   useEffect(() => {
     const restoreSession = async () => {
       try {
@@ -85,6 +85,31 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
         break;
       case "user_left":
         setOnlineUsers((prev) => prev.filter((u) => u.id !== event.user_id));
+        setTypingUsers((prev) => {
+          const next = { ...prev };
+          delete next[event.user_id];
+          return next;
+        });
+        break;
+      case "typing":
+        setTypingUsers((prev) => ({ ...prev, [event.user_id]: event.nickname }));
+        break;
+      case "stop_typing":
+        setTypingUsers((prev) => {
+          const next = { ...prev };
+          delete next[event.user_id];
+          return next;
+        });
+        break;
+      case "message_expired":
+        setGroupMessages((prev) => prev.filter((m) => m.id !== event.message_id));
+        setDirectMessages((prev) => {
+          const next: Record<string, ChatMessage[]> = {};
+          for (const [key, msgs] of Object.entries(prev)) {
+            next[key] = msgs.filter((m) => m.id !== event.message_id);
+          }
+          return next;
+        });
         break;
       case "error":
         console.warn("Chat WS error:", event.message);
@@ -132,11 +157,14 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
     [_connectWs],
   );
 
-  const leaveChat = useCallback(() => {
+  const leaveChat = useCallback(async () => {
     cleanupWsRef.current?.();
     cleanupWsRef.current = null;
     chatWebSocket.disconnect();
-    AsyncStorage.multiRemove([STORAGE_KEY_TOKEN, STORAGE_KEY_USER]);
+    if (tokenRef.current) {
+      try { await ChatApiService.logout(tokenRef.current); } catch {}
+    }
+    await AsyncStorage.multiRemove([STORAGE_KEY_TOKEN, STORAGE_KEY_USER]);
     currentUserRef.current = null;
     tokenRef.current = null;
     setToken(null);
@@ -145,6 +173,7 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
     setOnlineUsers([]);
     setGroupMessages([]);
     setDirectMessages({});
+    setTypingUsers({});
   }, []);
 
   const sendGroupMessage = useCallback((content: string) => {
@@ -163,6 +192,18 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
     } catch {}
   }, []);
 
+  const sendTyping = useCallback((toUserId?: string) => {
+    chatWebSocket.sendTyping(toUserId);
+  }, []);
+
+  const stopTyping = useCallback(() => {
+    chatWebSocket.stopTyping();
+  }, []);
+
+  const markRead = useCallback((messageId: string) => {
+    chatWebSocket.markRead(messageId);
+  }, []);
+
   const value = useMemo<ChatContextValue>(
     () => ({
       currentUser,
@@ -172,16 +213,21 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
       onlineUsers,
       groupMessages,
       directMessages,
+      typingUsers,
       joinChat,
       leaveChat,
       sendGroupMessage,
       sendDirectMessage,
       loadDirectMessages,
+      sendTyping,
+      stopTyping,
+      markRead,
     }),
     [
       currentUser, token, isLoadingSession, connectionState,
-      onlineUsers, groupMessages, directMessages,
-      joinChat, leaveChat, sendGroupMessage, sendDirectMessage, loadDirectMessages,
+      onlineUsers, groupMessages, directMessages, typingUsers,
+      joinChat, leaveChat, sendGroupMessage, sendDirectMessage,
+      loadDirectMessages, sendTyping, stopTyping, markRead,
     ],
   );
 

@@ -1,6 +1,7 @@
 import "react-native-get-random-values";
 import nacl from "tweetnacl";
-import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from "tweetnacl-util";
+import { encode as encodeUTF8, decode as decodeUTF8 } from "@stablelib/utf8";
+import { encode as encodeBase64, decode as decodeBase64 } from "@stablelib/base64";
 
 export function generateKeyPair(): { publicKey: string; secretKey: string } {
   const kp = nacl.box.keyPair();
@@ -17,7 +18,6 @@ export function encryptDM(
 ): string {
   const nonce = nacl.randomBytes(nacl.box.nonceLength);
   const encrypted = nacl.box(
-    // @ts-expect-error tweetnacl-util naming: encodeUTF8 converts string→Uint8Array at runtime
     encodeUTF8(message),
     nonce,
     decodeBase64(recipientPublicKeyB64),
@@ -40,13 +40,11 @@ export function decryptDM(
     decodeBase64(senderPublicKeyB64),
     decodeBase64(mySecretKeyB64),
   );
-  // @ts-expect-error tweetnacl-util naming: decodeUTF8 converts Uint8Array→string at runtime
   return result ? decodeUTF8(result) : null;
 }
 
 export function encryptGroup(message: string, groupKeyB64: string): string {
   const nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
-  // @ts-expect-error tweetnacl-util naming: encodeUTF8 converts string→Uint8Array at runtime
   const encrypted = nacl.secretbox(encodeUTF8(message), nonce, decodeBase64(groupKeyB64));
   return encodeBase64(new Uint8Array([...nonce, ...encrypted]));
 }
@@ -56,6 +54,5 @@ export function decryptGroup(ciphertextB64: string, groupKeyB64: string): string
   const nonce = data.slice(0, nacl.secretbox.nonceLength);
   const box = data.slice(nacl.secretbox.nonceLength);
   const result = nacl.secretbox.open(box, nonce, decodeBase64(groupKeyB64));
-  // @ts-expect-error tweetnacl-util naming: decodeUTF8 converts Uint8Array→string at runtime
   return result ? decodeUTF8(result) : null;
 }

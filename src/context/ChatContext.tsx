@@ -104,11 +104,12 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
         break;
 
       case "group_key": {
-        const key = event.key;
+        // Empty string means server has no group key configured — use plaintext
+        const key = event.key || null;
         groupKeyRef.current = key;
         setGroupKey(key);
         // Decrypt pending history if it arrived before the key
-        if (rawGroupHistoryRef.current) {
+        if (key && rawGroupHistoryRef.current) {
           setGroupMessages(_decryptGroupMessages(rawGroupHistoryRef.current, key));
           rawGroupHistoryRef.current = null;
         }
@@ -118,7 +119,7 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
       case "group_message": {
         const plain = groupKeyRef.current
           ? decryptGroup(event.message.content, groupKeyRef.current)
-          : null;
+          : event.message.content;
         setGroupMessages((prev) => [
           ...prev,
           { ...event.message, content: plain ?? "[mensaje no descifrable]" },
@@ -127,9 +128,10 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
       }
 
       case "dm": {
+        // Skip own echo — sender cannot decrypt their own nacl.box message
+        if (event.message.sender_id === currentUserRef.current?.id) break;
+
         const msg = event.message;
-        const myId = currentUserRef.current?.id;
-        const otherId = msg.sender_id === myId ? msg.recipient_id! : msg.sender_id;
         const senderKey = userPublicKeysRef.current[msg.sender_id];
         const plain =
           senderKey && myKeyPairRef.current.secretKey
@@ -137,7 +139,10 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
             : null;
         setDirectMessages((prev) => ({
           ...prev,
-          [otherId]: [...(prev[otherId] ?? []), { ...msg, content: plain ?? "[mensaje no descifrable]" }],
+          [msg.sender_id]: [
+            ...(prev[msg.sender_id] ?? []),
+            { ...msg, content: plain ?? "[mensaje no descifrable]" },
+          ],
         }));
         break;
       }
@@ -288,14 +293,15 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
   }, []);
 
   const sendGroupMessage = useCallback((content: string) => {
-    const key = groupKeyRef.current;
-    if (!key) return;
-    const ciphertext = encryptGroup(content, key);
-    if (ciphertext.length > 1000) {
+    // If no group key configured, send plaintext
+    const messageToSend = groupKeyRef.current
+      ? encryptGroup(content, groupKeyRef.current)
+      : content;
+    if (messageToSend.length > 1000) {
       Alert.alert("Mensaje demasiado largo", "Acorta el mensaje e intenta de nuevo.");
       return;
     }
-    chatWebSocket.sendGroupMessage(ciphertext);
+    chatWebSocket.sendGroupMessage(messageToSend);
   }, []);
 
   const sendDirectMessage = useCallback((toUserId: string, content: string) => {
@@ -308,13 +314,33 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
       return;
     }
     chatWebSocket.sendDM(toUserId, ciphertext);
+
+    // Optimistic insert: show own message in plaintext immediately.
+    // Server echo is ignored (sender_id === currentUser.id → break in dm case).
+    const me = currentUserRef.current;
+    if (me) {
+      setDirectMessages((prev) => ({
+        ...prev,
+        [toUserId]: [
+          ...(prev[toUserId] ?? []),
+          {
+            id: `local-${Date.now()}`,
+            sender_id: me.id,
+            sender_nickname: me.nickname,
+            content,
+            type: "dm",
+            recipient_id: toUserId,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      }));
+    }
   }, []);
 
   const loadDirectMessages = useCallback(async (otherUserId: string) => {
     if (!tokenRef.current) return;
     try {
       const history = await ChatApiService.getDMHistory(otherUserId, tokenRef.current);
-      // Decrypt DM history
       const secretKey = myKeyPairRef.current.secretKey;
       const senderKey = userPublicKeysRef.current[otherUserId];
       const decrypted = history.map((m) => {

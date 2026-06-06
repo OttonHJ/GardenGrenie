@@ -16,7 +16,7 @@ export interface ChatUser {
   nickname: string;
   joined_at: string;
   is_online: boolean;
-  public_key?: string;
+  public_key?: string | null;
 }
 
 export type WsEvent =

@@ -48,6 +48,13 @@ class ChatService {
     });
   }
 
+  async registerPublicKey(token: string, publicKey: string): Promise<void> {
+    await this.request<void>("/api/chat/users/me/public-key", {
+      method: "PUT",
+      body: JSON.stringify({ public_key: publicKey }),
+    }, token);
+  }
+
   async logout(token: string): Promise<void> {
     await this.request<{ status: string }>("/api/chat/logout", { method: "POST" }, token);
   }

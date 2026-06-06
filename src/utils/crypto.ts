@@ -31,16 +31,20 @@ export function decryptDM(
   senderPublicKeyB64: string,
   mySecretKeyB64: string,
 ): string | null {
-  const data = decodeBase64(ciphertextB64);
-  const nonce = data.slice(0, nacl.box.nonceLength);
-  const box = data.slice(nacl.box.nonceLength);
-  const result = nacl.box.open(
-    box,
-    nonce,
-    decodeBase64(senderPublicKeyB64),
-    decodeBase64(mySecretKeyB64),
-  );
-  return result ? decodeUTF8(result) : null;
+  try {
+    const data = decodeBase64(ciphertextB64);
+    const nonce = data.slice(0, nacl.box.nonceLength);
+    const box = data.slice(nacl.box.nonceLength);
+    const result = nacl.box.open(
+      box,
+      nonce,
+      decodeBase64(senderPublicKeyB64),
+      decodeBase64(mySecretKeyB64),
+    );
+    return result ? decodeUTF8(result) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function encryptGroup(message: string, groupKeyB64: string): string {
@@ -50,9 +54,13 @@ export function encryptGroup(message: string, groupKeyB64: string): string {
 }
 
 export function decryptGroup(ciphertextB64: string, groupKeyB64: string): string | null {
-  const data = decodeBase64(ciphertextB64);
-  const nonce = data.slice(0, nacl.secretbox.nonceLength);
-  const box = data.slice(nacl.secretbox.nonceLength);
-  const result = nacl.secretbox.open(box, nonce, decodeBase64(groupKeyB64));
-  return result ? decodeUTF8(result) : null;
+  try {
+    const data = decodeBase64(ciphertextB64);
+    const nonce = data.slice(0, nacl.secretbox.nonceLength);
+    const box = data.slice(nacl.secretbox.nonceLength);
+    const result = nacl.secretbox.open(box, nonce, decodeBase64(groupKeyB64));
+    return result ? decodeUTF8(result) : null;
+  } catch {
+    return null;
+  }
 }

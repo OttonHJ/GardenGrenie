@@ -78,7 +78,7 @@ export function ScreenChat() {
   }
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top }]}>
+    <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom + 60 }]}>
       {connectionState === "disconnected" && (
         <View
           style={[

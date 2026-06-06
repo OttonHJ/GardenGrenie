@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   createContext,
   ReactNode,
@@ -18,9 +17,6 @@ import { generateKeyPair, encryptGroup, decryptGroup, encryptDM, decryptDM } fro
 import { saveKeyPair, loadKeyPair } from "@/src/utils/storage";
 
 const ChatContext = createContext<ChatContextValue | null>(null);
-
-const STORAGE_KEY_USER = "@chat_user";
-const STORAGE_KEY_TOKEN = "@chat_token";
 
 export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }) {
   const [currentUser, setCurrentUser] = useState<ChatUser | null>(null);
@@ -49,32 +45,25 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
   const myKeyPairRef = useRef<{ publicKey: string | null; secretKey: string | null }>({ publicKey: null, secretKey: null });
   // Raw encrypted group history — decrypted once groupKey arrives
   const rawGroupHistoryRef = useRef<ChatMessage[] | null>(null);
+  // Reconnection with fresh token — avoids stale-JWT reconnect loop
+  const nicknameRef = useRef<string>("");
+  const rejoinTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const joinChatRef = useRef<((n: string) => Promise<void>) | null>(null);
 
   useEffect(() => { groupKeyRef.current = groupKey; }, [groupKey]);
   useEffect(() => { userPublicKeysRef.current = userPublicKeys; }, [userPublicKeys]);
   useEffect(() => { myKeyPairRef.current = myKeyPair; }, [myKeyPair]);
 
+  // On mount: only restore the encryption key pair.
+  // The chat session (JWT) is not persisted across app restarts — ScreenChat
+  // auto-joins via joinChat() to always get a fresh token.
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const [savedSession, savedToken] = await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEY_USER),
-          AsyncStorage.getItem(STORAGE_KEY_TOKEN),
-        ]);
-        if (savedSession && savedToken) {
-          const savedUser = JSON.parse(savedSession) as ChatUser;
-          currentUserRef.current = savedUser;
-          tokenRef.current = savedToken;
-          setCurrentUser(savedUser);
-          setToken(savedToken);
-
-          const kp = await loadKeyPair();
-          if (kp.secretKey && kp.publicKey) {
-            myKeyPairRef.current = kp;
-            setMyKeyPair(kp);
-          }
-
-          _connectWs(savedToken);
+        const kp = await loadKeyPair();
+        if (kp.secretKey && kp.publicKey) {
+          myKeyPairRef.current = kp;
+          setMyKeyPair(kp);
         }
       } catch {}
       finally {
@@ -223,7 +212,19 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
 
       const unSubEvent = chatWebSocket.onEvent(handleWsEvent);
       const unSubConnect = chatWebSocket.onConnect(() => setConnectionState("connected"));
-      const unSubDisconnect = chatWebSocket.onDisconnect(() => setConnectionState("disconnected"));
+      const unSubDisconnect = chatWebSocket.onDisconnect(() => {
+        setConnectionState("disconnected");
+        if (rejoinTimerRef.current) clearTimeout(rejoinTimerRef.current);
+        const nick = nicknameRef.current;
+        if (nick) {
+          rejoinTimerRef.current = setTimeout(() => {
+            rejoinTimerRef.current = null;
+            joinChatRef.current?.(nick).catch((e) =>
+              console.warn("[Chat] Auto-rejoin failed:", e)
+            );
+          }, 3000);
+        }
+      });
 
       chatWebSocket.connect(wsToken);
 
@@ -238,11 +239,12 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
 
   const joinChat = useCallback(
     async (nickname: string) => {
+      nicknameRef.current = nickname;
+      if (rejoinTimerRef.current) {
+        clearTimeout(rejoinTimerRef.current);
+        rejoinTimerRef.current = null;
+      }
       const { user, token: newToken } = await ChatApiService.join(nickname);
-      await Promise.all([
-        AsyncStorage.setItem(STORAGE_KEY_USER, JSON.stringify(user)),
-        AsyncStorage.setItem(STORAGE_KEY_TOKEN, newToken),
-      ]);
       currentUserRef.current = user;
       tokenRef.current = newToken;
       setCurrentUser(user);
@@ -266,6 +268,8 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
     [_connectWs],
   );
 
+  useEffect(() => { joinChatRef.current = joinChat; }, [joinChat]);
+
   const leaveChat = useCallback(async () => {
     cleanupWsRef.current?.();
     cleanupWsRef.current = null;
@@ -273,7 +277,6 @@ export function ChatProvider({ children }: { children: ReactNode | ReactNode[] }
     if (tokenRef.current) {
       try { await ChatApiService.logout(tokenRef.current); } catch {}
     }
-    await AsyncStorage.multiRemove([STORAGE_KEY_TOKEN, STORAGE_KEY_USER]);
     currentUserRef.current = null;
     tokenRef.current = null;
     rawGroupHistoryRef.current = null;

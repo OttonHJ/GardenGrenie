@@ -11,9 +11,13 @@ export interface ChatContextValue {
   onlineUsers: ChatUser[];
   groupMessages: ChatMessage[];
   directMessages: Record<string, ChatMessage[]>;
+  typingUsers: Record<string, string>;
   joinChat: (nickName: string) => Promise<void>;
-  leaveChat: () => void;
+  leaveChat: () => Promise<void>;
   sendGroupMessage: (content: string) => void;
   sendDirectMessage: (userId: string, content: string) => void;
   loadDirectMessages: (userId: string) => Promise<void>;
+  sendTyping: (toUserId?: string) => void;
+  stopTyping: () => void;
+  markRead: (messageId: string) => void;
 }

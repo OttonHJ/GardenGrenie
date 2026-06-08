@@ -13,7 +13,7 @@ interface ProfileSummaryProps {
 
 export function SettingsProfileSummary({ onEditPress }: ProfileSummaryProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const displayName = user?.displayName ?? user?.email?.split("@")[0] ?? "Usuario";
 
@@ -29,8 +29,8 @@ export function SettingsProfileSummary({ onEditPress }: ProfileSummaryProps) {
     >
       <Image
         source={
-          user?.photoURL
-            ? { uri: user.photoURL }
+          profile?.photoURL
+            ? { uri: profile.photoURL }
             : require("@/assets/images/profilePlaceholder.png")
         }
         style={[styles.avatar, { borderColor: theme.colors.accentGreen }]}

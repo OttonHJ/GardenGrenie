@@ -12,7 +12,7 @@ import {
   useProfileTheme,
 } from "@/src/theme/designSystem";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -23,6 +23,10 @@ function AppContent() {
   const { theme } = useProfileTheme(stylesByMode);
   const { user, loading } = useAuth();
   const [authScreen, setAuthScreen] = useState<AuthScreen>("login");
+
+  useEffect(() => {
+    if (!user) setAuthScreen("login");
+  }, [user]);
 
   if (loading) {
     return (

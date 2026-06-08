@@ -64,6 +64,7 @@ interface AuthContextValue {
     username?: string;
     birthday?: string;
     bio?: string;
+    photoURL?: string;
   }) => Promise<void>;
 }
 
@@ -197,6 +198,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       username?: string;
       birthday?: string;
       bio?: string;
+      photoURL?: string;
     }) => {
       // No puede ejecutarse sin usuario autenticado
       if (!user) throw new Error("No hay usuario autenticado");
@@ -214,15 +216,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.username !== undefined) updateData.username = data.username;
       if (data.birthday !== undefined) updateData.birthday = data.birthday;
       if (data.bio !== undefined) updateData.bio = data.bio;
+      if (data.photoURL !== undefined) updateData.photoURL = data.photoURL;
 
-      // Actualizar el documento en Firestore
       await updateDoc(ref, updateData);
 
-      // Si el displayName cambió, también actualizar en Firebase Auth
-      // para que user.displayName quede sincronizado con Firestore
-      if (data.displayName !== undefined && auth.currentUser) {
+      // Sincronizar displayName y photoURL en Firebase Auth
+      if (auth.currentUser && (data.displayName !== undefined || data.photoURL !== undefined)) {
         await updateProfile(auth.currentUser, {
-          displayName: data.displayName,
+          ...(data.displayName !== undefined && { displayName: data.displayName }),
+          ...(data.photoURL !== undefined && { photoURL: data.photoURL }),
         });
       }
     },

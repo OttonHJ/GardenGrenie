@@ -31,8 +31,8 @@ export function ProfileSummary() {
       <View style={styles.containerHeaderStack}>
         <Image
           source={
-            user?.photoURL
-              ? { uri: user.photoURL }
+            profile?.photoURL
+              ? { uri: profile.photoURL }
               : require("@/assets/images/profilePlaceholder.png")
           }
           style={styles.profileImage}

@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const PING_URL = "https://clients3.google.com/generate_204";
-const INTERVAL_MS = 5000;
+const INTERVAL_MS = 30_000;
 const TIMEOUT_MS = 4000;
 
 interface NetworkStatus {

@@ -9,6 +9,7 @@ import {
     useProfileTheme,
 } from "@/src/theme/designSystem";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
@@ -16,7 +17,6 @@ import { Controller, useForm } from "react-hook-form";
 import {
     ActivityIndicator,
     Alert,
-    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -296,11 +296,13 @@ export function ScreenEditProfile({
           <View style={styles.avatarSection}>
             <View style={styles.avatarWrapper}>
               <Image
+                key={profile?.photoURL ?? "placeholder"}
                 source={
                   profile?.photoURL
                     ? { uri: profile.photoURL }
                     : require("@/assets/images/profilePlaceholder.png")
                 }
+                cachePolicy="none"
                 style={styles.avatar}
               />
               {photoLoading && (

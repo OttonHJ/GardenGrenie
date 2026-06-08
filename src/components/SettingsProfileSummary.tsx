@@ -4,8 +4,9 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { Image } from "expo-image";
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface ProfileSummaryProps {
   onEditPress: () => void;
@@ -28,11 +29,13 @@ export function SettingsProfileSummary({ onEditPress }: ProfileSummaryProps) {
       ]}
     >
       <Image
+        key={profile?.photoURL ?? "placeholder"}
         source={
           profile?.photoURL
             ? { uri: profile.photoURL }
             : require("@/assets/images/profilePlaceholder.png")
         }
+        cachePolicy="none"
         style={[styles.avatar, { borderColor: theme.colors.accentGreen }]}
       />
       <Text style={[styles.name, { color: theme.colors.textPrimary }]}>

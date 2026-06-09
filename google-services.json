@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "990735411747",
+    "project_id": "gardengrenie",
+    "storage_bucket": "gardengrenie.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:990735411747:android:9d96b8405a5b585ce01f96",
+        "android_client_info": {
+          "package_name": "com.gardengrenie.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "990735411747-5h0n6at293ptvdcqgtdm3vghjf2b9pe4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gardengrenie.app",
+            "certificate_hash": "79b5d7855b0ffd1d55f69b558ff0afbf6346275c"
+          }
+        },
+        {
+          "client_id": "990735411747-q6fjehof4iods2mcmjd98ivdllcj1omu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gardengrenie.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "990735411747-6mpv7kjfl4mp8ac4vqtu3g98qev4a3hh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBke4yBZ0VmP9m61inkTh26PMEsNa3HLXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "990735411747-6mpv7kjfl4mp8ac4vqtu3g98qev4a3hh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "990735411747-j7j3vcfor0tvdiqfutniom4equkfqh0f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.gardengrenie.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

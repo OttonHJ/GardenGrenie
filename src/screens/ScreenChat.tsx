@@ -3,6 +3,7 @@ import { useChatContext } from "@/src/context/ChatContext";
 import { ChatMessage } from "@/src/model/chat.types";
 import { AppTheme, getAppTheme, useProfileTheme } from "@/src/theme/designSystem";
 import { DateUtil } from "@/src/utils/dateUtil";
+import { Image } from "expo-image";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -96,12 +97,23 @@ export function ScreenChat() {
       )}
 
       <View style={[styles.header, { borderBottomColor: theme.colors.borderPrimary }]}>
-        <View style={[styles.avatar, { backgroundColor: theme.colors.accentGreen }]}>
-          <Text style={styles.avatarText}>G</Text>
+        <View style={[styles.avatarWrapper, { backgroundColor: theme.colors.accentGreen }]}>
+          {profile?.photoURL ? (
+            <Image
+              key={profile.photoURL}
+              source={{ uri: profile.photoURL }}
+              cachePolicy="none"
+              style={styles.avatarImage}
+            />
+          ) : (
+            <Text style={styles.avatarText}>
+              {(profile?.username ?? profile?.displayName ?? "G")[0].toUpperCase()}
+            </Text>
+          )}
         </View>
         <View style={styles.headerCopy}>
           <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>
-            GardenGenie Chat
+            {profile?.username ? `@${profile.username}` : (profile?.displayName ?? "Chat")}
           </Text>
           <Text style={[styles.headerSubtitle, { color: theme.colors.textTertiary }]}>
             {onlineUsers.length} {onlineUsers.length === 1 ? "conectado" : "conectados"}
@@ -235,12 +247,17 @@ const createStyles = (theme: AppTheme) =>
       borderBottomWidth: 1,
       gap: theme.spacing.md,
     },
-    avatar: {
+    avatarWrapper: {
       width: 44,
       height: 44,
       borderRadius: theme.radius.full,
       alignItems: "center",
       justifyContent: "center",
+      overflow: "hidden",
+    },
+    avatarImage: {
+      width: 44,
+      height: 44,
     },
     avatarText: {
       color: "#ffffff",

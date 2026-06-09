@@ -1,5 +1,6 @@
 import FormInput from "@/src/components/FormInput";
 import { Toast } from "@/src/components/Toast";
+import { storage } from "@/src/config/firebase";
 import { useAuth } from "@/src/context/AuthContext";
 import { ProfileFormData, profileSchema } from "@/src/schemas";
 import {
@@ -8,10 +9,14 @@ import {
     useProfileTheme,
 } from "@/src/theme/designSystem";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
     ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -42,12 +47,10 @@ export function ScreenEditProfile({
 
   // Datos del usuario autenticado — profile viene del listener de Firestore
   // en AuthContext, se actualiza automáticamente cuando Firestore cambia
-  const { profile, updateUserProfile } = useAuth();
+  const { user, profile, updateUserProfile } = useAuth();
 
-  // Estado de carga del botón guardar
   const [isLoading, setIsLoading] = useState(false);
-
-  // Error global (fallo de red o Firestore) — distinto de los errores de campo
+  const [photoLoading, setPhotoLoading] = useState(false);
   const [globalError, setGlobalError] = useState("");
 
   // Control del Toast de éxito
@@ -90,6 +93,66 @@ export function ScreenEditProfile({
       setToastVisible(false);
     }
   }, [visible, profile, reset]);
+
+  // ── Foto de perfil ────────────────────────────────────────────────────────
+
+  const uploadPhoto = async (uri: string) => {
+    if (!user) return;
+    setPhotoLoading(true);
+    setGlobalError("");
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      const photoRef = ref(storage, `users/${user.uid}/profile.jpg`);
+      await uploadBytes(photoRef, blob);
+      const downloadURL = await getDownloadURL(photoRef);
+      await updateUserProfile({ photoURL: downloadURL });
+      setToastVisible(true);
+    } catch {
+      setGlobalError("No se pudo actualizar la foto. Intenta de nuevo.");
+    } finally {
+      setPhotoLoading(false);
+    }
+  };
+
+  const handlePhotoChange = () => {
+    Alert.alert("Foto de perfil", "¿Cómo quieres actualizar tu foto?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Galería",
+        onPress: async () => {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (status !== "granted") {
+            Alert.alert("Permiso requerido", "Se necesita acceso a la galería.");
+            return;
+          }
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+          });
+          if (!result.canceled) await uploadPhoto(result.assets[0].uri);
+        },
+      },
+      {
+        text: "Cámara",
+        onPress: async () => {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync();
+          if (status !== "granted") {
+            Alert.alert("Permiso requerido", "Se necesita acceso a la cámara.");
+            return;
+          }
+          const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.7,
+          });
+          if (!result.canceled) await uploadPhoto(result.assets[0].uri);
+        },
+      },
+    ]);
+  };
 
   // ── Handler de guardado ───────────────────────────────────────────────────
 
@@ -229,9 +292,37 @@ export function ScreenEditProfile({
             </View>
           )}
 
-          {/* ── Formulario ──
-              Cada campo usa Controller de RHF que conecta FormInput
-              con el estado interno del formulario */}
+          {/* ── Avatar ── */}
+          <View style={styles.avatarSection}>
+            <View style={styles.avatarWrapper}>
+              <Image
+                key={profile?.photoURL ?? "placeholder"}
+                source={
+                  profile?.photoURL
+                    ? { uri: profile.photoURL }
+                    : require("@/assets/images/profilePlaceholder.png")
+                }
+                cachePolicy="none"
+                style={styles.avatar}
+              />
+              {photoLoading && (
+                <View style={styles.avatarOverlay}>
+                  <ActivityIndicator color="#ffffff" />
+                </View>
+              )}
+            </View>
+            <TouchableOpacity
+              onPress={handlePhotoChange}
+              disabled={photoLoading}
+              style={{ opacity: photoLoading ? 0.5 : 1 }}
+            >
+              <Text style={[styles.changePhotoText, { color: theme.colors.accentGreen }]}>
+                Cambiar foto
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ── Formulario ── */}
 
           {/* Nombre — type text estándar */}
           <Controller
@@ -419,6 +510,35 @@ const createStyles = (theme: AppTheme) =>
     bioInput: {
       height: 100,
       paddingTop: theme.spacing.sm,
+    },
+    avatarSection: {
+      alignItems: "center",
+      marginBottom: theme.spacing.xl,
+    },
+    avatarWrapper: {
+      width: 90,
+      height: 90,
+      borderRadius: 45,
+      overflow: "hidden",
+      marginBottom: theme.spacing.sm,
+    },
+    avatar: {
+      width: 90,
+      height: 90,
+    },
+    avatarOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.5)",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    changePhotoText: {
+      fontSize: theme.fontSize.sm,
+      fontWeight: "600",
     },
     // Botón principal de guardado
     saveBtn: {

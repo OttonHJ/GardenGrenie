@@ -4,8 +4,9 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { Image } from "expo-image";
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface ProfileSummaryProps {
   onEditPress: () => void;
@@ -13,7 +14,7 @@ interface ProfileSummaryProps {
 
 export function SettingsProfileSummary({ onEditPress }: ProfileSummaryProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const displayName = user?.displayName ?? user?.email?.split("@")[0] ?? "Usuario";
 
@@ -28,11 +29,13 @@ export function SettingsProfileSummary({ onEditPress }: ProfileSummaryProps) {
       ]}
     >
       <Image
+        key={profile?.photoURL ?? "placeholder"}
         source={
-          user?.photoURL
-            ? { uri: user.photoURL }
+          profile?.photoURL
+            ? { uri: profile.photoURL }
             : require("@/assets/images/profilePlaceholder.png")
         }
+        cachePolicy="none"
         style={[styles.avatar, { borderColor: theme.colors.accentGreen }]}
       />
       <Text style={[styles.name, { color: theme.colors.textPrimary }]}>

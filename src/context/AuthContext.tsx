@@ -2,17 +2,22 @@ import { auth, db } from "@/src/config/firebase";
 import { ACHIEVEMENTS_DEFAULT } from "@/src/utils/achievementUtils";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import {
+  EmailAuthProvider,
   GoogleAuthProvider,
   User,
   createUserWithEmailAndPassword,
+  deleteUser,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
   signInWithCredential,
   signInWithEmailAndPassword,
   signOut,
+  updatePassword,
   updateProfile,
 } from "firebase/auth";
 import {
+  deleteDoc,
   doc,
   onSnapshot,
   serverTimestamp,
@@ -64,7 +69,11 @@ interface AuthContextValue {
     username?: string;
     birthday?: string;
     bio?: string;
+    photoURL?: string;
+    profilePublic?: boolean;
   }) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  deleteAccount: (currentPassword: string | null) => Promise<void>;
 }
 
 // ─── Contexto ──────────────────────────────────────────────────────────────────
@@ -190,6 +199,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await sendPasswordResetEmail(auth, email);
   }, []);
 
+  const changePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      if (!auth.currentUser?.email) throw new Error("No hay usuario autenticado");
+      const cred = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+      await reauthenticateWithCredential(auth.currentUser, cred);
+      await updatePassword(auth.currentUser, newPassword);
+    },
+    [],
+  );
+
+  const deleteAccount = useCallback(
+    async (currentPassword: string | null) => {
+      if (!auth.currentUser) throw new Error("No hay usuario autenticado");
+      if (currentPassword && auth.currentUser.email) {
+        const cred = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+        await reauthenticateWithCredential(auth.currentUser, cred);
+      }
+      const uid = auth.currentUser.uid;
+      await deleteDoc(doc(db, "users", uid));
+      await deleteUser(auth.currentUser);
+    },
+    [],
+  );
+
   // ── Actualización de perfil ────────────────────────────────────────────────
   const updateUserProfile = useCallback(
     async (data: {
@@ -197,6 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       username?: string;
       birthday?: string;
       bio?: string;
+      photoURL?: string;
     }) => {
       // No puede ejecutarse sin usuario autenticado
       if (!user) throw new Error("No hay usuario autenticado");
@@ -214,15 +248,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data.username !== undefined) updateData.username = data.username;
       if (data.birthday !== undefined) updateData.birthday = data.birthday;
       if (data.bio !== undefined) updateData.bio = data.bio;
+      if (data.photoURL !== undefined) updateData.photoURL = data.photoURL;
+      if (data.profilePublic !== undefined) updateData.profilePublic = data.profilePublic;
 
-      // Actualizar el documento en Firestore
       await updateDoc(ref, updateData);
 
-      // Si el displayName cambió, también actualizar en Firebase Auth
-      // para que user.displayName quede sincronizado con Firestore
-      if (data.displayName !== undefined && auth.currentUser) {
+      // Sincronizar displayName y photoURL en Firebase Auth
+      if (auth.currentUser && (data.displayName !== undefined || data.photoURL !== undefined)) {
         await updateProfile(auth.currentUser, {
-          displayName: data.displayName,
+          ...(data.displayName !== undefined && { displayName: data.displayName }),
+          ...(data.photoURL !== undefined && { photoURL: data.photoURL }),
         });
       }
     },
@@ -241,6 +276,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         sendPasswordReset,
         updateUserProfile,
+        changePassword,
+        deleteAccount,
       }}
     >
       {children}

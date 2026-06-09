@@ -4,8 +4,9 @@ import {
   getAppTheme,
   useProfileTheme,
 } from "@/src/theme/designSystem";
+import { Image } from "expo-image";
 import React from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 type DayPeriod = "morning" | "afternoon" | "night";
 
@@ -30,11 +31,13 @@ export function ProfileSummary() {
     <View style={[styles.containerHeader, { backgroundColor: theme.colors.timeOfDay[greeting.period] }]}>
       <View style={styles.containerHeaderStack}>
         <Image
+          key={profile?.photoURL ?? "placeholder"}
           source={
-            user?.photoURL
-              ? { uri: user.photoURL }
+            profile?.photoURL
+              ? { uri: profile.photoURL }
               : require("@/assets/images/profilePlaceholder.png")
           }
+          cachePolicy="none"
           style={styles.profileImage}
         />
         <View style={styles.personalInfoStack}>

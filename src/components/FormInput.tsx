@@ -16,7 +16,19 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 // "password"  → InputPassword con toggle de visibilidad
 // "email"     → TextInput con keyboardType email-address + autoCapitalize none
 // "formatted" → TextInput que aplica transform en cada cambio de valor
-type InputType = "text" | "password" | "email" | "formatted";
+// "date"      → TextInput DD/MM/AAAA con slashes auto-insertados
+type InputType = "text" | "password" | "email" | "formatted" | "date";
+
+function maskDate(raw: string, prev: string): string {
+  // Si el usuario borró un slash, también elimina el dígito anterior
+  if (raw.length < prev.length && prev === raw + "/") {
+    raw = raw.slice(0, -1);
+  }
+  const digits = raw.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
 
 export interface FormInputProps extends InputTextProps {
   // Texto que aparece encima del campo
@@ -55,12 +67,15 @@ const FormInput = React.forwardRef<TextInput, FormInputProps>(
     // Hay error cuando el string existe y no está vacío
     const hasError = !!error;
 
-    // Si el tipo es "formatted", interceptamos onChangeText para
-    // aplicar la transformación antes de notificar a RHF.
-    // Para los demás tipos, onChangeText se pasa tal cual.
+    const prevDateRef = React.useRef("");
+
     const handleChangeText = (value: string) => {
       if (type === "formatted" && transform) {
         onChangeText?.(transform(value));
+      } else if (type === "date") {
+        const formatted = maskDate(value, prevDateRef.current);
+        prevDateRef.current = formatted;
+        onChangeText?.(formatted);
       } else {
         onChangeText?.(value);
       }
@@ -92,6 +107,20 @@ const FormInput = React.forwardRef<TextInput, FormInputProps>(
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
+            onChangeText={handleChangeText}
+            style={style}
+            {...rest}
+          />
+        );
+      }
+
+      if (type === "date") {
+        return (
+          <InputText
+            ref={ref}
+            hasError={hasError}
+            keyboardType="numeric"
+            maxLength={10}
             onChangeText={handleChangeText}
             style={style}
             {...rest}

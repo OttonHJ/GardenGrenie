@@ -235,13 +235,12 @@ export function ScreenRegister({ onNavigateLogin }: ScreenRegisterProps) {
               <FormInput
                 ref={ref}
                 label="Fecha de nacimiento"
-                type="formatted"
+                type="date"
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.birthday?.message}
                 placeholder="DD/MM/AAAA"
-                keyboardType="numeric"
               />
             )}
           />

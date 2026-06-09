@@ -8,6 +8,7 @@ import { ModalContact } from "@/src/modals/ModalContact";
 import { ModalPrivacy } from "@/src/modals/ModalPrivacy";
 import { ModalTerms } from "@/src/modals/ModalTerms";
 import { ScreenEditProfile } from "@/src/screens/ScreenEditProfile";
+import { ScreenSecurity } from "@/src/screens/ScreenSecurity";
 import {
   Achievement,
   ACHIEVEMENTS_TOTAL,
@@ -64,6 +65,7 @@ export function ScreenProfile() {
   const [termsVisible, setTermsVisible] = React.useState(false);
   const [privacyVisible, setPrivacyVisible] = React.useState(false);
   const [aboutVisible, setAboutVisible] = React.useState(false);
+  const [securityVisible, setSecurityVisible] = React.useState(false);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -204,7 +206,7 @@ export function ScreenProfile() {
             iconBg={theme.colors.categories.brown.bg}
             title="Seguridad"
             subtitle="Contraseña, autenticación"
-            onPress={() => Alert.alert("Seguridad", "Próximamente.")}
+            onPress={() => setSecurityVisible(true)}
           />
         </View>
 
@@ -328,6 +330,10 @@ export function ScreenProfile() {
       <ScreenEditProfile
         visible={editProfileVisible}
         onClose={() => setEditProfileVisible(false)}
+      />
+      <ScreenSecurity
+        visible={securityVisible}
+        onClose={() => setSecurityVisible(false)}
       />
 
       <ModalAchievements

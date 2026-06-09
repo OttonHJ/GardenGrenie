@@ -18,6 +18,37 @@ interface PrivacyModalProps {
   onClose: () => void;
 }
 
+const SECTIONS = [
+  {
+    title: "Responsable del tratamiento",
+    body: "El responsable del tratamiento de tus datos personales es el equipo de desarrollo de GardenGreenie. Para cualquier consulta relacionada con el tratamiento de tus datos puedes contactarnos a través de la sección Contáctanos de la aplicación.",
+  },
+  {
+    title: "Datos que recopilamos",
+    body: "Recopilamos únicamente los datos que proporcionas voluntariamente: nombre completo, correo electrónico, alias de usuario, fecha de nacimiento y biografía. Adicionalmente, almacenamos la información de tus plantas (nombre, categoría, frecuencia de riego, historial de riegos), tus fotografías de perfil, y las fotos que utilizas para identificar plantas mediante la función de IA.",
+  },
+  {
+    title: "Finalidad del tratamiento",
+    body: "Tus datos se utilizan exclusivamente para: (a) gestionar tu cuenta y autenticar tu identidad; (b) sincronizar tu jardín virtual entre sesiones; (c) enviarte recordatorios de riego según tus preferencias; (d) mostrarte tu progreso y logros dentro de la aplicación; (e) permitir la comunicación en el chat comunitario con tu alias. No utilizamos tus datos para publicidad ni los cedemos a terceros con fines comerciales.",
+  },
+  {
+    title: "Almacenamiento y seguridad",
+    body: "Tu información se almacena de forma segura en Firebase, una plataforma de Google Cloud con certificación ISO 27001. Las comunicaciones entre la app y los servidores se realizan mediante HTTPS con cifrado TLS. Las contraseñas se almacenan como hashes seguros y nunca en texto plano. Aplicamos controles de acceso para que solo tú puedas leer y modificar tus datos.",
+  },
+  {
+    title: "Cámara y acceso a fotos",
+    body: "GardenGreenie solicita acceso a tu cámara y galería de fotos para: (a) actualizar tu foto de perfil; (b) fotografiar plantas para su identificación mediante inteligencia artificial. Las fotografías que seleccionas o capturas se suben a Firebase Storage en una carpeta privada asociada a tu cuenta. No se analizan, venden ni comparten con terceros más allá del procesamiento necesario para la identificación de plantas.",
+  },
+  {
+    title: "Derechos del usuario",
+    body: "Tienes derecho a: (a) acceder a todos tus datos desde la aplicación en cualquier momento; (b) rectificar cualquier información incorrecta desde la sección Editar perfil; (c) eliminar plantas individuales desde tu jardín; (d) eliminar tu cuenta y todos los datos asociados desde la sección Seguridad > Eliminar cuenta. El ejercicio de estos derechos es inmediato y no requiere justificación.",
+  },
+  {
+    title: "Cambios a esta política y contacto",
+    body: "Podemos actualizar esta Política de Privacidad para reflejar cambios en nuestras prácticas o por requerimientos legales. Te notificaremos dentro de la aplicación con al menos 15 días de antelación antes de que los cambios entren en vigor. El uso continuado de GardenGreenie tras la notificación constituye la aceptación de la política actualizada. Para cualquier consulta escríbenos a través de la sección Contáctanos.",
+  },
+];
+
 export function ModalPrivacy({ visible, onClose }: PrivacyModalProps) {
   const { theme, styles } = useProfileTheme(stylesByMode);
 
@@ -28,81 +59,48 @@ export function ModalPrivacy({ visible, onClose }: PrivacyModalProps) {
       animationType="slide"
       onRequestClose={onClose}
     >
-      <TouchableOpacity
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}
-      />
-      <View
-        style={[styles.sheet, { backgroundColor: theme.colors.bgSecondary }]}
-      >
+      <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
+      <View style={[styles.sheet, { backgroundColor: theme.colors.bgSecondary }]}>
         <View style={styles.handle} />
-        <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
-          🛡️ Política de privacidad
-        </Text>
 
-        <ScrollView
-          style={styles.scrollArea}
-          showsVerticalScrollIndicator={false}
-        >
-          {[
-            {
-              heading: "¿Qué datos recopilamos?",
-              body: "Recopilamos los datos que ingresas voluntariamente: nombre, correo electrónico, alias, fecha de nacimiento, biografía, información de tus plantas (nombre, categoría, frecuencia de riego) y las fotografías que tomas o seleccionas para identificarlas.",
-            },
-            {
-              heading: "¿Dónde se almacenan tus datos?",
-              body: "Tu información se almacena de forma segura en la nube mediante Firebase, un servicio de Google. Esto nos permite sincronizar tus datos entre dispositivos y mantenerlos disponibles incluso si cambias de teléfono.",
-            },
-            {
-              heading: "¿Compartimos tus datos?",
-              body: "No vendemos ni alquilamos tu información personal. Tus datos son procesados por Firebase (Google) únicamente para brindar el servicio. Puedes consultar la política de privacidad de Google en google.com/policies/privacy.",
-            },
-            {
-              heading: "Fotografías y cámara",
-              body: "GardenGreenie solicita acceso a tu cámara y galería para que puedas fotografiar tus plantas. Las fotos que seleccionas se suben a Firebase Storage para mostrarlas en tu jardín. No se usan con ningún otro fin.",
-            },
-            {
-              heading: "Tus derechos",
-              body: "Puedes editar o eliminar cualquier planta o información desde la app en cualquier momento. Para eliminar tu cuenta y todos tus datos, contáctanos a través del formulario de contacto.",
-            },
-            {
-              heading: "Cambios en esta política",
-              body: "Si actualizamos esta política, te notificaremos dentro de la app antes de que los cambios entren en vigor.",
-            },
-          ].map(({ heading, body }) => (
-            <View key={heading} style={styles.section}>
-              <Text
-                style={[
-                  styles.sectionHeading,
-                  { color: theme.colors.textPrimary },
-                ]}
-              >
-                {heading}
-              </Text>
-              <Text
-                style={[
-                  styles.sectionBody,
-                  { color: theme.colors.textSecondary },
-                ]}
-              >
-                {body}
-              </Text>
+        {/* Header */}
+        <View style={[styles.headerBlock, { backgroundColor: theme.colors.categories.pink.bg, borderColor: theme.colors.categories.pink.border + "66" }]}>
+          <Text style={styles.headerIcon}>🛡️</Text>
+          <Text style={[styles.headerTitle, { color: theme.colors.textPrimary }]}>
+            Política de privacidad
+          </Text>
+          <Text style={[styles.headerDate, { color: theme.colors.textTertiary }]}>
+            Vigente desde junio 2026
+          </Text>
+        </View>
+
+        <ScrollView style={styles.scrollArea} showsVerticalScrollIndicator={false}>
+          {SECTIONS.map(({ title, body }, i) => (
+            <View key={title}>
+              <View style={styles.section}>
+                <Text style={[styles.articleLabel, { color: theme.colors.categories.pink.border }]}>
+                  §{i + 1}
+                </Text>
+                <Text style={[styles.sectionHeading, { color: theme.colors.textPrimary }]}>
+                  {title}
+                </Text>
+                <Text style={[styles.sectionBody, { color: theme.colors.textSecondary }]}>
+                  {body}
+                </Text>
+              </View>
+              {i < SECTIONS.length - 1 && (
+                <View style={[styles.divider, { backgroundColor: theme.colors.borderPrimary }]} />
+              )}
             </View>
           ))}
 
-          <Text
-            style={[styles.lastUpdated, { color: theme.colors.textTertiary }]}
-          >
-            Última actualización: marzo 2026
+          <Text style={[styles.lastUpdated, { color: theme.colors.textTertiary }]}>
+            Última actualización: junio 2026
           </Text>
         </ScrollView>
 
         <TouchableOpacity
-          style={[
-            styles.closeBtn,
-            { backgroundColor: theme.colors.accentGreen },
-          ]}
+          style={[styles.closeBtn, { backgroundColor: theme.colors.accentGreen }]}
           onPress={onClose}
           activeOpacity={0.8}
         >
@@ -124,7 +122,7 @@ const createStyles = (theme: AppTheme) =>
       borderTopRightRadius: theme.radius.lg,
       paddingHorizontal: theme.spacing.lg,
       paddingBottom: theme.spacing.xxl,
-      maxHeight: "85%",
+      maxHeight: "90%",
     },
     handle: {
       width: theme.spacing.xl * 2,
@@ -134,36 +132,57 @@ const createStyles = (theme: AppTheme) =>
       alignSelf: "center",
       marginVertical: theme.spacing.md,
     },
-    title: {
+    headerBlock: {
+      borderWidth: 1,
+      borderRadius: theme.radius.sm,
+      paddingVertical: theme.spacing.lg,
+      alignItems: "center",
+      marginBottom: theme.spacing.lg,
+      gap: theme.spacing.xs,
+    },
+    headerIcon: { fontSize: 28 },
+    headerTitle: {
       fontSize: theme.fontSize.lg,
       fontWeight: "700",
       textAlign: "center",
-      marginBottom: theme.spacing.lg,
+    },
+    headerDate: {
+      fontSize: 12,
+      textAlign: "center",
     },
     scrollArea: {
       marginBottom: theme.spacing.lg,
     },
     section: {
-      marginBottom: theme.spacing.lg,
+      paddingVertical: theme.spacing.md,
+      gap: theme.spacing.xs,
+    },
+    articleLabel: {
+      fontSize: 11,
+      fontWeight: "700",
+      letterSpacing: 0.5,
     },
     sectionHeading: {
       fontSize: theme.fontSize.sm,
       fontWeight: "700",
-      marginBottom: theme.spacing.xs,
     },
     sectionBody: {
       fontSize: theme.fontSize.sm,
-      lineHeight: 20,
+      lineHeight: 21,
+    },
+    divider: {
+      height: 1,
+      marginHorizontal: theme.spacing.xs,
     },
     lastUpdated: {
-      fontSize: theme.fontSize.sm,
+      fontSize: 12,
       textAlign: "center",
-      marginTop: theme.spacing.md,
-      marginBottom: theme.spacing.lg,
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.md,
     },
     closeBtn: {
       borderRadius: theme.radius.sm,
-      paddingVertical: theme.spacing.md,
+      paddingVertical: theme.spacing.md + 2,
       alignItems: "center",
     },
     closeBtnText: {

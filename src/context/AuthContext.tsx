@@ -231,6 +231,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       birthday?: string;
       bio?: string;
       photoURL?: string;
+      profilePublic?: boolean;
     }) => {
       // No puede ejecutarse sin usuario autenticado
       if (!user) throw new Error("No hay usuario autenticado");

@@ -12,6 +12,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface AboutModalProps {
   visible: boolean;
@@ -19,6 +20,7 @@ interface AboutModalProps {
 }
 
 export function ModalAbout({ visible, onClose }: AboutModalProps) {
+  const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
 
   return (
@@ -34,7 +36,7 @@ export function ModalAbout({ visible, onClose }: AboutModalProps) {
         onPress={onClose}
       />
       <View
-        style={[styles.sheet, { backgroundColor: theme.colors.bgSecondary }]}
+        style={[styles.sheet, { backgroundColor: theme.colors.bgSecondary, paddingBottom: insets.bottom + theme.spacing.xxl }]}
       >
         <View style={styles.handle} />
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>

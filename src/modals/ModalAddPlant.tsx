@@ -33,6 +33,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Tipos internos ────────────────────────────────────────────────────────────
 
@@ -83,6 +84,7 @@ export function ModalAddPlant({
   onPlantAdded,
   onPlantEdited,
 }: AddPlantModalProps) {
+  const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
   const { user } = useAuth();
   const { isConnected } = useNetworkStatus();
@@ -331,7 +333,7 @@ export function ModalAddPlant({
 
   // ── Pantalla de opciones ──
   const renderOptions = () => (
-    <View style={styles.sheet}>
+    <View style={[styles.sheet, { paddingBottom: insets.bottom + theme.spacing.xxl }]}>
       <View style={styles.handle} />
       <Text style={styles.sheetTitle}>Agregar planta</Text>
       <Text style={styles.sheetSubtitle}>¿Cómo quieres agregarla?</Text>
@@ -385,7 +387,11 @@ export function ModalAddPlant({
 
   // ── Formulario ──
   const renderForm = () => (
-    <ScrollView style={styles.sheet} contentContainerStyle={styles.formContent}>
+    <ScrollView
+      style={styles.sheet}
+      contentContainerStyle={[styles.formContent, { paddingBottom: insets.bottom + theme.spacing.xxl }]}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.handle} />
       <Text style={styles.sheetTitle}>
         {isEditMode ? "Editar planta" : "Nueva planta"}

@@ -20,6 +20,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
+      "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": false,
       "package": "com.gardengrenie.app",
       "permissions": [
@@ -33,6 +34,7 @@
       "bundler": "metro"
     },
     "plugins": [
+      "./plugins/withTabIcons",
       "@react-native-google-signin/google-signin",
       "expo-router",
       [

@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ContactModalProps {
   visible: boolean;
@@ -21,6 +22,7 @@ interface ContactModalProps {
 }
 
 export function ModalContact({ visible, onClose }: ContactModalProps) {
+  const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -74,7 +76,7 @@ export function ModalContact({ visible, onClose }: ContactModalProps) {
         onPress={handleClose}
       />
       <View
-        style={[styles.sheet, { backgroundColor: theme.colors.bgSecondary }]}
+        style={[styles.sheet, { backgroundColor: theme.colors.bgSecondary, paddingBottom: insets.bottom + theme.spacing.xxl }]}
       >
         <View style={styles.handle} />
         <Text style={[styles.title, { color: theme.colors.textPrimary }]}>
@@ -84,7 +86,7 @@ export function ModalContact({ visible, onClose }: ContactModalProps) {
           Envíanos tu consulta o sugerencia
         </Text>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
             Nombre <Text style={{ color: theme.colors.accentOrange }}>*</Text>
           </Text>

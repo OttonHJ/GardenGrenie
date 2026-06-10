@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface PrivacyModalProps {
   visible: boolean;
@@ -50,6 +51,7 @@ const SECTIONS = [
 ];
 
 export function ModalPrivacy({ visible, onClose }: PrivacyModalProps) {
+  const insets = useSafeAreaInsets();
   const { theme, styles } = useProfileTheme(stylesByMode);
 
   return (
@@ -60,7 +62,7 @@ export function ModalPrivacy({ visible, onClose }: PrivacyModalProps) {
       onRequestClose={onClose}
     >
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose} />
-      <View style={[styles.sheet, { backgroundColor: theme.colors.bgSecondary }]}>
+      <View style={[styles.sheet, { backgroundColor: theme.colors.bgSecondary, paddingBottom: insets.bottom + theme.spacing.xxl }]}>
         <View style={styles.handle} />
 
         {/* Header */}

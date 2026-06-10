@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ModalCameraProps {
   visible: boolean;
@@ -28,6 +29,7 @@ const STATUS_BAR_HEIGHT =
   Platform.OS === "android" ? (StatusBar.currentHeight ?? 24) : 44;
 
 export function ModalCamera({ visible, onCapture, onClose }: ModalCameraProps) {
+  const insets = useSafeAreaInsets();
   const {
     cameraRef,
     permissions,
@@ -95,7 +97,7 @@ export function ModalCamera({ visible, onCapture, onClose }: ModalCameraProps) {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.bottomBar}>
+        <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom + 16, 48) }]}>
           <TouchableOpacity style={styles.iconBtn} onPress={toggleFacing}>
             <Text style={styles.flipText}>⟳</Text>
           </TouchableOpacity>

@@ -7,6 +7,8 @@ import { Image } from "expo-image";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -79,7 +81,10 @@ export function ScreenChat() {
   }
 
   return (
-    <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom + 60 }]}>
+    <KeyboardAvoidingView
+      style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom + 60 }]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       {connectionState === "disconnected" && (
         <View
           style={[
@@ -208,7 +213,7 @@ export function ScreenChat() {
           </View>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

@@ -46,7 +46,7 @@ function firebaseLoginError(code: string): string {
     case "auth/user-disabled":
       return "Esta cuenta ha sido deshabilitada.";
     default:
-      return `Error: ${code ?? "desconocido"}`;
+      return "Ocurrió un error. Intenta de nuevo.";
   }
 }
 

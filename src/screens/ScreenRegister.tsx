@@ -41,7 +41,7 @@ function firebaseRegisterError(code: string): string {
     case "auth/weak-password":
       return "La contraseña es muy débil.";
     default:
-      return `Error: ${code ?? "desconocido"}`;
+      return "Ocurrió un error. Intenta de nuevo.";
   }
 }
 
